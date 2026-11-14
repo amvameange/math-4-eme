@@ -1,0 +1,219 @@
+import React from 'react';
+import { Chapter, DomainId } from '../types/math';
+import { DOMAINS } from '../data/curriculumData';
+import { Play, BookOpen, FileText } from 'lucide-react';
+
+interface ChapterListSelectorProps {
+  chapters: Chapter[];
+  selectedChapterId: string;
+  onSelectChapter: (id: string, targetTab?: 'cours' | 'memo' | 'exercices') => void;
+  selectedDomain: DomainId | 'all';
+  onSelectDomain: (domain: DomainId | 'all') => void;
+}
+
+const CHAPTER_ICONS: Record<string, { emoji: string; accent: string }> = {
+  'nombres-relatifs-operations': { emoji: '⚡', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
+  'puissances-notation-scientifique': { emoji: '🚀', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'fractions-operations': { emoji: '🍕', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'calcul-litteral-developpement': { emoji: '🌱', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'equations-premier-degre': { emoji: '⚖️', accent: 'bg-pink-500/15 border-pink-400/40 text-pink-300' },
+  'racine-carree': { emoji: '√', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  'factorisation-identites-remarquables': { emoji: '📦', accent: 'bg-amber-600/15 border-amber-400/40 text-amber-300' },
+  'inequations-premier-degre': { emoji: '↕️', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'nombres-premiers-divisibilite': { emoji: '🔢', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
+  'proportionnalite-pourcentages': { emoji: '🛍️', accent: 'bg-pink-500/15 border-pink-400/40 text-pink-300' },
+  'vitesse-duree-distance': { emoji: '🚄', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'statistiques-moyenne-mediane': { emoji: '📊', accent: 'bg-emerald-600/15 border-emerald-400/40 text-emerald-300' },
+  'probabilites': { emoji: '🎲', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  'fonctions-representation-graphique': { emoji: '📈', accent: 'bg-blue-500/15 border-blue-400/40 text-blue-300' },
+  'statistiques-quartiles-diagrammes': { emoji: '📦', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
+  'theoreme-pythagore': { emoji: '📐', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  'triangles-agrandissement-reduction': { emoji: '🌉', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'translations': { emoji: '➡️', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'symetries-transformations': { emoji: '🪞', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
+  'theoreme-thales': { emoji: '🔺', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'trigonometrie-triangle-rectangle': { emoji: '🧭', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'homothetie': { emoji: '📽️', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  'rotation': { emoji: '🎡', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'droites-remarquables-triangle': { emoji: '⌖', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'geometrie-espace-volumes': { emoji: '🔺', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'reperage-plan-coordonnees': { emoji: '📍', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'cercle-proprietes-avancees': { emoji: '⭕', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+};
+
+export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
+  chapters,
+  selectedChapterId,
+  onSelectChapter,
+  selectedDomain,
+  onSelectDomain,
+}) => {
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const filteredChapters = chapters.filter((c) => {
+    const matchesDomain = selectedDomain === 'all' || c.domainId === selectedDomain;
+    const matchesQuery =
+      !searchQuery.trim() ||
+      c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.shortDesc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.badge.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesDomain && matchesQuery;
+  });
+
+  return (
+    <div className="space-y-3">
+      {/* Search Bar */}
+      <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
+        <input
+          type="text"
+          placeholder="Rechercher parmi les 27 chapitres (ex: Thalès, fractions, racine carrée, rotation, probabilités...)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-sky-500 focus:outline-none flex-1 max-w-xl"
+        />
+        <div className="text-[11px] text-slate-400 font-semibold hidden sm:block">
+          Programme complet non mélangé : <span className="text-sky-300">Cours</span> · <span className="text-amber-300">Fiche Mémo</span> · <span className="text-emerald-300">Quiz</span>
+        </div>
+      </div>
+
+      {/* Domain Filter Bar */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <button
+          onClick={() => onSelectDomain('all')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+            selectedDomain === 'all'
+              ? 'bg-white text-slate-950 font-bold shadow'
+              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+          }`}
+        >
+          Tous les chapitres ({chapters.length})
+        </button>
+
+        {DOMAINS.map((dom) => (
+          <button
+            key={dom.id}
+            onClick={() => onSelectDomain(dom.id)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+              selectedDomain === dom.id
+                ? 'bg-sky-500 text-slate-950 font-bold shadow'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            {dom.shortTitle}
+          </button>
+        ))}
+      </div>
+
+      {/* Modèle "Lignes Mission" (tous les 27 chapitres séparés) */}
+      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+        {filteredChapters.length === 0 ? (
+          <div className="p-6 text-center text-xs text-slate-400 rounded-2xl bg-slate-900 border border-slate-800">
+            Aucun chapitre trouvé pour « {searchQuery} ». Efface la recherche pour afficher les {chapters.length} chapitres.
+          </div>
+        ) : (
+          filteredChapters.map((chap) => {
+            const isSelected = chap.id === selectedChapterId;
+            const domain = DOMAINS.find((d) => d.id === chap.domainId);
+            const iconMeta = CHAPTER_ICONS[chap.id] || {
+              emoji: '📘',
+              accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300',
+            };
+
+            return (
+              <div
+                key={chap.id}
+                onClick={() => onSelectChapter(chap.id, 'cours')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectChapter(chap.id, 'cours');
+                  }
+                }}
+                className={`rounded-2xl border p-3 sm:p-3.5 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 relative overflow-hidden group ${
+                  isSelected
+                    ? 'bg-slate-800/95 border-amber-400 ring-2 ring-amber-400/35 shadow-xl'
+                    : 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/75 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div
+                    className={`w-11 h-11 rounded-2xl border-2 flex items-center justify-center text-xl shrink-0 shadow-inner font-black ${iconMeta.accent}`}
+                  >
+                    {iconMeta.emoji}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                      <span className="text-[10px] font-black text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/70">
+                        {chap.badge}
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-400">
+                        {domain?.shortTitle}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-extrabold text-white truncate group-hover:text-amber-200 transition-colors">
+                      {chap.title}
+                    </h4>
+                    <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-1.5 mt-0.5">
+                      <span className="text-sky-300 font-semibold">Cours & Dessin</span>
+                      <span>·</span>
+                      <span className="text-amber-300 font-semibold">Fiche Mémo</span>
+                      <span>·</span>
+                      <span className="text-emerald-400 font-semibold">
+                        Quiz & {chap.exercises.length} Exercices
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectChapter(chap.id, 'cours');
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                      isSelected
+                        ? 'bg-amber-400 text-slate-950 shadow'
+                        : 'bg-slate-800 text-slate-200 hover:bg-slate-700'
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Cours</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectChapter(chap.id, 'memo');
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">Fiche</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectChapter(chap.id, 'exercices');
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>Jouer</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};

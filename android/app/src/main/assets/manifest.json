@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Maths 4ème Gabon - Cours & Exercices Corrigés",
+  "short_name": "Maths 4ème",
+  "description": "Cours de mathématiques niveau 4ème Gabon (CIAM) avec exercices d'application corrigés étape par étape en F CFA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#0284c7",
+  "background_color": "#0f172a",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

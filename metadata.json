@@ -1,0 +1,8 @@
+{
+  "name": "Remix appliacation de math",
+  "description": "appliacation de math 4 eme",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
