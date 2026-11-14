@@ -82,9 +82,17 @@ interface ColumnOp {
 
 const extractColumnOp = (expr: string, sub?: string): ColumnOp | null => {
   const target = (sub && sub.includes('=')) ? sub : expr;
-  
-  // Clean string
-  const clean = target.replace(/F CFA|cm²|cm|m²|m|km|°/g, '').trim();
+
+  // Skip chemical reaction lines (e.g. CH4 + 2 O2 -> CO2 + 2 H2O)
+  if (target.includes('➔') || target.includes('→')) return null;
+
+  // Clean string (Maths + Physique-Chimie units)
+  const clean = target
+    .replace(
+      /F CFA|kWh|Wh|cm³|cm²|m³|m²|g\/cm³|kg\/m³|N\/kg|km\/h|m\/s|g\/L|mA|kΩ|kV|hPa|Pa|cm|km|Ω|δ|°|[VAWNgLm]/g,
+      ''
+    )
+    .trim();
 
   // Pattern: "A + B = C" or "A - B = C" or "A × B = C" or "A * B = C" or "A ÷ B = C"
   const opMatch = clean.match(/([\d\s,\.]+)\s*([\+\-×\*÷])\s*([\d\s,\.]+)(?:\s*=\s*([\d\s,\.\+\-]+))?/);

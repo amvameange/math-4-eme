@@ -1,17 +1,21 @@
 import React from 'react';
-import { Chapter, DomainId } from '../types/math';
-import { DOMAINS } from '../data/curriculumData';
-import { Play, BookOpen, FileText } from 'lucide-react';
+import { Chapter, DomainId, DomainMeta, SubjectId } from '../types/math';
+import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
+import { Play, BookOpen, FileText, CheckCircle2 } from 'lucide-react';
 
 interface ChapterListSelectorProps {
+  subject: SubjectId;
+  domains: DomainMeta[];
   chapters: Chapter[];
   selectedChapterId: string;
   onSelectChapter: (id: string, targetTab?: 'cours' | 'memo' | 'exercices') => void;
   selectedDomain: DomainId | 'all';
   onSelectDomain: (domain: DomainId | 'all') => void;
+  checkedState: Record<string, ExerciseCheckRecord>;
 }
 
 const CHAPTER_ICONS: Record<string, { emoji: string; accent: string }> = {
+  // Maths
   'nombres-relatifs-operations': { emoji: '⚡', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
   'puissances-notation-scientifique': { emoji: '🚀', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
   'fractions-operations': { emoji: '🍕', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
@@ -24,29 +28,54 @@ const CHAPTER_ICONS: Record<string, { emoji: string; accent: string }> = {
   'proportionnalite-pourcentages': { emoji: '🛍️', accent: 'bg-pink-500/15 border-pink-400/40 text-pink-300' },
   'vitesse-duree-distance': { emoji: '🚄', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
   'statistiques-moyenne-mediane': { emoji: '📊', accent: 'bg-emerald-600/15 border-emerald-400/40 text-emerald-300' },
-  'probabilites': { emoji: '🎲', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  probabilites: { emoji: '🎲', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
   'fonctions-representation-graphique': { emoji: '📈', accent: 'bg-blue-500/15 border-blue-400/40 text-blue-300' },
   'statistiques-quartiles-diagrammes': { emoji: '📦', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
   'theoreme-pythagore': { emoji: '📐', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
   'triangles-agrandissement-reduction': { emoji: '🌉', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
-  'translations': { emoji: '➡️', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  translations: { emoji: '➡️', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
   'symetries-transformations': { emoji: '🪞', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
   'theoreme-thales': { emoji: '🔺', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
   'trigonometrie-triangle-rectangle': { emoji: '🧭', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
-  'homothetie': { emoji: '📽️', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
-  'rotation': { emoji: '🎡', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  homothetie: { emoji: '📽️', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  rotation: { emoji: '🎡', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
   'droites-remarquables-triangle': { emoji: '⌖', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
   'geometrie-espace-volumes': { emoji: '🔺', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
   'reperage-plan-coordonnees': { emoji: '📍', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
   'cercle-proprietes-avancees': { emoji: '⭕', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+
+  // Physique-Chimie (20 exact IDs)
+  'phys-circuit-simple': { emoji: '💡', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'phys-circuits-serie-derivation': { emoji: '🔀', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'phys-intensite': { emoji: '⚡', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'phys-tension': { emoji: '🔋', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  'phys-loi-ohm': { emoji: '🎛️', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'phys-puissance-seeg': { emoji: '🏠', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'phys-propagation-lumiere': { emoji: '🔦', accent: 'bg-amber-400/15 border-amber-300/40 text-amber-300' },
+  'phys-ombres-eclipses': { emoji: '🌒', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
+  'phys-reflexion-refraction': { emoji: '🪞', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'phys-lentilles': { emoji: '🔍', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'phys-dispersion-couleurs': { emoji: '🌈', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  'phys-masse-volumique': { emoji: '🪵', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'phys-forces-dynamometre': { emoji: '🏹', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'phys-poids-masse': { emoji: '🌍', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'phys-pression-archimede': { emoji: '🚢', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'phys-air-gaz': { emoji: '🌬️', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'phys-atomes-molecules': { emoji: '⚛️', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  'phys-combustions': { emoji: '🔥', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'phys-equations-bilan': { emoji: '⚖️', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'phys-solutions-ph': { emoji: '🧪', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
 };
 
 export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
+  subject,
+  domains,
   chapters,
   selectedChapterId,
   onSelectChapter,
   selectedDomain,
   onSelectDomain,
+  checkedState,
 }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -66,13 +95,19 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
       <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
         <input
           type="text"
-          placeholder="Rechercher parmi les 27 chapitres (ex: Thalès, fractions, racine carrée, rotation, probabilités...)"
+          placeholder={
+            subject === 'physique'
+              ? `Rechercher parmi les ${chapters.length} chapitres (ex: Ohm, SEEG, lentilles, poids, atomes, pH...)`
+              : `Rechercher parmi les ${chapters.length} chapitres (ex: Thalès, fractions, racine carrée, rotation...)`
+          }
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-sky-500 focus:outline-none flex-1 max-w-xl"
         />
         <div className="text-[11px] text-slate-400 font-semibold hidden sm:block">
-          Programme complet non mélangé : <span className="text-sky-300">Cours</span> · <span className="text-amber-300">Fiche Mémo</span> · <span className="text-emerald-300">Quiz</span>
+          Chapitres séparés : <span className="text-sky-300">Cours & Dessin</span> ·{' '}
+          <span className="text-amber-300">Fiche Mémo</span> ·{' '}
+          <span className="text-emerald-300">Exercices</span>
         </div>
       </div>
 
@@ -80,20 +115,20 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => onSelectDomain('all')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 ${
             selectedDomain === 'all'
               ? 'bg-white text-slate-950 font-bold shadow'
               : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
-          Tous les chapitres ({chapters.length})
+          Tous ({chapters.length})
         </button>
 
-        {DOMAINS.map((dom) => (
+        {domains.map((dom) => (
           <button
             key={dom.id}
             onClick={() => onSelectDomain(dom.id)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 ${
               selectedDomain === dom.id
                 ? 'bg-sky-500 text-slate-950 font-bold shadow'
                 : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
@@ -104,8 +139,8 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
         ))}
       </div>
 
-      {/* Modèle "Lignes Mission" (tous les 27 chapitres séparés) */}
-      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+      {/* Liste des chapitres séparés */}
+      <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
         {filteredChapters.length === 0 ? (
           <div className="p-6 text-center text-xs text-slate-400 rounded-2xl bg-slate-900 border border-slate-800">
             Aucun chapitre trouvé pour « {searchQuery} ». Efface la recherche pour afficher les {chapters.length} chapitres.
@@ -113,11 +148,14 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
         ) : (
           filteredChapters.map((chap) => {
             const isSelected = chap.id === selectedChapterId;
-            const domain = DOMAINS.find((d) => d.id === chap.domainId);
+            const domain = domains.find((d) => d.id === chap.domainId);
             const iconMeta = CHAPTER_ICONS[chap.id] || {
               emoji: '📘',
               accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300',
             };
+
+            const solvedInChap = chap.exercises.filter((e) => checkedState[e.id]?.correct).length;
+            const allSolved = chap.exercises.length > 0 && solvedInChap === chap.exercises.length;
 
             return (
               <div
@@ -131,39 +169,35 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
                     onSelectChapter(chap.id, 'cours');
                   }
                 }}
-                className={`rounded-2xl border p-3 sm:p-3.5 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 relative overflow-hidden group ${
+                className={`rounded-2xl border p-3 sm:p-3.5 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group ${
                   isSelected
-                    ? 'bg-slate-800/95 border-amber-400 ring-2 ring-amber-400/35 shadow-xl'
+                    ? 'bg-slate-800/95 border-amber-400 ring-1 ring-amber-400/40 shadow-lg'
                     : 'bg-slate-900/90 border-slate-800 hover:bg-slate-800/75 hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
-                    className={`w-11 h-11 rounded-2xl border-2 flex items-center justify-center text-xl shrink-0 shadow-inner font-black ${iconMeta.accent}`}
+                    className={`w-11 h-11 rounded-2xl border flex items-center justify-center text-xl shrink-0 font-black ${iconMeta.accent}`}
                   >
                     {iconMeta.emoji}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                      <span className="text-[10px] font-black text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/70">
-                        {chap.badge}
-                      </span>
-                      <span className="text-[10px] font-semibold text-slate-400">
-                        {domain?.shortTitle}
-                      </span>
+                    <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
+                      <span className="text-amber-300">{chap.badge}</span>
+                      <span>·</span>
+                      <span className="truncate">{domain?.shortTitle}</span>
                     </div>
                     <h4 className="text-sm font-extrabold text-white truncate group-hover:text-amber-200 transition-colors">
                       {chap.title}
                     </h4>
-                    <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-1.5 mt-0.5">
-                      <span className="text-sky-300 font-semibold">Cours & Dessin</span>
-                      <span>·</span>
-                      <span className="text-amber-300 font-semibold">Fiche Mémo</span>
-                      <span>·</span>
-                      <span className="text-emerald-400 font-semibold">
-                        Quiz & {chap.exercises.length} Exercices
+                    <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-2 mt-0.5 tabular-nums">
+                      <span className={allSolved ? 'text-emerald-400 font-bold flex items-center gap-1' : 'text-emerald-400/90 font-semibold'}>
+                        {allSolved && <CheckCircle2 className="w-3 h-3" />}
+                        {solvedInChap}/{chap.exercises.length} exercices réussis
                       </span>
+                      <span>·</span>
+                      <span>~{chap.readingTimeMinutes} min</span>
                     </div>
                   </div>
                 </div>
@@ -175,7 +209,7 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
                       e.stopPropagation();
                       onSelectChapter(chap.id, 'cours');
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
                       isSelected
                         ? 'bg-amber-400 text-slate-950 shadow'
                         : 'bg-slate-800 text-slate-200 hover:bg-slate-700'
@@ -191,7 +225,7 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
                       e.stopPropagation();
                       onSelectChapter(chap.id, 'memo');
                     }}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap"
                   >
                     <FileText className="w-3.5 h-3.5" />
                     <span className="hidden md:inline">Fiche</span>
@@ -203,7 +237,7 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
                       e.stopPropagation();
                       onSelectChapter(chap.id, 'exercices');
                     }}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95"
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 whitespace-nowrap"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
                     <span>Jouer</span>

@@ -1,57 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Printer, ArrowDown, FileText } from 'lucide-react';
 import { CHAPTERS } from '../data/curriculumData';
+import { PHYSICS_CHAPTERS } from '../data/physicsCurriculum';
+import { SubjectId } from '../types/math';
 import { StandingMathRenderer } from './StandingMathRenderer';
 
 interface MemoSheetModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialSubject?: SubjectId;
 }
 
-export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({ isOpen, onClose }) => {
+export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
+  isOpen,
+  onClose,
+  initialSubject = 'physique',
+}) => {
+  const [modalSubject, setModalSubject] = useState<SubjectId>(initialSubject);
   const [selectedChapId, setSelectedChapId] = useState<string>('all');
+
+  useEffect(() => {
+    setModalSubject(initialSubject);
+    setSelectedChapId('all');
+  }, [initialSubject, isOpen]);
 
   if (!isOpen) return null;
 
-  const activeChapters = selectedChapId === 'all'
-    ? CHAPTERS
-    : CHAPTERS.filter((c) => c.id === selectedChapId);
+  const subjectChapters = modalSubject === 'physique' ? PHYSICS_CHAPTERS : CHAPTERS;
+  const activeChapters =
+    selectedChapId === 'all'
+      ? subjectChapters
+      : subjectChapters.filter((c) => c.id === selectedChapId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
       <div className="w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden">
         {/* Modal Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+        <div className="px-5 py-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-950/80">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-amber-400 text-slate-950 font-black shadow-md">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                <span>Fiches Mémos & Formules Verticales (4ème Gabon CIAM)</span>
-                <span className="text-xs bg-amber-950 text-amber-300 px-2 py-0.5 rounded-full border border-amber-800 font-bold hidden sm:inline">
-                  🇬🇦 {CHAPTERS.length} Chapitres
-                </span>
+              <h3 className="text-sm sm:text-base font-black text-white">
+                Fiches Mémos & Formules Verticales (4ème Gabon)
               </h3>
               <div className="text-[11px] text-slate-400">
-                Formules rédigées ligne par ligne en colonne pour réussir chaque devoir surveillé
+                {modalSubject === 'physique'
+                  ? `Physique-Chimie · ${PHYSICS_CHAPTERS.length} Chapitres`
+                  : `Mathématiques CIAM · ${CHAPTERS.length} Chapitres`}
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-900 border border-slate-800">
+              <button
+                onClick={() => {
+                  setModalSubject('physique');
+                  setSelectedChapId('all');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer transition whitespace-nowrap ${
+                  modalSubject === 'physique' ? 'bg-sky-500 text-slate-950' : 'text-slate-300'
+                }`}
+              >
+                Physique (20)
+              </button>
+              <button
+                onClick={() => {
+                  setModalSubject('maths');
+                  setSelectedChapId('all');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer transition whitespace-nowrap ${
+                  modalSubject === 'maths' ? 'bg-amber-400 text-slate-950' : 'text-slate-300'
+                }`}
+              >
+                Maths (27)
+              </button>
+            </div>
+
             <button
               onClick={() => {
                 try {
                   if (typeof window !== 'undefined' && typeof window.print === 'function') {
                     window.print();
                   }
-                } catch (e) {
-                  console.warn('Impression non supportée sur cet appareil', e);
-                }
+                } catch {}
               }}
               className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 shadow"
-              title="Imprimer toutes les fiches"
             >
               <Printer className="w-4 h-4 text-amber-400" />
               <span className="hidden sm:inline">Imprimer</span>
@@ -65,24 +101,24 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({ isOpen, onClose 
           </div>
         </div>
 
-        {/* Chapter Selection Pills (all 27 chapters scrollable) */}
+        {/* Chapter Selection Bar */}
         <div className="px-5 py-2.5 border-b border-slate-800/80 bg-slate-950/50 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setSelectedChapId('all')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer shrink-0 ${
               selectedChapId === 'all'
                 ? 'bg-amber-400 text-slate-950 shadow-md'
                 : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
-            Tous les chapitres ({CHAPTERS.length})
+            Tous ({subjectChapters.length})
           </button>
-          {CHAPTERS.map((ch) => (
+          {subjectChapters.map((ch) => (
             <button
               key={ch.id}
               onClick={() => setSelectedChapId(ch.id)}
               title={ch.title}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer shrink-0 ${
                 selectedChapId === ch.id
                   ? 'bg-sky-400 text-slate-950 shadow-md'
                   : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
@@ -93,36 +129,24 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({ isOpen, onClose 
           ))}
         </div>
 
-        {/* Scrollable Content with Vertical Formulas */}
+        {/* Scrollable Content */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs">
           {activeChapters.map((ch) => {
             const memo = ch.memoSheet;
             return (
               <div
                 key={ch.id}
-                className="rounded-3xl bg-slate-950/90 border-2 border-slate-800 p-5 space-y-4 shadow-xl"
+                className="rounded-3xl bg-slate-950/90 border border-slate-800 p-5 space-y-4 shadow-xl"
               >
-                {/* Chapter Banner */}
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800/80">
-                        {ch.badge}
-                      </span>
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        Collection CIAM
-                      </span>
+                    <div className="text-[11px] font-extrabold text-amber-300">
+                      {ch.badge} · {modalSubject === 'physique' ? 'Physique-Chimie 4ème' : 'Collection CIAM 4ème'}
                     </div>
-                    <h4 className="text-base font-black text-white mt-1">
-                      {ch.title}
-                    </h4>
-                  </div>
-                  <div className="text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-800/80">
-                    ⭐ Fiche Mémo Contrôle
+                    <h4 className="text-base font-black text-white mt-0.5">{ch.title}</h4>
                   </div>
                 </div>
 
-                {/* Vertical Formulas Grid */}
                 {memo?.verticalFormulas && memo.verticalFormulas.length > 0 && (
                   <div className="space-y-3">
                     <div className="text-[11px] font-black text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -137,11 +161,9 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({ isOpen, onClose 
                           className="rounded-2xl bg-slate-900 border border-slate-800 p-3.5 space-y-2.5 flex flex-col justify-between"
                         >
                           <div>
-                            <div className="flex items-center justify-between text-xs font-bold text-white mb-1.5">
-                              <span className="flex items-center gap-1.5 truncate">
-                                <span>{vf.badge || '📐'}</span>
-                                <span className="truncate">{vf.name}</span>
-                              </span>
+                            <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-1.5 truncate">
+                              <span>{vf.badge || '📐'}</span>
+                              <span className="truncate">{vf.name}</span>
                             </div>
 
                             <StandingMathRenderer
@@ -180,10 +202,8 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({ isOpen, onClose 
 
         {/* Modal Footer */}
         <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-          <div className="text-[11px] text-slate-400 flex items-center gap-2">
-            <span>🇬🇦 Conforme au programme officiel CIAM 4ème</span>
-            <span>•</span>
-            <span className="text-emerald-400 font-bold">Monnaie : Franc CFA</span>
+          <div className="text-[11px] text-slate-400">
+            🇬🇦 Conforme au programme officiel 4ème Gabon · Monnaie : Franc CFA
           </div>
           <button
             onClick={onClose}

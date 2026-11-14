@@ -1,12 +1,12 @@
 {
-  "name": "react-example",
+  "name": "physique-maths-4eme-gabon",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
-    "build:android": "vite build && mkdir -p android/app/src/main/assets && cp -r dist/* android/app/src/main/assets/",
+    "build:android": "vite build && rm -rf android/app/src/main/assets && mkdir -p android/app/src/main/assets && cp -r dist/* android/app/src/main/assets/",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

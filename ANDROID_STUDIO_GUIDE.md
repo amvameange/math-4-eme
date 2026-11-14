@@ -1,14 +1,14 @@
 # Guide d'installation et de build sur Android Studio 📱🇬🇦
 
-Cette application de **Mathématiques 4ème Gabon (CIAM — 27 chapitres complets)** est configurée pour être ouverte, exécutée et compilée directement dans **Android Studio** (APK Debug / Release ou App Bundle).
+Cette application de **Physique-Chimie (20 chapitres) & Mathématiques CIAM (27 chapitres) — 4ème Gabon** est configurée pour être ouverte, exécutée et compilée directement dans **Android Studio** (APK Debug / Release ou App Bundle).
 
 ---
 
 ## 🛠️ Ouvrir et compiler le dossier `android/` dans Android Studio
 
-1. Synchronise d'abord le build web dans les assets Android :
+1. Synchronise d'abord le build web dans les assets Android (nettoie automatiquement les anciens fichiers `assets/`) :
    ```bash
-   rm -rf android/app/src/main/assets && npm run build:android
+   npm run build:android
    ```
    Cela compile l'application Vite dans `dist/` et copie l'intégralité du bundle dans `android/app/src/main/assets/`.
 2. Ouvre **Android Studio** → **File > Open** → sélectionne le dossier `android/` de ce projet.

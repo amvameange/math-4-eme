@@ -3,10 +3,12 @@ import { DOMAIN1_CHAPTERS } from './chapters/domain1_nombres';
 import { DOMAIN2_CHAPTERS } from './chapters/domain2_donnees_fonctions';
 import { DOMAIN3_CHAPTERS } from './chapters/domain3_geometrie';
 import { DOMAIN4_CHAPTERS } from './chapters/domain4_espace_reperage';
+import { MATH_ENHANCEMENTS } from './mathEnhancements';
 
 export const DOMAINS: DomainMeta[] = [
   {
     id: 'nombres-calculs',
+    subject: 'maths',
     title: 'Nombres, Calcul Littéral, Équations & Arithmétique (Ch. 1 à 9)',
     shortTitle: 'Nombres & Algèbre (9)',
     description:
@@ -17,6 +19,7 @@ export const DOMAINS: DomainMeta[] = [
   },
   {
     id: 'donnees-fonctions',
+    subject: 'maths',
     title: 'Proportionnalité, Fonctions, Stats & Probabilités (Ch. 10 à 15)',
     shortTitle: 'Données & Fonctions (6)',
     description:
@@ -27,6 +30,7 @@ export const DOMAINS: DomainMeta[] = [
   },
   {
     id: 'geometrie',
+    subject: 'maths',
     title: 'Géométrie du Triangle & Transformations (Ch. 16 à 24)',
     shortTitle: 'Géométrie & Transf. (9)',
     description:
@@ -37,6 +41,7 @@ export const DOMAINS: DomainMeta[] = [
   },
   {
     id: 'mesures',
+    subject: 'maths',
     title: 'Espace, Repérage & Propriétés du Cercle (Ch. 25 à 27)',
     shortTitle: 'Espace, Repère & Cercle (3)',
     description:
@@ -47,12 +52,21 @@ export const DOMAINS: DomainMeta[] = [
   },
 ];
 
-export const CHAPTERS: Chapter[] = [
+const RAW_MATH_CHAPTERS: Chapter[] = [
   ...DOMAIN1_CHAPTERS,
   ...DOMAIN2_CHAPTERS,
   ...DOMAIN3_CHAPTERS,
   ...DOMAIN4_CHAPTERS,
 ];
+
+export const CHAPTERS: Chapter[] = RAW_MATH_CHAPTERS.map((chap) => {
+  const enhancement = MATH_ENHANCEMENTS[chap.id];
+  return {
+    ...chap,
+    subject: 'maths',
+    ...(enhancement ? enhancement : {}),
+  };
+});
 
 export const TOTAL_EXERCISES_COUNT = CHAPTERS.reduce(
   (sum, ch) => sum + (ch.exercises ? ch.exercises.length : 0),

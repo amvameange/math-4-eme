@@ -1,373 +1,430 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Sparkles,
   RefreshCw,
   CheckCircle2,
   HelpCircle,
   BookOpen,
+  TrendingUp,
+  Award,
+  Layers,
+  Shuffle,
+  ArrowRight,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { StepByStepCorrection } from './StepByStepCorrection';
-import { CorrectionStep } from '../types/math';
+import { DomainId, ExerciseDifficulty, SubjectId } from '../types/math';
+import { CHAPTERS, DOMAINS } from '../data/curriculumData';
+import { PHYSICS_CHAPTERS, PHYSICS_DOMAINS } from '../data/physicsCurriculum';
+import { DIFFICULTY_META, GeneratedExercise, pickRandom } from '../data/generators/types';
+import { generatePhysicsExercise } from '../data/generators/physicsInfiniteGenerators';
+import { generateMathExercise } from '../data/generators/mathInfiniteGenerators';
 import {
   KokoSuccessCelebration,
   KokoEncouragingFeedback,
 } from './illustrations/FunFeedbackIllustrations';
+import { ExerciseVisualFigure } from './illustrations/PedagogicalFigures';
 
-type ExerciseTheme =
-  | 'puissances-relatifs'
-  | 'calcul-litteral'
-  | 'equations'
-  | 'pythagore'
-  | 'vitesse-volumes';
-
-interface GeneratedExercise {
-  theme: ExerciseTheme;
-  title: string;
-  prompt: string;
-  hint: string;
-  correctAnswer: string;
-  unit?: string;
-  steps: CorrectionStep[];
-  explanationFinal: string;
+interface InfiniteExerciseGeneratorProps {
+  subject: SubjectId;
+  onSolvedExercise?: (isCorrect: boolean, xpEarned?: number) => void;
 }
 
-export const InfiniteExerciseGenerator: React.FC = () => {
-  const [selectedTheme, setSelectedTheme] = useState<ExerciseTheme>('puissances-relatifs');
+const LEVELS: ExerciseDifficulty[] = [1, 2, 3, 4];
+
+function normalizeAnswer(raw: string): string {
+  return raw
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/,/g, '.')
+    .replace(/^\+/, '')
+    .toLowerCase();
+}
+
+function answersMatch(userRaw: string, correctRaw: string, questionType: GeneratedExercise['questionType']): boolean {
+  const u = normalizeAnswer(userRaw);
+  const c = normalizeAnswer(correctRaw);
+  if (!u) return false;
+  if (u === c) return true;
+  if (questionType === 'numeric') {
+    const uNum = Number(u);
+    const cNum = Number(c);
+    if (!Number.isNaN(uNum) && !Number.isNaN(cNum)) {
+      return Math.abs(uNum - cNum) <= 0.02;
+    }
+  }
+  return false;
+}
+
+export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps> = ({
+  subject,
+  onSolvedExercise,
+}) => {
+  const chapters = subject === 'physique' ? PHYSICS_CHAPTERS : CHAPTERS;
+  const domains = subject === 'physique' ? PHYSICS_DOMAINS : DOMAINS;
+
+  const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
+  const [selectedChapterId, setSelectedChapterId] = useState<string>('all');
+  const [difficulty, setDifficulty] = useState<ExerciseDifficulty>(1);
+  const [autoEvolve, setAutoEvolve] = useState<boolean>(true);
+  const [streakAtLevel, setStreakAtLevel] = useState<number>(0);
+  const [totalSolved, setTotalSolved] = useState<number>(0);
+  const [maxLevelReached, setMaxLevelReached] = useState<ExerciseDifficulty>(1);
+  const [promotionBanner, setPromotionBanner] = useState<ExerciseDifficulty | null>(null);
+
   const [exercise, setExercise] = useState<GeneratedExercise | null>(null);
+  const [exerciseKey, setExerciseKey] = useState<number>(1);
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showHint, setShowHint] = useState<boolean>(false);
   const [showCorrection, setShowCorrection] = useState<boolean>(false);
 
-  const generateNewExercise = (theme: ExerciseTheme): GeneratedExercise => {
-    setIsAnswered(false);
-    setUserAnswer('');
-    setShowHint(false);
-    setShowCorrection(false);
+  const filteredChapters =
+    selectedDomain === 'all'
+      ? chapters
+      : chapters.filter((c) => c.domainId === selectedDomain);
 
-    if (theme === 'puissances-relatifs') {
-      const a = -(Math.floor(Math.random() * 6) + 2); // -2..-7
-      const b = -(Math.floor(Math.random() * 5) + 2); // -2..-6
-      const c = Math.floor(Math.random() * 4) + 2; // 2..5
-      const prodAB = a * b; // positive
-      const res = prodAB * c;
+  const buildExercise = useCallback(
+    (chapId: string, diff: ExerciseDifficulty, domId: DomainId | 'all'): GeneratedExercise => {
+      const pool =
+        domId === 'all' ? chapters : chapters.filter((c) => c.domainId === domId);
+      const targetChapterId =
+        chapId === 'all'
+          ? (pickRandom(pool.length > 0 ? pool : chapters)).id
+          : chapId;
 
-      return {
-        theme: 'puissances-relatifs',
-        title: 'Produit de nombres relatifs (Règle des signes)',
-        prompt: `Calculer le produit suivant en détaillant debout :\nP = (${a}) × (${b}) × (+${c})`,
-        hint: `Il y a 2 facteurs négatifs (nombre pair !), donc le résultat final sera POSITIF (+). Calcule d'abord (${a}) × (${b}) = +${prodAB}.`,
-        correctAnswer: res.toString(),
-        explanationFinal: `Le résultat est P = ${res}.`,
-        steps: [
-          {
-            stepNumber: 1,
-            title: 'Multiplier les deux premiers relatifs',
-            explanation: `(-) × (-) donne (+), donc (${a}) × (${b}) = +${prodAB}.`,
-            mathExpression: `P = (+${prodAB}) × (+${c})`,
-            ruleApplied: 'Deux nombres de même signe ont un produit positif.',
-            subResult: `(${a}) × (${b}) = +${prodAB}`,
-          },
-          {
-            stepNumber: 2,
-            title: 'Finaliser la multiplication',
-            explanation: `${prodAB} × ${c} = ${res}.`,
-            mathExpression: `P = ${res}`,
-            subResult: `${prodAB} × ${c} = ${res}`,
-          },
-        ],
-      };
-    } else if (theme === 'calcul-litteral') {
-      // Develop k(ax + b) and evaluate or ask for developed expression
-      const k = Math.floor(Math.random() * 5) + 2; // 2..6
-      const a = Math.floor(Math.random() * 4) + 2; // 2..5
-      const b = Math.floor(Math.random() * 7) + 1; // 1..7
-      const ka = k * a;
-      const kb = k * b;
+      return subject === 'physique'
+        ? generatePhysicsExercise(targetChapterId, diff)
+        : generateMathExercise(targetChapterId, diff);
+    },
+    [chapters, subject]
+  );
 
-      return {
-        theme: 'calcul-litteral',
-        title: 'Simple distributivité : Développer k(ax + b)',
-        prompt: `Développer et réduire l'expression suivante (écrire sous la forme Ax+B sans espaces) :\nE = ${k}(${a}x + ${b})`,
-        hint: `Distribue ${k} à chaque terme : ${k} × ${a}x + ${k} × ${b}.`,
-        correctAnswer: `${ka}x+${kb}`,
-        explanationFinal: `L'expression développée est E = ${ka}x + ${kb}.`,
-        steps: [
-          {
-            stepNumber: 1,
-            title: 'Appliquer la distributivité',
-            explanation: `On multiplie ${k} par ${a}x et ${k} par ${b}.`,
-            mathExpression: `E = ${k} × ${a}x + ${k} × ${b}`,
-            ruleApplied: 'k(a + b) = ka + kb',
-          },
-          {
-            stepNumber: 2,
-            title: 'Réduire chaque produit',
-            explanation: `${k} × ${a}x = ${ka}x et ${k} × ${b} = ${kb}.`,
-            mathExpression: `E = ${ka}x + ${kb}`,
-            subResult: `E = ${ka}x + ${kb}`,
-          },
-        ],
-      };
-    } else if (theme === 'equations') {
-      // ax + b = c in F CFA or integer
-      const xSol = (Math.floor(Math.random() * 8) + 2) * 500; // 1000..4500 F CFA
-      const a = Math.floor(Math.random() * 4) + 2; // 2..5
-      const b = (Math.floor(Math.random() * 6) + 1) * 500; // 500..3000 F CFA
-      const c = a * xSol + b;
-
-      return {
-        theme: 'equations',
-        title: 'Résoudre une équation du 1er degré (en F CFA)',
-        prompt: `Résoudre l'équation suivante (prix x en F CFA) :\n${a}x + ${b} = ${c}`,
-        hint: `Commence par soustraire ${b} des deux côtés (${c} - ${b} = ${c - b}), puis divise par ${a} !`,
-        correctAnswer: xSol.toString(),
-        unit: 'F CFA',
-        explanationFinal: `La solution est x = ${xSol} F CFA.`,
-        steps: [
-          {
-            stepNumber: 1,
-            title: `Soustraire ${b} des deux membres`,
-            explanation: `Pour isoler ${a}x, on passe +${b} de l'autre côté en -${b}.`,
-            mathExpression: `${a}x = ${c} - ${b} | ${a}x = ${c - b}`,
-            ruleApplied: 'Si ax + b = c, alors ax = c - b',
-            subResult: `${c} - ${b} = ${c - b}`,
-          },
-          {
-            stepNumber: 2,
-            title: `Diviser par ${a}`,
-            explanation: `x = ${c - b} ÷ ${a} = ${xSol} F CFA.`,
-            mathExpression: `x = ${c - b} ÷ ${a} | x = ${xSol} F CFA`,
-            subResult: `x = ${xSol}`,
-          },
-        ],
-      };
-    } else if (theme === 'pythagore') {
-      // Clean Pythagorean triples: (3,4,5)*k, (5,12,13)*k, (8,15,17)
-      const triples = [
-        [3, 4, 5],
-        [6, 8, 10],
-        [9, 12, 15],
-        [5, 12, 13],
-        [12, 16, 20],
-        [8, 15, 17],
-      ];
-      const [ab, ac, bc] = triples[Math.floor(Math.random() * triples.length)];
-
-      return {
-        theme: 'pythagore',
-        title: 'Théorème de Pythagore (Calculer l’hypoténuse)',
-        prompt: `Dans un triangle ABC rectangle en A, on donne AB = ${ab} cm et AC = ${ac} cm. Calculer la longueur de l'hypoténuse BC (en cm).`,
-        hint: `Pose BC² = ${ab}² + ${ac}² = ${ab * ab} + ${ac * ac} = ${bc * bc}, puis prends la racine carrée √${bc * bc} !`,
-        correctAnswer: bc.toString(),
-        unit: 'cm',
-        explanationFinal: `L'hypoténuse mesure BC = ${bc} cm.`,
-        steps: [
-          {
-            stepNumber: 1,
-            title: 'Écrire l’égalité de Pythagore',
-            explanation: 'Le triangle ABC est rectangle en A, donc l’hypoténuse est [BC].',
-            mathExpression: `BC² = AB² + AC² | BC² = ${ab}² + ${ac}²`,
-            ruleApplied: 'Théorème de Pythagore : Hypoténuse² = Côté1² + Côté2²',
-          },
-          {
-            stepNumber: 2,
-            title: 'Calculer la somme des carrés',
-            explanation: `${ab}² = ${ab * ab} et ${ac}² = ${ac * ac}.`,
-            mathExpression: `BC² = ${ab * ab} + ${ac * ac} | BC² = ${bc * bc}`,
-            subResult: `${ab * ab} + ${ac * ac} = ${bc * bc}`,
-          },
-          {
-            stepNumber: 3,
-            title: 'Prendre la racine carrée',
-            explanation: `BC = √${bc * bc} = ${bc} cm.`,
-            mathExpression: `BC = √${bc * bc} | BC = ${bc} cm`,
-            subResult: `BC = ${bc} cm`,
-          },
-        ],
-      };
-    } else {
-      // Vitesse & Pyramides (alternating or speed d = v * t)
-      const isVolume = Math.random() > 0.5;
-      if (isVolume) {
-        const side = (Math.floor(Math.random() * 4) + 2) * 3; // 6, 9, 12, 15 (multiple of 3!)
-        const h = Math.floor(Math.random() * 7) + 4; // 4..10
-        const baseArea = side * side;
-        const vol = (baseArea * h) / 3;
-
-        return {
-          theme: 'vitesse-volumes',
-          title: 'Volume d’une pyramide à base carrée',
-          prompt: `Une pyramide a une base carrée de côté c = ${side} cm et une hauteur h = ${h} cm. Calculer son volume (en cm³).`,
-          hint: `1) Aire de la base B = ${side} × ${side} = ${baseArea} cm². 2) Pour un solide pointu, V = (B × h) ÷ 3 !`,
-          correctAnswer: vol.toString(),
-          unit: 'cm³',
-          explanationFinal: `Le volume de la pyramide vaut ${vol} cm³.`,
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Calculer l’aire de la base carrée',
-              explanation: `B = ${side} × ${side} = ${baseArea} cm².`,
-              mathExpression: `B = ${side} × ${side} | B = ${baseArea} cm²`,
-            },
-            {
-              stepNumber: 2,
-              title: 'Appliquer V = (B × h) ÷ 3',
-              explanation: `V = (${baseArea} × ${h}) ÷ 3 = ${baseArea * h} ÷ 3 = ${vol} cm³.`,
-              mathExpression: `V = (${baseArea} × ${h}) ÷ 3 | V = ${vol} cm³`,
-              ruleApplied: 'Volume d’une pyramide = (Aire de base × hauteur) ÷ 3',
-            },
-          ],
-        };
-      } else {
-        const v = (Math.floor(Math.random() * 6) + 5) * 10; // 50..100 km/h
-        const t = Math.floor(Math.random() * 4) + 2; // 2..5 h
-        const d = v * t;
-
-        return {
-          theme: 'vitesse-volumes',
-          title: 'Vitesse moyenne sur route au Gabon (v = d ÷ t)',
-          prompt: `Un car de transport parcourt ${d} km en ${t} heures entre deux villes du Gabon. Calculer sa vitesse moyenne (en km/h).`,
-          hint: `Utilise la formule : Vitesse = Distance ÷ Temps = ${d} ÷ ${t}.`,
-          correctAnswer: v.toString(),
-          unit: 'km/h',
-          explanationFinal: `La vitesse moyenne est de ${v} km/h.`,
-          steps: [
-            {
-              stepNumber: 1,
-              title: 'Écrire la formule de la vitesse',
-              explanation: 'v = d ÷ t.',
-              mathExpression: `v = ${d} ÷ ${t}`,
-              ruleApplied: 'Vitesse = Distance ÷ Temps',
-            },
-            {
-              stepNumber: 2,
-              title: 'Calculer le quotient',
-              explanation: `${d} ÷ ${t} = ${v} km/h.`,
-              mathExpression: `v = ${v} km/h`,
-              subResult: `${v} km/h`,
-            },
-          ],
-        };
-      }
-    }
-  };
+  const spawnExercise = useCallback(
+    (chapId: string, diff: ExerciseDifficulty, domId: DomainId | 'all') => {
+      const nextEx = buildExercise(chapId, diff, domId);
+      setExercise(nextEx);
+      setExerciseKey((k) => k + 1);
+      setUserAnswer('');
+      setIsAnswered(false);
+      setIsCorrect(false);
+      setShowHint(false);
+      setShowCorrection(false);
+    },
+    [buildExercise]
+  );
 
   useEffect(() => {
-    setExercise(generateNewExercise(selectedTheme));
-  }, [selectedTheme]);
+    setSelectedDomain('all');
+    setSelectedChapterId('all');
+    setDifficulty(1);
+    setStreakAtLevel(0);
+    setPromotionBanner(null);
+    spawnExercise('all', 1, 'all');
+  }, [subject, spawnExercise]);
 
-  const handleCheckAnswer = () => {
-    if (!exercise || !userAnswer.trim()) return;
+  const handleSelectDomain = (domId: DomainId | 'all') => {
+    setSelectedDomain(domId);
+    const nextPool = domId === 'all' ? chapters : chapters.filter((c) => c.domainId === domId);
+    const stillValid =
+      selectedChapterId === 'all' || nextPool.some((c) => c.id === selectedChapterId);
+    const nextChap = stillValid ? selectedChapterId : 'all';
+    setSelectedChapterId(nextChap);
+    setPromotionBanner(null);
+    spawnExercise(nextChap, difficulty, domId);
+  };
 
-    const cleanUser = userAnswer.trim().replace(/\s+/g, '').replace(',', '.').toLowerCase();
-    const cleanCorrect = exercise.correctAnswer.replace(/\s+/g, '').replace(',', '.').toLowerCase();
+  const handleSelectChapter = (chapId: string) => {
+    setSelectedChapterId(chapId);
+    setPromotionBanner(null);
+    spawnExercise(chapId, difficulty, selectedDomain);
+  };
 
-    const isMatch = cleanUser === cleanCorrect;
-    setIsCorrect(isMatch);
+  const handleSelectDifficulty = (nextDiff: ExerciseDifficulty) => {
+    setDifficulty(nextDiff);
+    setStreakAtLevel(0);
+    setPromotionBanner(null);
+    if (nextDiff > maxLevelReached) setMaxLevelReached(nextDiff);
+    spawnExercise(selectedChapterId, nextDiff, selectedDomain);
+  };
+
+  const evaluateAnswer = (candidateAnswer: string) => {
+    if (!exercise || !candidateAnswer.trim() || isAnswered) return;
+
+    const ok = answersMatch(candidateAnswer, exercise.correctAnswer, exercise.questionType);
+    setIsCorrect(ok);
     setIsAnswered(true);
 
-    if (isMatch) {
+    if (ok) {
+      setTotalSolved((s) => s + 1);
+      const nextStreak = streakAtLevel + 1;
+      if (autoEvolve && difficulty < 4 && nextStreak >= 2) {
+        const promoted = (difficulty + 1) as ExerciseDifficulty;
+        setDifficulty(promoted);
+        setStreakAtLevel(0);
+        setPromotionBanner(promoted);
+        if (promoted > maxLevelReached) setMaxLevelReached(promoted);
+      } else {
+        setStreakAtLevel(nextStreak);
+        setPromotionBanner(null);
+      }
+
+      if (onSolvedExercise) {
+        onSolvedExercise(true, DIFFICULTY_META[exercise.difficulty].xp);
+      }
+
       try {
         confetti({
           particleCount: 60,
           spread: 70,
           origin: { y: 0.65 },
         });
-
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.4);
-      } catch {}
+      } catch {
+        // Ignore confetti errors
+      }
+    } else {
+      setStreakAtLevel(0);
+      setPromotionBanner(null);
+      if (onSolvedExercise) onSolvedExercise(false, 0);
     }
   };
 
+  const diffMeta = DIFFICULTY_META[difficulty];
+
   return (
     <div className="space-y-4 pb-20">
-      {/* Header card with theme selector */}
-      <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-3">
-        <div className="flex items-center justify-between gap-2">
+      {/* Header & Controls */}
+      <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
-              <span>Générateur des exercices infini</span>
+              <span>
+                Générateur Infini · Tous les {chapters.length} Chapitres (
+                {subject === 'physique' ? 'Physique-Chimie 4ème' : 'Maths 4ème CIAM'})
+              </span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Entraîne-toi à volonté sur tout le programme de 4ème Gabon avec corrections debout étape par étape
+              Évolution graduelle du Niveau 1 (Fondamental) au Niveau 4 (Défi Gabon) avec corrections posées debout.
             </p>
           </div>
 
-          <button
-            onClick={() => setExercise(generateNewExercise(selectedTheme))}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition cursor-pointer active:scale-95 shadow shrink-0"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
-            <span>Nouvel exercice</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setAutoEvolve(!autoEvolve)}
+              className={`px-3 py-2 rounded-xl text-xs font-bold border transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                autoEvolve
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                  : 'bg-slate-800 border-slate-700 text-slate-400'
+              }`}
+              title="Monte automatiquement au niveau supérieur après 2 bonnes réponses d’affilée"
+            >
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Évolution auto : {autoEvolve ? 'ON' : 'OFF'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPromotionBanner(null);
+                spawnExercise(selectedChapterId, difficulty, selectedDomain);
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-xs font-extrabold text-slate-950 transition cursor-pointer active:scale-95 shadow shrink-0 whitespace-nowrap"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Nouvel exercice</span>
+            </button>
+          </div>
         </div>
 
-        {/* Theme buttons */}
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {[
-            { id: 'puissances-relatifs', label: 'Relatifs & Puissances' },
-            { id: 'calcul-litteral', label: 'Calcul Littéral' },
-            { id: 'equations', label: 'Équations (F CFA)' },
-            { id: 'pythagore', label: 'Pythagore' },
-            { id: 'vitesse-volumes', label: 'Volumes & Vitesses' },
-          ].map((th) => (
+        {/* Échelle d'évolution graduelle (4 niveaux) + Stats session */}
+        <div className="rounded-2xl bg-slate-950 border border-slate-800 p-3.5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span className="font-bold text-slate-300 flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-amber-400" />
+              <span>Progression de difficulté (clique pour choisir ou laisse monter automatiquement) :</span>
+            </span>
+            <div className="flex items-center gap-3 text-[11px] font-bold tabular-nums">
+              <span className="text-emerald-400">{totalSolved} réussis</span>
+              <span className="text-slate-600">·</span>
+              <span className="text-amber-300">
+                Série niv. {difficulty} : {Math.min(streakAtLevel, 2)}/2
+              </span>
+              <span className="text-slate-600">·</span>
+              <span className="text-sky-300">Max : Niv. {maxLevelReached}</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {LEVELS.map((lvl) => {
+              const meta = DIFFICULTY_META[lvl];
+              const isActive = difficulty === lvl;
+              return (
+                <button
+                  key={lvl}
+                  type="button"
+                  onClick={() => handleSelectDifficulty(lvl)}
+                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                    isActive
+                      ? `${meta.badgeClass} ring-1 ring-current shadow-md`
+                      : 'bg-slate-900/90 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-xs font-black">
+                    <span>
+                      {meta.emoji} Niveau {lvl}
+                    </span>
+                    <span className="text-[10px] font-mono tabular-nums">+{meta.xp} XP</span>
+                  </div>
+                  <div className="text-[11px] font-bold mt-0.5 truncate">{meta.label}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Filtre par domaine */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => handleSelectDomain('all')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 ${
+              selectedDomain === 'all'
+                ? 'bg-white text-slate-950 font-bold shadow'
+                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            Tous les domaines ({chapters.length})
+          </button>
+          {domains.map((dom) => (
             <button
-              key={th.id}
-              onClick={() => setSelectedTheme(th.id as ExerciseTheme)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition cursor-pointer ${
-                selectedTheme === th.id
-                  ? 'bg-sky-500 text-slate-950 font-bold shadow-md'
+              key={dom.id}
+              type="button"
+              onClick={() => handleSelectDomain(dom.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 ${
+                selectedDomain === dom.id
+                  ? 'bg-sky-500 text-slate-950 font-bold shadow'
                   : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
               }`}
             >
-              {th.label}
+              {dom.shortTitle}
             </button>
           ))}
         </div>
+
+        {/* Sélecteur de tous les chapitres (20 Physique ou 27 Maths) */}
+        <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+          <button
+            type="button"
+            onClick={() => handleSelectChapter('all')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+              selectedChapterId === 'all'
+                ? 'bg-amber-400 text-slate-950 font-extrabold shadow'
+                : 'bg-slate-800/80 text-slate-200 hover:bg-slate-700 border border-slate-700/60'
+            }`}
+          >
+            <Shuffle className="w-3.5 h-3.5" />
+            <span>Tous les chapitres ({filteredChapters.length})</span>
+          </button>
+
+          {filteredChapters.map((chap, idx) => {
+            const active = selectedChapterId === chap.id;
+            return (
+              <button
+                key={chap.id}
+                type="button"
+                onClick={() => handleSelectChapter(chap.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition cursor-pointer whitespace-nowrap ${
+                  active
+                    ? 'bg-sky-500 text-slate-950 font-extrabold shadow'
+                    : 'bg-slate-800/75 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {chap.badge || `Ch.${idx + 1}`} · {chap.title}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Exercise card */}
+      {/* Promotion banner when auto-leveling up */}
+      {promotionBanner && (
+        <div className="rounded-2xl bg-emerald-950/60 border border-emerald-500/40 p-3.5 flex flex-wrap items-center justify-between gap-2 animate-fade-in">
+          <div className="flex items-center gap-2 text-xs text-emerald-200 font-bold">
+            <Award className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>
+              Bravo ! Tu passes au {DIFFICULTY_META[promotionBanner].emoji}{' '}
+              <strong className="text-white">
+                Niveau {promotionBanner} ({DIFFICULTY_META[promotionBanner].label})
+              </strong>{' '}
+              au prochain exercice !
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setPromotionBanner(null);
+              spawnExercise(selectedChapterId, promotionBanner, selectedDomain);
+            }}
+            className="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold flex items-center gap-1 cursor-pointer whitespace-nowrap"
+          >
+            <span>Essayer le Niveau {promotionBanner}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Carte d'exercice généré */}
       {exercise && (
         <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-sky-400 bg-sky-950/80 px-2.5 py-0.5 rounded-md border border-sky-800/60">
-              {exercise.title}
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="space-y-0.5">
+              <div className="text-[11px] font-semibold text-slate-400">
+                {exercise.chapterTitle}
+              </div>
+              <div className="font-extrabold text-sky-300 text-sm">{exercise.title}</div>
+            </div>
+
+            <span
+              className={`px-3 py-1 rounded-xl border text-[11px] font-extrabold whitespace-nowrap ${
+                DIFFICULTY_META[exercise.difficulty].badgeClass
+              }`}
+            >
+              {DIFFICULTY_META[exercise.difficulty].emoji} {DIFFICULTY_META[exercise.difficulty].shortLabel}
             </span>
-            <span className="text-[11px] text-slate-400 font-semibold">Niveau 4ème Gabon</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800/90 text-sm font-medium text-slate-100 whitespace-pre-line leading-relaxed shadow-inner">
             {exercise.prompt}
           </div>
 
+          <ExerciseVisualFigure
+            chapterId={exercise.chapterId}
+            subject={subject}
+            title={exercise.title}
+            prompt={exercise.prompt}
+          />
+
           <div className="p-3 rounded-2xl bg-slate-950/80 border border-amber-500/20 text-xs flex items-center justify-between gap-2">
             <span className="text-amber-300 font-bold flex items-center gap-1.5">
               <span>📐</span>
-              <span>Rappel CIAM : Pose ce calcul debout ligne par ligne (= bien alignés) !</span>
+              <span>
+                {subject === 'physique'
+                  ? 'Méthode : 1) Données & conversions  2) Formule  3) Calcul debout  4) Unité !'
+                  : 'Méthode CIAM : Pose chaque calcul debout ligne par ligne (= bien alignés) !'}
+              </span>
             </span>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
-              Debout en colonne
+            <span className="text-[11px] font-mono text-slate-400 shrink-0 tabular-nums">
+              +{DIFFICULTY_META[exercise.difficulty].xp} XP
             </span>
           </div>
 
           <div>
             {!showHint ? (
               <button
+                type="button"
                 onClick={() => setShowHint(true)}
                 className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-medium cursor-pointer"
               >
@@ -384,48 +441,121 @@ export const InfiniteExerciseGenerator: React.FC = () => {
             )}
           </div>
 
-          <div className="space-y-2 pt-1 border-t border-slate-800">
-            <label className="text-xs text-slate-400 font-medium">Ta réponse :</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder={exercise.unit ? `Ex: 24 (en ${exercise.unit})` : 'Tape ta réponse ici...'}
-                value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleCheckAnswer()}
-                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white font-mono focus:border-sky-500 focus:outline-none"
-              />
-              <button
-                onClick={handleCheckAnswer}
-                disabled={!userAnswer.trim()}
-                className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Vérifier</span>
-              </button>
-            </div>
+          {/* Zone de réponse : QCM ou saisie libre */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-800">
+            <label className="text-xs text-slate-400 font-medium block">
+              {exercise.questionType === 'qcm' && exercise.options
+                ? 'Choisis la bonne réponse :'
+                : 'Ta réponse :'}
+            </label>
+
+            {exercise.questionType === 'qcm' && exercise.options && exercise.options.length > 0 ? (
+              <div className="grid sm:grid-cols-2 gap-2">
+                {exercise.options.map((opt) => {
+                  const selected = userAnswer === opt;
+                  const isRightOpt =
+                    isAnswered && normalizeAnswer(opt) === normalizeAnswer(exercise.correctAnswer);
+                  const isWrongSelected = isAnswered && selected && !isRightOpt;
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      disabled={isAnswered}
+                      onClick={() => {
+                        setUserAnswer(opt);
+                        evaluateAnswer(opt);
+                      }}
+                      className={`p-3 rounded-xl border text-left text-xs sm:text-sm font-bold transition cursor-pointer ${
+                        isRightOpt
+                          ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200'
+                          : isWrongSelected
+                          ? 'bg-rose-500/20 border-rose-400 text-rose-200'
+                          : selected
+                          ? 'bg-sky-500/20 border-sky-400 text-white'
+                          : 'bg-slate-950 border-slate-800 text-slate-200 hover:bg-slate-800 disabled:cursor-default'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  disabled={isAnswered}
+                  placeholder={
+                    exercise.unit
+                      ? `Ex: 24 (en ${exercise.unit})`
+                      : 'Tape ta réponse ici (ex: 3/4 ou -12)...'
+                  }
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && evaluateAnswer(userAnswer)}
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-sky-500 focus:outline-none disabled:opacity-70"
+                />
+                <button
+                  type="button"
+                  onClick={() => evaluateAnswer(userAnswer)}
+                  disabled={!userAnswer.trim() || isAnswered}
+                  className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 shrink-0 whitespace-nowrap"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Vérifier</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {isAnswered && (
-            <div className="pt-2 animate-fade-in">
+            <div className="pt-2 space-y-3 animate-fade-in">
               {isCorrect ? (
                 <KokoSuccessCelebration
-                  message="Akiba ! Tu as trouvé !"
-                  subMessage="Formidable ! Tu maîtrises parfaitement cette notion de 4ème. Consulte la méthode ci-dessous pour perfectionner ta rédaction !"
+                  message={`Akiba ! Bonne réponse (+${DIFFICULTY_META[exercise.difficulty].xp} XP) !`}
+                  subMessage="Consulte la rédaction posée debout ci-dessous ou passe à l’exercice suivant."
                 />
               ) : (
                 <KokoEncouragingFeedback
-                  title="Ce n’est pas grave, Koko t’explique !"
-                  message="En mathématiques, chaque erreur est une occasion de devenir plus fort. Regarde la méthode détaillée pas à pas ci-dessous !"
+                  title={`Réponse attendue : ${exercise.correctAnswer}${
+                    exercise.unit ? ` ${exercise.unit}` : ''
+                  }`}
+                  message="Regarde la correction détaillée debout ci-dessous pour maîtriser la méthode !"
                   onShowSolution={() => setShowCorrection(true)}
                 />
               )}
+
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                {!showCorrection && (
+                  <button
+                    type="button"
+                    onClick={() => setShowCorrection(true)}
+                    className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 font-semibold cursor-pointer"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>Voir la correction détaillée debout</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPromotionBanner(null);
+                    spawnExercise(selectedChapterId, difficulty, selectedDomain);
+                  }}
+                  className="ml-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow whitespace-nowrap"
+                >
+                  <span>Exercice suivant ({diffMeta.emoji} Niv. {difficulty})</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           )}
 
           {!isAnswered && !showCorrection && (
-            <div className="pt-2 flex justify-end">
+            <div className="pt-1 flex justify-end">
               <button
+                type="button"
                 onClick={() => setShowCorrection(true)}
                 className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 font-semibold cursor-pointer"
               >
@@ -438,9 +568,13 @@ export const InfiniteExerciseGenerator: React.FC = () => {
           {showCorrection && (
             <div className="pt-3 border-t border-slate-800 animate-fade-in">
               <StepByStepCorrection
+                key={exerciseKey}
                 steps={exercise.steps}
                 finalResult={exercise.explanationFinal}
                 initialShowAll={false}
+                chapterId={exercise.chapterId}
+                subject={subject}
+                contextHint={`${exercise.title} ${exercise.prompt}`}
               />
             </div>
           )}

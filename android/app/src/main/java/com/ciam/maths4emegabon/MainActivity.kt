@@ -5,7 +5,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.ViewGroup
 import android.view.WindowInsetsController
+import android.webkit.JsPromptResult
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -33,10 +35,13 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize full-screen WebView first so decorView/insetsController are attached safely
         webView = WebView(this)
+        webView.setBackgroundColor(Color.parseColor("#020617"))
         setContentView(webView)
 
         // Dark status and navigation bars matching the app's slate-950 theme
+        @Suppress("DEPRECATION")
         window.statusBarColor = Color.parseColor("#020617")
+        @Suppress("DEPRECATION")
         window.navigationBarColor = Color.parseColor("#020617")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -69,7 +74,12 @@ class MainActivity : AppCompatActivity() {
                 request: WebResourceRequest?
             ): Boolean {
                 val url = request?.url ?: return false
+                val scheme = url.scheme?.lowercase() ?: return false
                 if (url.host == "appassets.androidplatform.net") {
+                    return false
+                }
+                // Never pass internal/data/blob/about URLs to external intents
+                if (scheme !in listOf("http", "https", "mailto", "tel")) {
                     return false
                 }
                 return try {
@@ -89,6 +99,27 @@ class MainActivity : AppCompatActivity() {
                 result: JsResult?
             ): Boolean {
                 result?.confirm()
+                return true
+            }
+
+            override fun onJsConfirm(
+                view: WebView?,
+                url: String?,
+                message: String?,
+                result: JsResult?
+            ): Boolean {
+                result?.confirm()
+                return true
+            }
+
+            override fun onJsPrompt(
+                view: WebView?,
+                url: String?,
+                message: String?,
+                defaultValue: String?,
+                result: JsPromptResult?
+            ): Boolean {
+                result?.cancel()
                 return true
             }
         }
@@ -114,12 +145,19 @@ class MainActivity : AppCompatActivity() {
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
         settings.databaseEnabled = true
-        settings.allowFileAccess = true
+        settings.allowFileAccess = false
         settings.allowContentAccess = true
+        @Suppress("DEPRECATION")
+        settings.allowFileAccessFromFileURLs = false
+        @Suppress("DEPRECATION")
+        settings.allowUniversalAccessFromFileURLs = false
         settings.mediaPlaybackRequiresUserGesture = false
+        settings.setSupportMultipleWindows(false)
+        settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
 
         settings.useWideViewPort = true
         settings.loadWithOverviewMode = true
+        settings.textZoom = 100
         settings.displayZoomControls = false
         settings.builtInZoomControls = false
         settings.setSupportZoom(false)
@@ -143,6 +181,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         if (::webView.isInitialized) {
+            (webView.parent as? ViewGroup)?.removeView(webView)
+            webView.stopLoading()
             webView.destroy()
         }
         super.onDestroy()

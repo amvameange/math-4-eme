@@ -15,6 +15,10 @@ export default defineConfig(({command}) => {
         '@': path.resolve(__dirname, '.'),
       },
     },
+    build: {
+      target: 'es2020',
+      chunkSizeWarningLimit: 1800,
+    },
     server: {
       port: 3000,
       host: '0.0.0.0',

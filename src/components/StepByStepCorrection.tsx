@@ -9,20 +9,29 @@ import {
   Lightbulb,
   Award,
 } from 'lucide-react';
-import { CorrectionStep } from '../types/math';
+import { ChapterIllustrationKey, CorrectionStep, SubjectId } from '../types/math';
 import { KokoStepDetective, GabonBadgeStamp } from './illustrations/FunFeedbackIllustrations';
 import { StandingMathRenderer } from './StandingMathRenderer';
+import { DemonstrationMethodFigure } from './illustrations/PedagogicalFigures';
 
 interface StepByStepCorrectionProps {
   steps: CorrectionStep[];
   finalResult: string;
   initialShowAll?: boolean;
+  chapterId?: string;
+  illustrationKey?: ChapterIllustrationKey;
+  subject?: SubjectId;
+  contextHint?: string;
 }
 
 export const StepByStepCorrection: React.FC<StepByStepCorrectionProps> = ({
   steps,
   finalResult,
   initialShowAll = false,
+  chapterId,
+  illustrationKey,
+  subject,
+  contextHint,
 }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [showAllSteps, setShowAllSteps] = useState(initialShowAll);
@@ -70,6 +79,16 @@ export const StepByStepCorrection: React.FC<StepByStepCorrectionProps> = ({
           <span>{showAllSteps ? 'Mode Pas à Pas' : 'Voir tout d’un coup'}</span>
         </button>
       </div>
+
+      {(chapterId || illustrationKey) && (
+        <DemonstrationMethodFigure
+          chapterId={chapterId}
+          illustrationKey={illustrationKey}
+          subject={subject}
+          compact={true}
+          contextHint={contextHint}
+        />
+      )}
 
       {/* Step Progress Dots (in Pas à Pas mode) */}
       {!showAllSteps && (

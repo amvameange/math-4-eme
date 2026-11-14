@@ -1,9 +1,34 @@
 import React from 'react';
-import { ChapterIllustrationKey } from '../../types/math';
+import { ChapterIllustrationKey, PhysicsIllustrationKey } from '../../types/math';
+import { PhysicsChapterIllustration } from './GabonPhysicsIllustrations';
 
 /**
- * Illustrations pédagogiques vivantes, colorées et culturelles pour les 27 chapitres de 4ème (CIAM Gabon)
+ * Illustrations pédagogiques vivantes, colorées et culturelles pour les 27 chapitres de Maths 4ème (CIAM Gabon)
+ * + routage automatique vers les 20 illustrations de Physique-Chimie 4ème Gabon
  */
+
+const PHYSICS_KEYS: Set<string> = new Set<PhysicsIllustrationKey>([
+  'circuit-simple',
+  'circuits-serie-derivation',
+  'intensite',
+  'tension',
+  'loi-ohm',
+  'puissance-seeg',
+  'propagation-lumiere',
+  'ombres-eclipses',
+  'reflexion-refraction',
+  'lentilles',
+  'dispersion-couleurs',
+  'masse-volumique',
+  'forces-dynamometre',
+  'poids-masse',
+  'pression-archimede',
+  'air-gaz',
+  'atomes-molecules',
+  'combustions',
+  'equations-bilan',
+  'solutions-ph',
+]);
 
 // Mascotte : Koko le Matheux (Version Expert 4ème avec compas & équerre)
 export const MascotKoko: React.FC<{ expression?: 'happy' | 'thinking' | 'victory'; speech?: string }> = ({
@@ -118,7 +143,7 @@ export const Gabon4eRelatifsPuissancesIllustration: React.FC = () => (
   </div>
 );
 
-// 2. Fractions : toutes opérations (+, -, ×, ÷ par l'inverse)
+// 2. Fractions
 export const Gabon4eFractionsIllustration: React.FC = () => (
   <div className="rounded-3xl bg-slate-900 border-2 border-cyan-500/40 p-4 sm:p-5 shadow-xl space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-cyan-300">
@@ -147,116 +172,196 @@ export const Gabon4eFractionsIllustration: React.FC = () => (
   </div>
 );
 
-// 3. Calcul Littéral & Identités remarquables
-export const Gabon4eCalculLitteralIllustration: React.FC = () => (
+// 3. Calcul Littéral & Identités Remarquables (deux dessins distincts)
+export const Gabon4eCalculLitteralIllustration: React.FC<{ isIdentites?: boolean }> = ({ isIdentites }) => (
   <div className="rounded-3xl bg-slate-900 border-2 border-amber-500/40 p-4 sm:p-5 shadow-xl space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-amber-300">
-      <span>🌱 Le Champ de Manioc de Koko : Aire (x + 3)(x + 2) = x² + 5x + 6</span>
-      <span className="text-[11px] text-emerald-300 font-bold">Distributivité & Identités</span>
+      <span>
+        {isIdentites
+          ? '📦 Les 3 Identités Remarquables : Carré (a + b)² & Différence a² − b²'
+          : '🌱 Le Champ de Manioc de Koko : Aire (x + 3)(x + 2) = x² + 5x + 6'}
+      </span>
+      <span className="text-[11px] text-emerald-300 font-bold">
+        {isIdentites ? 'Factorisation & Identités' : 'Distributivité'}
+      </span>
     </div>
     <div className="flex justify-center">
-      <svg viewBox="0 0 420 190" className="w-full max-w-lg h-auto select-none">
-        <text x="210" y="18" textAnchor="middle" className="text-[11px] font-black fill-white">AIRE DU CHAMP = (x + 3) × (x + 2)</text>
-        <text x="150" y="38" textAnchor="middle" className="text-xs font-black fill-amber-300">x</text>
-        <text x="275" y="38" textAnchor="middle" className="text-xs font-black fill-sky-300">+ 3 m</text>
-        <text x="68" y="85" textAnchor="middle" className="text-xs font-black fill-amber-300">x</text>
-        <text x="62" y="142" textAnchor="middle" className="text-xs font-black fill-emerald-300">+ 2 m</text>
-        <rect x="85" y="45" width="130" height="72" fill="#4f46e5" fillOpacity="0.45" stroke="#818cf8" strokeWidth="2" />
-        <text x="150" y="78" textAnchor="middle" className="text-sm font-black fill-white">x × x</text>
-        <text x="150" y="96" textAnchor="middle" className="text-xs font-black fill-amber-300">= x²</text>
-        <rect x="215" y="45" width="120" height="72" fill="#0284c7" fillOpacity="0.4" stroke="#38bdf8" strokeWidth="2" />
-        <text x="275" y="78" textAnchor="middle" className="text-sm font-black fill-white">3 × x</text>
-        <text x="275" y="96" textAnchor="middle" className="text-xs font-black fill-sky-200">= + 3x</text>
-        <rect x="85" y="117" width="130" height="48" fill="#059669" fillOpacity="0.4" stroke="#34d399" strokeWidth="2" />
-        <text x="150" y="139" textAnchor="middle" className="text-sm font-black fill-white">2 × x</text>
-        <text x="150" y="155" textAnchor="middle" className="text-xs font-black fill-emerald-200">= + 2x</text>
-        <rect x="215" y="117" width="120" height="48" fill="#d97706" fillOpacity="0.45" stroke="#fbbf24" strokeWidth="2" />
-        <text x="275" y="139" textAnchor="middle" className="text-sm font-black fill-white">2 × 3</text>
-        <text x="275" y="155" textAnchor="middle" className="text-xs font-black fill-amber-200">= + 6</text>
-        <text x="210" y="183" textAnchor="middle" className="text-[11px] font-black fill-emerald-300 font-mono">
-          Total = x² + 3x + 2x + 6 = x² + 5x + 6
-        </text>
+      <svg viewBox="0 0 430 190" className="w-full max-w-lg h-auto select-none">
+        {!isIdentites ? (
+          <>
+            <text x="215" y="18" textAnchor="middle" className="text-[11px] font-black fill-white">AIRE DU CHAMP = (x + 3) × (x + 2)</text>
+            <text x="150" y="38" textAnchor="middle" className="text-xs font-black fill-amber-300">x</text>
+            <text x="275" y="38" textAnchor="middle" className="text-xs font-black fill-sky-300">+ 3 m</text>
+            <text x="68" y="85" textAnchor="middle" className="text-xs font-black fill-amber-300">x</text>
+            <text x="62" y="142" textAnchor="middle" className="text-xs font-black fill-emerald-300">+ 2 m</text>
+            <rect x="85" y="45" width="130" height="72" fill="#4f46e5" fillOpacity="0.45" stroke="#818cf8" strokeWidth="2" />
+            <text x="150" y="78" textAnchor="middle" className="text-sm font-black fill-white">x × x</text>
+            <text x="150" y="96" textAnchor="middle" className="text-xs font-black fill-amber-300">= x²</text>
+            <rect x="215" y="45" width="120" height="72" fill="#0284c7" fillOpacity="0.4" stroke="#38bdf8" strokeWidth="2" />
+            <text x="275" y="78" textAnchor="middle" className="text-sm font-black fill-white">3 × x</text>
+            <text x="275" y="96" textAnchor="middle" className="text-xs font-black fill-sky-200">= + 3x</text>
+            <rect x="85" y="117" width="130" height="48" fill="#059669" fillOpacity="0.4" stroke="#34d399" strokeWidth="2" />
+            <text x="150" y="139" textAnchor="middle" className="text-sm font-black fill-white">2 × x</text>
+            <text x="150" y="155" textAnchor="middle" className="text-xs font-black fill-emerald-200">= + 2x</text>
+            <rect x="215" y="117" width="120" height="48" fill="#d97706" fillOpacity="0.45" stroke="#fbbf24" strokeWidth="2" />
+            <text x="275" y="139" textAnchor="middle" className="text-sm font-black fill-white">2 × 3</text>
+            <text x="275" y="155" textAnchor="middle" className="text-xs font-black fill-amber-200">= + 6</text>
+            <text x="215" y="183" textAnchor="middle" className="text-[11px] font-black fill-emerald-300 font-mono">
+              Total = x² + 3x + 2x + 6 = x² + 5x + 6
+            </text>
+          </>
+        ) : (
+          <>
+            {/* Carré (a + b)² */}
+            <rect x="35" y="34" width="88" height="88" fill="#4f46e5" fillOpacity="0.45" stroke="#818cf8" strokeWidth="2" />
+            <text x="79" y="82" textAnchor="middle" className="text-sm font-black fill-white">a²</text>
+            <rect x="123" y="34" width="44" height="88" fill="#0284c7" fillOpacity="0.45" stroke="#38bdf8" strokeWidth="2" />
+            <text x="145" y="82" textAnchor="middle" className="text-xs font-black fill-sky-200">ab</text>
+            <rect x="35" y="122" width="88" height="44" fill="#0284c7" fillOpacity="0.45" stroke="#38bdf8" strokeWidth="2" />
+            <text x="79" y="148" textAnchor="middle" className="text-xs font-black fill-sky-200">ab</text>
+            <rect x="123" y="122" width="44" height="44" fill="#d97706" fillOpacity="0.55" stroke="#fbbf24" strokeWidth="2" />
+            <text x="145" y="148" textAnchor="middle" className="text-xs font-black fill-amber-200">b²</text>
+            <text x="101" y="24" textAnchor="middle" className="text-xs font-black fill-amber-300">(a + b)² = a² + 2ab + b²</text>
+
+            <rect x="200" y="28" width="215" height="142" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+            <text x="307" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">LES 3 IDENTITÉS CIAM</text>
+            <text x="307" y="82" textAnchor="middle" className="text-xs font-black fill-white font-mono">(a + b)² = a² + 2ab + b²</text>
+            <text x="307" y="108" textAnchor="middle" className="text-xs font-black fill-sky-300 font-mono">(a − b)² = a² − 2ab + b²</text>
+            <text x="307" y="134" textAnchor="middle" className="text-xs font-black fill-emerald-300 font-mono">(a + b)(a − b) = a² − b²</text>
+            <text x="307" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">Ex : x² − 25 = (x + 5)(x − 5)</text>
+          </>
+        )}
       </svg>
     </div>
   </div>
 );
 
-// 4. Équations & Inéquations
+// 4. Équations & Inéquations (avec vraie droite graduée pour les inéquations !)
 export const Gabon4eEquationBalanceIllustration: React.FC<{ isIneq?: boolean }> = ({ isIneq }) => (
   <div className="rounded-3xl bg-slate-900 border-2 border-pink-500/40 p-4 sm:p-5 shadow-xl space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-pink-300">
-      <span>{isIneq ? '↕️ Balance des Inéquations & Droite Graduée' : '⚖️ La Balance Magique des Équations (ax + b = c)'}</span>
+      <span>{isIneq ? '↕️ Inéquations : Sens Inversé par (−) & Droite Graduée' : '⚖️ La Balance Magique des Équations (ax + b = c)'}</span>
       <span className="text-[11px] text-amber-300 font-bold">Marché Mont-Bouët · F CFA</span>
     </div>
     <div className="flex justify-center">
-      <svg viewBox="0 0 420 190" className="w-full max-w-lg h-auto select-none">
-        <polygon points="195,165 225,165 210,120" fill="#64748b" />
-        <rect x="170" y="165" width="80" height="8" rx="4" fill="#94a3b8" />
-        <line x1="75" y1="95" x2="345" y2="95" stroke="#facc15" strokeWidth="5" strokeLinecap="round" />
-        <circle cx="210" cy="95" r="7" fill="#f59e0b" stroke="#0f172a" strokeWidth="2" />
-        <line x1="85" y1="95" x2="60" y2="132" stroke="#94a3b8" strokeWidth="2" />
-        <line x1="85" y1="95" x2="110" y2="132" stroke="#94a3b8" strokeWidth="2" />
-        <path d="M 45 132 L 125 132 Q 85 150 45 132 Z" fill="#38bdf8" />
-        <rect x="52" y="108" width="22" height="22" rx="5" fill="#6366f1" stroke="#c7d2fe" strokeWidth="1.5" />
-        <text x="63" y="123" textAnchor="middle" className="text-xs font-black fill-white">x</text>
-        <rect x="78" y="108" width="22" height="22" rx="5" fill="#6366f1" stroke="#c7d2fe" strokeWidth="1.5" />
-        <text x="89" y="123" textAnchor="middle" className="text-xs font-black fill-white">x</text>
-        <rect x="103" y="114" width="28" height="16" rx="4" fill="#f59e0b" />
-        <text x="117" y="125" textAnchor="middle" className="text-[8px] font-black fill-slate-950">500</text>
-        <text x="85" y="72" textAnchor="middle" className="text-xs font-black fill-sky-300 font-mono">2x + 500 F</text>
-        <text x="210" y="68" textAnchor="middle" className="text-xl font-black fill-emerald-400">{isIneq ? '≤' : '='}</text>
-        <line x1="335" y1="95" x2="310" y2="132" stroke="#94a3b8" strokeWidth="2" />
-        <line x1="335" y1="95" x2="360" y2="132" stroke="#94a3b8" strokeWidth="2" />
-        <path d="M 295 132 L 375 132 Q 335 150 295 132 Z" fill="#10b981" />
-        <rect x="302" y="106" width="66" height="24" rx="5" fill="#059669" stroke="#6ee7b7" strokeWidth="1.5" />
-        <text x="335" y="122" textAnchor="middle" className="text-[11px] font-black fill-white">2 500 F</text>
-        <text x="335" y="72" textAnchor="middle" className="text-xs font-black fill-emerald-300 font-mono">2 500 F CFA</text>
-        <text x="210" y="25" textAnchor="middle" className="text-[11px] font-black fill-white">
-          {isIneq
-            ? 'Diviser par un nombre NÉGATIF inverse le symbole (< devient >) !'
-            : 'Ce qu’on enlève à gauche, on l’enlève aussi à droite !'}
-        </text>
-        <text x="210" y="185" textAnchor="middle" className="text-[10px] font-bold fill-amber-300 font-mono">
-          {isIneq ? '2x ≤ 2 000 F ➔ x ≤ 1 000 F CFA' : '2x = 2 000 F ➔ x = 1 000 F CFA'}
-        </text>
+      <svg viewBox="0 0 430 190" className="w-full max-w-lg h-auto select-none">
+        {!isIneq ? (
+          <>
+            <polygon points="195,165 225,165 210,120" fill="#64748b" />
+            <rect x="170" y="165" width="80" height="8" rx="4" fill="#94a3b8" />
+            <line x1="75" y1="95" x2="345" y2="95" stroke="#facc15" strokeWidth="5" strokeLinecap="round" />
+            <circle cx="210" cy="95" r="7" fill="#f59e0b" stroke="#0f172a" strokeWidth="2" />
+            <line x1="85" y1="95" x2="60" y2="132" stroke="#94a3b8" strokeWidth="2" />
+            <line x1="85" y1="95" x2="110" y2="132" stroke="#94a3b8" strokeWidth="2" />
+            <path d="M 45 132 L 125 132 Q 85 150 45 132 Z" fill="#38bdf8" />
+            <rect x="52" y="108" width="22" height="22" rx="5" fill="#6366f1" stroke="#c7d2fe" strokeWidth="1.5" />
+            <text x="63" y="123" textAnchor="middle" className="text-xs font-black fill-white">x</text>
+            <rect x="78" y="108" width="22" height="22" rx="5" fill="#6366f1" stroke="#c7d2fe" strokeWidth="1.5" />
+            <text x="89" y="123" textAnchor="middle" className="text-xs font-black fill-white">x</text>
+            <rect x="103" y="114" width="28" height="16" rx="4" fill="#f59e0b" />
+            <text x="117" y="125" textAnchor="middle" className="text-[8px] font-black fill-slate-950">500</text>
+            <text x="85" y="72" textAnchor="middle" className="text-xs font-black fill-sky-300 font-mono">2x + 500 F</text>
+            <text x="210" y="68" textAnchor="middle" className="text-xl font-black fill-emerald-400">=</text>
+            <line x1="335" y1="95" x2="310" y2="132" stroke="#94a3b8" strokeWidth="2" />
+            <line x1="335" y1="95" x2="360" y2="132" stroke="#94a3b8" strokeWidth="2" />
+            <path d="M 295 132 L 375 132 Q 335 150 295 132 Z" fill="#10b981" />
+            <rect x="302" y="106" width="66" height="24" rx="5" fill="#059669" stroke="#6ee7b7" strokeWidth="1.5" />
+            <text x="335" y="122" textAnchor="middle" className="text-[11px] font-black fill-white">2 500 F</text>
+            <text x="335" y="72" textAnchor="middle" className="text-xs font-black fill-emerald-300 font-mono">2 500 F CFA</text>
+            <text x="215" y="25" textAnchor="middle" className="text-[11px] font-black fill-white">
+              Ce qu’on enlève à gauche, on l’enlève aussi à droite !
+            </text>
+            <text x="215" y="185" textAnchor="middle" className="text-[10px] font-bold fill-amber-300 font-mono">
+              2x = 2 000 F ➔ x = 1 000 F CFA
+            </text>
+          </>
+        ) : (
+          <>
+            <rect x="20" y="18" width="390" height="60" rx="12" fill="#881337" fillOpacity="0.3" stroke="#f43f5e" strokeWidth="1.5" />
+            <text x="215" y="42" textAnchor="middle" className="text-xs font-black fill-rose-300">
+              PIÈGE N°1 : Multiplier ou Diviser par (−) INVERSE le signe !
+            </text>
+            <text x="215" y="64" textAnchor="middle" className="text-xs font-black fill-white font-mono">
+              −2x ≤ 6   ➔   x ≥ 6 ÷ (−2)   ➔   x ≥ −3
+            </text>
+
+            {/* Droite graduée avec crochet et zone verte */}
+            <text x="215" y="104" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">
+              Représentation des solutions x ≥ −3 :
+            </text>
+            <line x1="40" y1="136" x2="395" y2="136" stroke="#64748b" strokeWidth="3" />
+            <line x1="160" y1="136" x2="390" y2="136" stroke="#10b981" strokeWidth="7" strokeLinecap="round" />
+            {/* Crochet inclusif [ tourné vers la zone solution (droite) */}
+            <polyline points="170,120 160,120 160,152 170,152" fill="none" stroke="#fbbf24" strokeWidth="3.5" />
+            <line x1="250" y1="128" x2="250" y2="144" stroke="#94a3b8" strokeWidth="2" />
+            <text x="160" y="172" textAnchor="middle" className="text-xs font-black fill-amber-300">−3</text>
+            <text x="250" y="172" textAnchor="middle" className="text-xs font-bold fill-slate-300">0</text>
+            <text x="340" y="172" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Solutions [−3 ; +∞[</text>
+          </>
+        )}
       </svg>
     </div>
   </div>
 );
 
-// 5. Pythagore & Racine carrée
-export const Gabon4ePythagoreIllustration: React.FC = () => (
+// 5. Pythagore & Racine carrée (deux dessins dédiés)
+export const Gabon4ePythagoreIllustration: React.FC<{ isRoot?: boolean }> = ({ isRoot }) => (
   <div className="rounded-3xl bg-slate-900 border-2 border-violet-500/40 p-4 sm:p-5 shadow-xl space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-violet-300">
-      <span>📐 Pythagore & Racine Carrée : Les 3 Carrés du Charpentier</span>
-      <span className="text-[11px] text-emerald-300 font-bold">Triangle Rectangle (90°)</span>
+      <span>
+        {isRoot
+          ? '√ La Racine Carrée : Retrouver le Côté d’un Carré à partir de son Aire'
+          : '📐 Pythagore : Les 3 Carrés du Charpentier'}
+      </span>
+      <span className="text-[11px] text-emerald-300 font-bold">
+        {isRoot ? 'Carrés Parfaits 4ème' : 'Triangle Rectangle (90°)'}
+      </span>
     </div>
     <div className="flex justify-center">
       <svg viewBox="0 0 420 205" className="w-full max-w-lg h-auto select-none">
-        <rect x="85" y="75" width="54" height="72" fill="#10b981" fillOpacity="0.28" stroke="#10b981" strokeWidth="2" />
-        <text x="112" y="106" textAnchor="middle" className="text-xs font-black fill-emerald-300">AB²</text>
-        <text x="112" y="122" textAnchor="middle" className="text-[10px] font-bold fill-white">3² = 9</text>
-        <rect x="139" y="147" width="96" height="48" fill="#0284c7" fillOpacity="0.28" stroke="#38bdf8" strokeWidth="2" />
-        <text x="187" y="168" textAnchor="middle" className="text-xs font-black fill-sky-300">AC²</text>
-        <text x="187" y="183" textAnchor="middle" className="text-[10px] font-bold fill-white">4² = 16</text>
-        <polygon points="139,75 139,147 235,147" fill="#f59e0b" fillOpacity="0.2" stroke="#facc15" strokeWidth="3" />
-        <rect x="139" y="135" width="12" height="12" fill="none" stroke="#facc15" strokeWidth="2" />
-        <text x="131" y="70" textAnchor="end" className="text-xs font-black fill-white">B</text>
-        <text x="131" y="156" textAnchor="end" className="text-xs font-black fill-white">A (90°)</text>
-        <text x="242" y="156" textAnchor="start" className="text-xs font-black fill-white">C</text>
-        <rect x="265" y="45" width="135" height="90" rx="14" fill="#4f46e5" fillOpacity="0.3" stroke="#818cf8" strokeWidth="2" />
-        <text x="332" y="70" textAnchor="middle" className="text-xs font-black fill-amber-300">BC² = AB² + AC²</text>
-        <text x="332" y="90" textAnchor="middle" className="text-[11px] font-bold fill-white font-mono">BC² = 9 + 16 = 25</text>
-        <text x="332" y="112" textAnchor="middle" className="text-xs font-black fill-emerald-300 font-mono">BC = √25 = 5 cm</text>
-        <text x="210" y="25" textAnchor="middle" className="text-[11px] font-black fill-slate-200">
-          Le carré de l’hypoténuse vaut la somme des deux petits carrés !
-        </text>
+        {!isRoot ? (
+          <>
+            <rect x="85" y="75" width="54" height="72" fill="#10b981" fillOpacity="0.28" stroke="#10b981" strokeWidth="2" />
+            <text x="112" y="106" textAnchor="middle" className="text-xs font-black fill-emerald-300">AB²</text>
+            <text x="112" y="122" textAnchor="middle" className="text-[10px] font-bold fill-white">3² = 9</text>
+            <rect x="139" y="147" width="96" height="48" fill="#0284c7" fillOpacity="0.28" stroke="#38bdf8" strokeWidth="2" />
+            <text x="187" y="168" textAnchor="middle" className="text-xs font-black fill-sky-300">AC²</text>
+            <text x="187" y="183" textAnchor="middle" className="text-[10px] font-bold fill-white">4² = 16</text>
+            <polygon points="139,75 139,147 235,147" fill="#f59e0b" fillOpacity="0.2" stroke="#facc15" strokeWidth="3" />
+            <rect x="139" y="135" width="12" height="12" fill="none" stroke="#facc15" strokeWidth="2" />
+            <text x="131" y="70" textAnchor="end" className="text-xs font-black fill-white">B</text>
+            <text x="131" y="156" textAnchor="end" className="text-xs font-black fill-white">A (90°)</text>
+            <text x="242" y="156" textAnchor="start" className="text-xs font-black fill-white">C</text>
+            <rect x="265" y="45" width="135" height="90" rx="14" fill="#4f46e5" fillOpacity="0.3" stroke="#818cf8" strokeWidth="2" />
+            <text x="332" y="70" textAnchor="middle" className="text-xs font-black fill-amber-300">BC² = AB² + AC²</text>
+            <text x="332" y="90" textAnchor="middle" className="text-[11px] font-bold fill-white font-mono">BC² = 9 + 16 = 25</text>
+            <text x="332" y="112" textAnchor="middle" className="text-xs font-black fill-emerald-300 font-mono">BC = √25 = 5 cm</text>
+            <text x="210" y="25" textAnchor="middle" className="text-[11px] font-black fill-slate-200">
+              Le carré de l’hypoténuse vaut la somme des deux petits carrés !
+            </text>
+          </>
+        ) : (
+          <>
+            <rect x="35" y="42" width="110" height="110" rx="8" fill="#7c3aed" fillOpacity="0.3" stroke="#a78bfa" strokeWidth="2.5" />
+            <text x="90" y="96" textAnchor="middle" className="text-sm font-black fill-white">Aire = 49 cm²</text>
+            <text x="90" y="114" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">7 × 7 = 49</text>
+            <text x="90" y="172" textAnchor="middle" className="text-xs font-black fill-emerald-300">Côté c = √49 = 7 cm</text>
+            <text x="22" y="98" textAnchor="end" className="text-xs font-black fill-emerald-300">7</text>
+
+            <rect x="175" y="30" width="225" height="142" rx="14" fill="#0f172a" stroke="#a78bfa" strokeWidth="1.5" />
+            <text x="287" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">CARRÉS PARFAITS À CONNAÎTRE</text>
+            <text x="287" y="80" textAnchor="middle" className="text-xs font-bold fill-white font-mono">√9 = 3  |  √16 = 4  |  √25 = 5</text>
+            <text x="287" y="104" textAnchor="middle" className="text-xs font-bold fill-sky-300 font-mono">√36 = 6  |  √49 = 7  |  √64 = 8</text>
+            <text x="287" y="128" textAnchor="middle" className="text-xs font-bold fill-emerald-300 font-mono">√81 = 9  |  √100 = 10 | √144 = 12</text>
+            <text x="287" y="156" textAnchor="middle" className="text-[9px] font-black fill-rose-300">Attention : √(9 + 16) = √25 = 5 ≠ 3 + 4 !</text>
+          </>
+        )}
       </svg>
     </div>
   </div>
 );
 
-// 6. Droite des Milieux & Thalès & Agrandissement
+// 6. Droite des Milieux & Thalès
 export const Gabon4eThalesMilieuxIllustration: React.FC<{ isThales?: boolean }> = ({ isThales }) => (
   <div className="rounded-3xl bg-slate-900 border-2 border-cyan-500/40 p-4 sm:p-5 shadow-xl space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-cyan-300">
@@ -414,24 +519,36 @@ export const Gabon4eStatsVitesseVolumesIllustration: React.FC<{ topic: 'volumes'
   </div>
 );
 
-// 9. Transformations, Repérage, Cercle, Droites remarquables, Fonctions
-export const Gabon4eGeoFunctionsIllustration: React.FC<{ topic: 'transformations' | 'reperage' | 'cercle' | 'droites' | 'fonctions' | 'arithmetique' }> = ({
-  topic,
-}) => (
+// 9. Transformations (Translation, Symétrie, Homothétie, Rotation), Repérage, Cercle, Droites remarquables, Fonctions, Arithmétique
+export const Gabon4eGeoFunctionsIllustration: React.FC<{
+  topic:
+    | 'translations'
+    | 'symetries'
+    | 'homothetie'
+    | 'rotation'
+    | 'reperage'
+    | 'cercle'
+    | 'droites'
+    | 'fonctions'
+    | 'arithmetique';
+}> = ({ topic }) => (
   <div className="rounded-3xl bg-slate-900 border-2 border-sky-500/40 p-4 sm:p-5 shadow-xl space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-sky-300">
       <span>
-        {topic === 'transformations' && '🧭 Translations, Symétries, Rotations & Homothétie'}
+        {topic === 'translations' && '➡️ Translation : Glissement sans tourner selon un Vecteur AB⃗'}
+        {topic === 'symetries' && '🪞 Symétrie Axiale (Pliage) vs Symétrie Centrale (Demi-tour 180°)'}
+        {topic === 'homothetie' && '📽️ Homothétie de Centre O et de Rapport k (Zoom × k)'}
+        {topic === 'rotation' && '🎡 Rotation de Centre O, d’Angle α et de Sens (Horaire / Direct)'}
         {topic === 'reperage' && '📍 Repérage dans le Plan : Coordonnées, Milieu & Distance'}
         {topic === 'cercle' && '⭕ Cercle : Angle au Centre = 2 × Angle Inscrit & Tangente (90°)'}
         {topic === 'droites' && '⌖ Les 4 Droites Remarquables du Triangle'}
-        {topic === 'fonctions' && '📈 Machine à Fonction : Antécédent x ➔ Image f(x)'}
-        {topic === 'arithmetique' && '🔢 Nombres Premiers (2, 3, 5, 7, 11...) & PGCD'}
+        {topic === 'fonctions' && '📈 Machine à Fonction : Courbe, Image f(x) et Antécédent x'}
+        {topic === 'arithmetique' && '🔢 Nombres Premiers (2, 3, 5, 7, 11…) & Arbre de Facteurs'}
       </span>
       <span className="text-[11px] text-amber-300 font-bold">CIAM 4ème</span>
     </div>
     <div className="flex justify-center">
-      <svg viewBox="0 0 420 170" className="w-full max-w-lg h-auto select-none">
+      <svg viewBox="0 0 430 175" className="w-full max-w-lg h-auto select-none">
         {topic === 'cercle' && (
           <>
             <circle cx="135" cy="88" r="62" fill="#0f172a" stroke="#38bdf8" strokeWidth="2.5" />
@@ -444,12 +561,13 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{ topic: 'transformations
             <text x="115" y="21" textAnchor="middle" className="text-xs font-black fill-emerald-300">M (α)</text>
             <text x="80" y="146" textAnchor="end" className="text-xs font-black fill-white">A</text>
             <text x="190" y="146" textAnchor="start" className="text-xs font-black fill-white">B</text>
-            <rect x="235" y="34" width="165" height="104" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
-            <text x="317" y="64" textAnchor="middle" className="text-xs font-black fill-amber-300">AÔB = 2 × AMB</text>
-            <text x="317" y="92" textAnchor="middle" className="text-xs font-black fill-emerald-300">Tangente ⊥ Rayon</text>
-            <text x="317" y="118" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Demi-cercle ➔ 90°</text>
+            <rect x="235" y="34" width="175" height="104" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+            <text x="322" y="64" textAnchor="middle" className="text-xs font-black fill-amber-300">AÔB = 2 × AMB</text>
+            <text x="322" y="92" textAnchor="middle" className="text-xs font-black fill-emerald-300">Tangente ⊥ Rayon</text>
+            <text x="322" y="118" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Demi-cercle ➔ 90°</text>
           </>
         )}
+
         {topic === 'reperage' && (
           <>
             <line x1="55" y1="135" x2="215" y2="135" stroke="#64748b" strokeWidth="2" />
@@ -461,30 +579,142 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{ topic: 'transformations
             <text x="115" y="126" textAnchor="middle" className="text-[10px] font-black fill-sky-300">A(xₐ;yₐ)</text>
             <text x="150" y="68" textAnchor="end" className="text-[10px] font-black fill-amber-300">I</text>
             <text x="190" y="42" textAnchor="start" className="text-[10px] font-black fill-sky-300">B(xᵦ;yᵦ)</text>
-            <rect x="235" y="34" width="170" height="104" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-            <text x="320" y="62" textAnchor="middle" className="text-[11px] font-black fill-amber-300">Milieu I = Moyenne :</text>
-            <text x="320" y="84" textAnchor="middle" className="text-xs font-black fill-white font-mono">((xₐ+xᵦ)/2 ; (yₐ+yᵦ)/2)</text>
-            <text x="320" y="114" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">AB = √(Δx² + Δy²)</text>
+            <rect x="235" y="34" width="180" height="104" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+            <text x="325" y="62" textAnchor="middle" className="text-[11px] font-black fill-amber-300">Milieu I = Moyenne :</text>
+            <text x="325" y="84" textAnchor="middle" className="text-xs font-black fill-white font-mono">((xₐ+xᵦ)/2 ; (yₐ+yᵦ)/2)</text>
+            <text x="325" y="114" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">AB = √(Δx² + Δy²)</text>
           </>
         )}
-        {(topic === 'transformations' || topic === 'droites' || topic === 'fonctions' || topic === 'arithmetique') && (
+
+        {topic === 'translations' && (
           <>
-            <rect x="30" y="28" width="360" height="114" rx="18" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-            <text x="210" y="62" textAnchor="middle" className="text-sm font-black fill-amber-300">
-              {topic === 'transformations' && 'Translation (Flèche) · Symétrie (Miroir/180°) · Rotation (Centre+Angle) · Homothétie (× k)'}
-              {topic === 'droites' && 'Médiatrice (Circonscrit) · Bissectrice (Inscrit) · Médiane (Gravité) · Hauteur (Orthocentre)'}
-              {topic === 'fonctions' && 'Antécédent x ➔ [ Machine f ] ➔ Image f(x)'}
-              {topic === 'arithmetique' && '60 = 2² × 3 × 5   |   PGCD(48 ; 36) = 12'}
-            </text>
-            <text x="210" y="96" textAnchor="middle" className="text-xs font-bold fill-slate-200">
-              {topic === 'transformations' && 'Seule l’homothétie change les longueurs (× |k|) et les aires (× k²). Toutes conservent les angles !'}
-              {topic === 'droites' && 'Le centre de gravité G se situe toujours aux 2/3 de chaque médiane depuis le sommet !'}
-              {topic === 'fonctions' && 'Lire l’image : axe vertical (y). Lire un antécédent : axe horizontal (x).'}
-              {topic === 'arithmetique' && '1 n’est PAS premier ! 2 est le seul nombre premier pair.'}
-            </text>
-            <text x="210" y="124" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">
-              🇬🇦 Astuce CIAM : utilise les exemples en colonne ci-dessous pour maîtriser chaque méthode !
-            </text>
+            <polygon points="45,120 95,55 125,120" fill="#38bdf8" fillOpacity="0.28" stroke="#38bdf8" strokeWidth="2.5" />
+            <text x="88" y="138" textAnchor="middle" className="text-[10px] font-black fill-sky-300">Figure F</text>
+            {/* Vecteur de translation */}
+            <line x1="95" y1="55" x2="225" y2="35" stroke="#fbbf24" strokeWidth="2.5" strokeDasharray="4 3" />
+            <polygon points="232,34 220,30 222,42" fill="#fbbf24" />
+            <line x1="125" y1="120" x2="255" y2="100" stroke="#fbbf24" strokeWidth="2" strokeDasharray="4 3" />
+            <polygon points="180,100 230,35 260,100" fill="#10b981" fillOpacity="0.3" stroke="#34d399" strokeWidth="2.5" />
+            <text x="225" y="118" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">Image F’</text>
+            <rect x="280" y="34" width="136" height="106" rx="12" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+            <text x="348" y="60" textAnchor="middle" className="text-[10px] font-black fill-amber-300">PARALLÉLOGRAMME</text>
+            <text x="348" y="84" textAnchor="middle" className="text-[10px] font-bold fill-white">Même sens</text>
+            <text x="348" y="102" textAnchor="middle" className="text-[10px] font-bold fill-white">Même longueur</text>
+            <text x="348" y="122" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Sans tourner !</text>
+          </>
+        )}
+
+        {topic === 'symetries' && (
+          <>
+            {/* Axiale à gauche */}
+            <line x1="108" y1="22" x2="108" y2="152" stroke="#f43f5e" strokeWidth="2.5" strokeDasharray="5 3" />
+            <polygon points="44,124 88,52 94,124" fill="#38bdf8" fillOpacity="0.3" stroke="#38bdf8" strokeWidth="2" />
+            <polygon points="172,124 128,52 122,124" fill="#10b981" fillOpacity="0.3" stroke="#34d399" strokeWidth="2" />
+            <text x="108" y="166" textAnchor="middle" className="text-[10px] font-black fill-rose-300">Axiale : Miroir (d)</text>
+
+            {/* Centrale à droite */}
+            <circle cx="318" cy="88" r="5" fill="#fbbf24" />
+            <text x="318" y="76" textAnchor="middle" className="text-xs font-black fill-amber-300">O</text>
+            <polygon points="242,120 278,56 292,102" fill="#38bdf8" fillOpacity="0.3" stroke="#38bdf8" strokeWidth="2" />
+            <polygon points="394,56 358,120 344,74" fill="#a855f7" fillOpacity="0.3" stroke="#c084fc" strokeWidth="2" />
+            <line x1="278" y1="56" x2="358" y2="120" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="3 3" />
+            <text x="318" y="166" textAnchor="middle" className="text-[10px] font-black fill-purple-300">Centrale : Demi-tour 180° (O milieu)</text>
+          </>
+        )}
+
+        {topic === 'homothetie' && (
+          <>
+            <circle cx="42" cy="140" r="5" fill="#fbbf24" />
+            <text x="32" y="152" textAnchor="end" className="text-xs font-black fill-amber-300">O</text>
+            <line x1="42" y1="140" x2="262" y2="30" stroke="#64748b" strokeDasharray="3 3" strokeWidth="1.5" />
+            <line x1="42" y1="140" x2="262" y2="140" stroke="#64748b" strokeDasharray="3 3" strokeWidth="1.5" />
+            <polygon points="105,140 140,91 140,140" fill="#38bdf8" fillOpacity="0.35" stroke="#38bdf8" strokeWidth="2" />
+            <polygon points="175,140 245,42 245,140" fill="#a855f7" fillOpacity="0.25" stroke="#c084fc" strokeWidth="2.5" />
+            <text x="126" y="158" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Initial</text>
+            <text x="218" y="158" textAnchor="middle" className="text-[10px] font-bold fill-purple-300">Zoom × k</text>
+            <rect x="275" y="34" width="140" height="106" rx="12" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
+            <text x="345" y="60" textAnchor="middle" className="text-[10px] font-black fill-amber-300">RAPPORT k :</text>
+            <text x="345" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">|k| &gt; 1 ➔ Agrandit</text>
+            <text x="345" y="104" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">|k| &lt; 1 ➔ Réduit</text>
+            <text x="345" y="126" textAnchor="middle" className="text-[10px] font-bold fill-amber-200">Aires × k² !</text>
+          </>
+        )}
+
+        {topic === 'rotation' && (
+          <>
+            <circle cx="145" cy="118" r="5" fill="#fbbf24" />
+            <text x="145" y="138" textAnchor="middle" className="text-xs font-black fill-amber-300">Centre O</text>
+            <path d="M 65 92 A 84 84 0 0 1 200 50" fill="none" stroke="#f43f5e" strokeWidth="2.5" strokeDasharray="4 3" />
+            <polygon points="206,54 194,45 196,59" fill="#f43f5e" />
+            <line x1="145" y1="118" x2="72" y2="80" stroke="#38bdf8" strokeWidth="2" />
+            <line x1="145" y1="118" x2="195" y2="52" stroke="#10b981" strokeWidth="2" />
+            <circle cx="72" cy="80" r="5" fill="#38bdf8" />
+            <text x="62" y="76" textAnchor="end" className="text-xs font-black fill-sky-300">M</text>
+            <circle cx="195" cy="52" r="5" fill="#10b981" />
+            <text x="206" y="48" className="text-xs font-black fill-emerald-300">M’</text>
+            <text x="142" y="84" textAnchor="middle" className="text-xs font-black fill-rose-300">α = 60°</text>
+            <rect x="242" y="34" width="172" height="106" rx="12" fill="#0f172a" stroke="#f43f5e" strokeWidth="1.5" />
+            <text x="328" y="60" textAnchor="middle" className="text-[10px] font-black fill-amber-300">3 INFOS OBLIGATOIRES</text>
+            <text x="328" y="84" textAnchor="middle" className="text-[10px] font-bold fill-white">1. Centre O (OM = OM’)</text>
+            <text x="328" y="104" textAnchor="middle" className="text-[10px] font-bold fill-white">2. Angle α (MÔM’)</text>
+            <text x="328" y="124" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">3. Sens (Horaire / Anti)</text>
+          </>
+        )}
+
+        {topic === 'droites' && (
+          <>
+            <polygon points="120,28 40,142 200,142" fill="#0284c7" fillOpacity="0.18" stroke="#38bdf8" strokeWidth="2.5" />
+            {/* Médiane (vers milieu M de BC) */}
+            <line x1="120" y1="28" x2="120" y2="142" stroke="#fbbf24" strokeWidth="2.5" />
+            <circle cx="120" cy="104" r="5" fill="#f43f5e" />
+            <text x="128" y="106" className="text-xs font-black fill-rose-300">G</text>
+            {/* Hauteur perpendiculaire exemple */}
+            <rect x="120" y="132" width="10" height="10" fill="none" stroke="#10b981" strokeWidth="1.5" />
+            <rect x="225" y="24" width="192" height="128" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+            <text x="321" y="48" textAnchor="middle" className="text-[10px] font-black fill-amber-300">LES 4 POINTS DE CONCOURS</text>
+            <text x="238" y="72" className="text-[10px] font-bold fill-sky-300">• Médiatrices ➔ Cercle Circonscrit</text>
+            <text x="238" y="92" className="text-[10px] font-bold fill-emerald-300">• Bissectrices ➔ Cercle Inscrit</text>
+            <text x="238" y="112" className="text-[10px] font-bold fill-amber-300">• Médianes ➔ Gravité G (aux 2/3)</text>
+            <text x="238" y="132" className="text-[10px] font-bold fill-rose-300">• Hauteurs ➔ Orthocentre H</text>
+          </>
+        )}
+
+        {topic === 'fonctions' && (
+          <>
+            <line x1="45" y1="138" x2="210" y2="138" stroke="#64748b" strokeWidth="2" />
+            <line x1="65" y1="148" x2="65" y2="24" stroke="#64748b" strokeWidth="2" />
+            <path d="M 65 130 Q 125 110 195 34" fill="none" stroke="#38bdf8" strokeWidth="3.5" />
+            <circle cx="145" cy="86" r="5" fill="#fbbf24" />
+            <line x1="145" y1="138" x2="145" y2="86" stroke="#10b981" strokeDasharray="3 3" strokeWidth="2" />
+            <line x1="65" y1="86" x2="145" y2="86" stroke="#f43f5e" strokeDasharray="3 3" strokeWidth="2" />
+            <text x="145" y="154" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">x (Antécédent)</text>
+            <text x="58" y="90" textAnchor="end" className="text-[10px] font-black fill-rose-300">f(x)</text>
+            <rect x="230" y="30" width="185" height="114" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+            <text x="322" y="56" textAnchor="middle" className="text-[10px] font-black fill-amber-300">MÉMO LECTURE GRAPHIQUE</text>
+            <text x="322" y="82" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Antécédent x : axe HORIZONTAL</text>
+            <text x="322" y="106" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Image f(x) : axe VERTICAL</text>
+            <text x="322" y="128" textAnchor="middle" className="text-[10px] font-mono fill-white">f(x) = 2x + 500</text>
+          </>
+        )}
+
+        {topic === 'arithmetique' && (
+          <>
+            <circle cx="115" cy="40" r="18" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
+            <text x="115" y="45" textAnchor="middle" className="text-sm font-black fill-white">60</text>
+            <line x1="103" y1="54" x2="72" y2="82" stroke="#94a3b8" strokeWidth="2" />
+            <line x1="127" y1="54" x2="158" y2="82" stroke="#94a3b8" strokeWidth="2" />
+            <circle cx="68" cy="92" r="15" fill="#10b981" /><text x="68" y="97" textAnchor="middle" className="text-xs font-black fill-slate-950">2</text>
+            <circle cx="162" cy="92" r="16" fill="#334155" stroke="#94a3b8" /><text x="162" y="97" textAnchor="middle" className="text-xs font-black fill-white">30</text>
+            <line x1="150" y1="104" x2="122" y2="132" stroke="#94a3b8" strokeWidth="2" />
+            <line x1="174" y1="104" x2="202" y2="132" stroke="#94a3b8" strokeWidth="2" />
+            <circle cx="118" cy="142" r="14" fill="#10b981" /><text x="118" y="147" textAnchor="middle" className="text-xs font-black fill-slate-950">2</text>
+            <circle cx="206" cy="142" r="14" fill="#f59e0b" /><text x="206" y="147" textAnchor="middle" className="text-xs font-black fill-slate-950">3×5</text>
+
+            <rect x="242" y="30" width="174" height="118" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+            <text x="329" y="56" textAnchor="middle" className="text-[10px] font-black fill-amber-300">DÉCOMPOSITION & PGCD</text>
+            <text x="329" y="82" textAnchor="middle" className="text-xs font-black fill-white font-mono">60 = 2² × 3 × 5</text>
+            <text x="329" y="106" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Premiers : 2, 3, 5, 7, 11, 13...</text>
+            <text x="329" y="128" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">1 n’est PAS premier !</text>
           </>
         )}
       </svg>
@@ -495,6 +725,10 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{ topic: 'transformations
 export const ChapterCourseIllustration: React.FC<{ illustrationKey?: ChapterIllustrationKey }> = ({
   illustrationKey,
 }) => {
+  if (illustrationKey && PHYSICS_KEYS.has(illustrationKey)) {
+    return <PhysicsChapterIllustration illustrationKey={illustrationKey as PhysicsIllustrationKey} />;
+  }
+
   switch (illustrationKey) {
     case 'relatifs':
     case 'puissances':
@@ -502,15 +736,17 @@ export const ChapterCourseIllustration: React.FC<{ illustrationKey?: ChapterIllu
     case 'fractions':
       return <Gabon4eFractionsIllustration />;
     case 'calcul-litteral':
+      return <Gabon4eCalculLitteralIllustration isIdentites={false} />;
     case 'identites-factorisation':
-      return <Gabon4eCalculLitteralIllustration />;
+      return <Gabon4eCalculLitteralIllustration isIdentites={true} />;
     case 'equations':
       return <Gabon4eEquationBalanceIllustration isIneq={false} />;
     case 'inequations':
       return <Gabon4eEquationBalanceIllustration isIneq={true} />;
     case 'racine-carree':
+      return <Gabon4ePythagoreIllustration isRoot={true} />;
     case 'pythagore':
-      return <Gabon4ePythagoreIllustration />;
+      return <Gabon4ePythagoreIllustration isRoot={false} />;
     case 'milieux-agrandissement':
       return <Gabon4eThalesMilieuxIllustration isThales={false} />;
     case 'thales':
@@ -533,10 +769,13 @@ export const ChapterCourseIllustration: React.FC<{ illustrationKey?: ChapterIllu
     case 'reperage-plan':
       return <Gabon4eGeoFunctionsIllustration topic="reperage" />;
     case 'translations':
+      return <Gabon4eGeoFunctionsIllustration topic="translations" />;
     case 'symetries':
+      return <Gabon4eGeoFunctionsIllustration topic="symetries" />;
     case 'homothetie':
+      return <Gabon4eGeoFunctionsIllustration topic="homothetie" />;
     case 'rotation':
-      return <Gabon4eGeoFunctionsIllustration topic="transformations" />;
+      return <Gabon4eGeoFunctionsIllustration topic="rotation" />;
     case 'droites-remarquables':
       return <Gabon4eGeoFunctionsIllustration topic="droites" />;
     case 'fonctions':
