@@ -55,7 +55,21 @@ type FigureTopic =
   | 'atomes-molecules'
   | 'combustions'
   | 'equations-bilan'
-  | 'solutions-ph';
+  | 'solutions-ph'
+  | 'equilibre-deux-forces'
+  | 'travail-puissance-meca'
+  | 'energie-mecanique'
+  | 'association-resistors'
+  | 'transformateur-diode'
+  | 'oeil-instruments'
+  | 'metaux-oxydation'
+  | 'ions-tests'
+  | 'acides-bases-neutralisation'
+  | 'hydrocarbures-alcools'
+  | 'systemes-equations'
+  | 'vecteurs-chasles'
+  | 'angles-polygones'
+  | 'sections-solides';
 
 function resolveFigureTopic(
   chapterId?: string,
@@ -64,7 +78,25 @@ function resolveFigureTopic(
 ): FigureTopic {
   const key = `${chapterId || ''} ${illustrationKey || ''}`.toLowerCase();
 
-  // Physics
+  // Physics 3ème spécifiques (prioritaires avant les correspondances génériques 4ème)
+  if (key.includes('equilibre-deux-forces') || key.includes('equilibre-solide')) return 'equilibre-deux-forces';
+  if (key.includes('travail-puissance')) return 'travail-puissance-meca';
+  if (key.includes('energie-mecanique')) return 'energie-mecanique';
+  if (key.includes('association-resistors') || key.includes('conducteurs-ohmiques')) return 'association-resistors';
+  if (key.includes('transformateur') || key.includes('diode')) return 'transformateur-diode';
+  if (key.includes('oeil-instruments')) return 'oeil-instruments';
+  if (key.includes('metaux-oxydation')) return 'metaux-oxydation';
+  if (key.includes('ions-tests')) return 'ions-tests';
+  if (key.includes('acides-bases')) return 'acides-bases-neutralisation';
+  if (key.includes('hydrocarbures')) return 'hydrocarbures-alcools';
+
+  // Maths 3ème spécifiques
+  if (key.includes('systemes-equations')) return 'systemes-equations';
+  if (key.includes('vecteurs-chasles') || key.includes('vecteurs-translations')) return 'vecteurs-chasles';
+  if (key.includes('angles-polygones')) return 'angles-polygones';
+  if (key.includes('sections-solides') || key.includes('sections-agrandissement')) return 'sections-solides';
+
+  // Physics 4ème
   if (key.includes('circuit-simple')) return 'circuit-simple';
   if (key.includes('serie-derivation')) return 'circuits-serie-derivation';
   if (key.includes('intensite')) return 'intensite';
@@ -86,7 +118,7 @@ function resolveFigureTopic(
   if (key.includes('equations-bilan')) return 'equations-bilan';
   if (key.includes('solutions-ph')) return 'solutions-ph';
 
-  // Maths
+  // Maths 4ème
   if (key.includes('pythagore')) return 'pythagore';
   if (key.includes('thales')) return 'thales';
   if (key.includes('milieux') || key.includes('agrandissement')) return 'milieux';
@@ -111,7 +143,7 @@ function resolveFigureTopic(
   if (key.includes('homothetie')) return 'homothetie';
   if (key.includes('rotation')) return 'rotation';
   if (key.includes('droites-remarquables')) return 'droites';
-  if (key.includes('espace-volumes') || key.includes('volume')) return 'volumes';
+  if (key.includes('espace-volumes') || key.includes('volume') || key.includes('pyramide') || key.includes('cone')) return 'volumes';
   if (key.includes('reperage')) return 'reperage';
 
   return subject === 'physique' ? 'loi-ohm' : 'pythagore';
@@ -165,6 +197,20 @@ function getTopicCaption(topic: FigureTopic): string {
     combustions: 'Triangle du feu & Comparaison flamme bleue (complète) vs jaune (incomplète)',
     'equations-bilan': 'Balance de Lavoisier : Conservation du nombre d’atomes et de la masse totale',
     'solutions-ph': 'Dissolution Cm = m ÷ V, Dilution (Cm’ < Cm) & Échelle pH (0 — 7 — 14)',
+    'equilibre-deux-forces': 'Équilibre à 2 forces (P⃗ + Pa⃗ = 0⃗) · Même droite, sens opposés, P = Pa',
+    'travail-puissance-meca': 'Travail W = F × d (J) · Poids W = m·g·h · Puissance P = W ÷ t = F × v',
+    'energie-mecanique': 'Conservation Em = Ec (½mv²) + Ep (mgh) = constante sans frottements',
+    'association-resistors': 'Série Req = R₁+R₂ · Dérivation Req = (R₁·R₂)/(R₁+R₂) · Pont diviseur',
+    'transformateur-diode': 'Transformateur AC Us/Up = Ns/Np · Diode passante A→K · Transistor Ic = β·Ib',
+    'oeil-instruments': 'Œil réduit, correction myopie (−) / hypermétropie (+) & Loupe G = C ÷ 4',
+    'metaux-oxydation': 'Rouille 4Fe+3O₂→2Fe₂O₃ · Aluminothermie Fe₂O₃+2Al→2Fe+Al₂O₃',
+    'ions-tests': 'Précipités : Cu²⁺ Bleu, Fe²⁺ Vert, Fe³⁺ Rouille (NaOH) ; Cl⁻ Blanc (Ag⁺)',
+    'acides-bases-neutralisation': 'Équivalence Ca·Va = Cb·Vb · Neutralisation H⁺ + OH⁻ → H₂O · Dilution → 7',
+    'hydrocarbures-alcools': 'Alcanes CₙH₂ₙ₊₂ · Combustion C₃H₈ + 5O₂ → 3CO₂ + 4H₂O · Danger CO',
+    'systemes-equations': 'Intersection de 2 droites : Méthodes Substitution & Combinaison linéaire',
+    'vecteurs-chasles': 'Relation de Chasles : AB⃗ + BC⃗ = AC⃗ · Parallélogramme AB⃗ = DC⃗',
+    'angles-polygones': 'Quadrilatère inscrit : Â + Ĉ = 180° · Polygone régulier : α = 360° ÷ n',
+    'sections-solides': 'Réduction/Agrandissement : Longueurs × k, Aires × k², Volumes × k³ (Tronc = V − V’)',
   };
   return captions[topic];
 }
@@ -939,6 +985,185 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <text x="352" y="54" textAnchor="end" className="text-[10px] font-black fill-indigo-300">14 Basique (&gt;7)</text>
           <rect x="25" y="66" width="330" height="38" rx="8" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
           <text x="190" y="89" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">Cm = m_soluté ÷ V_solution (g/L) · Diluer rapproche de 7</text>
+        </svg>
+      );
+
+    case 'equilibre-deux-forces':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <rect x="30" y="42" width="110" height="62" rx="6" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" />
+          <rect x="65" y="48" width="40" height="30" rx="4" fill="#fbbf24" fillOpacity="0.8" />
+          <line x1="85" y1="63" x2="85" y2="18" stroke="#10b981" strokeWidth="3" />
+          <line x1="85" y1="63" x2="85" y2="105" stroke="#f43f5e" strokeWidth="3" />
+          <text x="95" y="26" className="text-[10px] font-black fill-emerald-300">Pa ↑</text>
+          <text x="95" y="102" className="text-[10px] font-black fill-rose-300">P ↓</text>
+          <rect x="165" y="16" width="195" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+          <text x="262" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ÉQUILIBRE &amp; ARCHIMÈDE</text>
+          <text x="262" y="62" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">P⃗ + T⃗ = 0⃗  ⇔  P = T</text>
+          <text x="262" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Pa = P − P’ = ρ·V·g</text>
+        </svg>
+      );
+
+    case 'travail-puissance-meca':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <line x1="25" y1="88" x2="155" y2="88" stroke="#64748b" strokeWidth="2.5" />
+          <rect x="35" y="54" width="38" height="32" rx="4" fill="#38bdf8" fillOpacity="0.35" stroke="#38bdf8" />
+          <line x1="73" y1="70" x2="140" y2="70" stroke="#fbbf24" strokeWidth="3" />
+          <polygon points="145,70 135,64 135,76" fill="#fbbf24" />
+          <text x="108" y="62" textAnchor="middle" className="text-[10px] font-black fill-amber-300">F⃗ sur d</text>
+          <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+          <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">TRAVAIL &amp; PUISSANCE</text>
+          <text x="265" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">W = F × d (J) | W_p = m·g·h</text>
+          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">P = W ÷ t = F × v (W)</text>
+        </svg>
+      );
+
+    case 'energie-mecanique':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <path d="M 28 28 Q 75 96 150 94" fill="none" stroke="#38bdf8" strokeWidth="3" />
+          <circle cx="38" cy="36" r="7" fill="#fbbf24" />
+          <circle cx="136" cy="92" r="7" fill="#10b981" />
+          <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+          <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ÉNERGIE MÉCANIQUE</text>
+          <text x="265" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-sky-300">Ec = ½·m·v² | Ep = m·g·h</text>
+          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Em = Ec + Ep = Cte (sans frott.)</text>
+        </svg>
+      );
+
+    case 'association-resistors':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <line x1="22" y1="60" x2="155" y2="60" stroke="#94a3b8" strokeWidth="2" />
+          <rect x="40" y="46" width="40" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
+          <text x="60" y="64" textAnchor="middle" className="text-[10px] font-black fill-sky-300">R₁</text>
+          <rect x="98" y="46" width="40" height="28" rx="4" fill="#0f172a" stroke="#fbbf24" strokeWidth="2" />
+          <text x="118" y="64" textAnchor="middle" className="text-[10px] font-black fill-amber-300">R₂</text>
+          <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+          <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ASSOCIATION DE RÉSISTORS</text>
+          <text x="265" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">Série : Req = R₁ + R₂</text>
+          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Dériv. : Req = (R₁·R₂)/(R₁+R₂)</text>
+        </svg>
+      );
+
+    case 'transformateur-diode':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <rect x="72" y="24" width="38" height="72" rx="4" fill="none" stroke="#94a3b8" strokeWidth="4" />
+          <text x="44" y="64" textAnchor="middle" className="text-[11px] font-black fill-sky-300">Up</text>
+          <text x="138" y="64" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">Us</text>
+          <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+          <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">TRANSFO · DIODE · NPN</text>
+          <text x="265" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">Us / Up = Ns / Np (AC)</text>
+          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-purple-300">Diode A➔K · Ic = β × Ib</text>
+        </svg>
+      );
+
+    case 'oeil-instruments':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <circle cx="84" cy="60" r="42" fill="#0f172a" stroke="#38bdf8" strokeWidth="2.5" />
+          <ellipse cx="56" cy="60" rx="7" ry="20" fill="#38bdf8" fillOpacity="0.5" />
+          <circle cx="126" cy="60" r="3.5" fill="#10b981" />
+          <rect x="155" y="16" width="208" height="88" rx="10" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+          <text x="259" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">CORRECTION &amp; LOUPE</text>
+          <text x="259" y="60" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Myopie (−) | Hypermétropie (+)</text>
+          <text x="259" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Loupe : G = C ÷ 4</text>
+        </svg>
+      );
+
+    case 'metaux-oxydation':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
+          <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">MÉTAUX (Fe, Cu, Al, Zn) &amp; OXYDATIONS</text>
+          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-rose-300">Rouille : 4 Fe + 3 O₂ ➔ 2 Fe₂O₃</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Aluminothermie : Fe₂O₃ + 2 Al ➔ 2 Fe + Al₂O₃</text>
+        </svg>
+      );
+
+    case 'ions-tests':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
+          <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">TESTS CARACTÉRISTIQUES DES IONS</text>
+          <text x="190" y="62" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">NaOH : Cu²⁺ (Bleu) · Fe²⁺ (Vert) · Fe³⁺ (Rouille)</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">AgNO₃ : Cl⁻ ➔ Précipité blanc noircissant</text>
+        </svg>
+      );
+
+    case 'acides-bases-neutralisation':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+          <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ACIDES (pH &lt; 7) · BASES (pH &gt; 7) · DOSAGE</text>
+          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">H⁺ + OH⁻ ➔ H₂O  |  Ca·Va = Cb·Vb</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Dilution rapproche toujours pH de 7 · Zn + 2H⁺ ➔ Zn²⁺ + H₂↑</text>
+        </svg>
+      );
+
+    case 'hydrocarbures-alcools':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
+          <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">HYDROCARBURES (SOGARA) : ALCANES CₙH₂ₙ₊₂</text>
+          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">C₃H₈ + 5 O₂ ➔ 3 CO₂ + 4 H₂O (Flamme bleue)</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Flamme jaune = Manque O₂ ➔ Monoxyde CO (toxique)</text>
+        </svg>
+      );
+
+    case 'systemes-equations':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <line x1="35" y1="95" x2="145" y2="25" stroke="#38bdf8" strokeWidth="2.5" />
+          <line x1="35" y1="25" x2="145" y2="95" stroke="#10b981" strokeWidth="2.5" />
+          <circle cx="90" cy="60" r="5" fill="#fbbf24" />
+          <text x="90" y="110" textAnchor="middle" className="text-[10px] font-black fill-amber-300">Intersection (x₀ ; y₀)</text>
+          <rect x="165" y="16" width="196" height="88" rx="10" fill="#0f172a" stroke="#6366f1" strokeWidth="1.5" />
+          <text x="263" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">SYSTÈME D’ÉQUATIONS</text>
+          <text x="263" y="60" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">1) Isoler une inconnue (Substitution)</text>
+          <text x="263" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">2) Ou multiplier et additionner (Combinaison)</text>
+        </svg>
+      );
+
+    case 'vecteurs-chasles':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <line x1="30" y1="92" x2="90" y2="30" stroke="#38bdf8" strokeWidth="2.5" />
+          <line x1="90" y1="30" x2="145" y2="92" stroke="#fbbf24" strokeWidth="2.5" />
+          <line x1="30" y1="92" x2="145" y2="92" stroke="#10b981" strokeWidth="3" strokeDasharray="4 3" />
+          <text x="50" y="54" className="text-[10px] font-black fill-sky-300">AB⃗</text>
+          <text x="122" y="54" className="text-[10px] font-black fill-amber-300">BC⃗</text>
+          <text x="88" y="108" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">AC⃗ = AB⃗ + BC⃗</text>
+          <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+          <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">CHASLES &amp; PARALLÉLOGRAMME</text>
+          <text x="265" y="62" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">AB⃗ + BC⃗ = AC⃗</text>
+          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">AB⃗ = DC⃗ ⇔ ABCD parallélogramme</text>
+        </svg>
+      );
+
+    case 'angles-polygones':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <circle cx="88" cy="60" r="42" fill="none" stroke="#38bdf8" strokeWidth="2" />
+          <polygon points="88,18 124,39 124,81 88,102 52,81 52,39" fill="#a855f7" fillOpacity="0.25" stroke="#c084fc" strokeWidth="2" />
+          <rect x="155" y="16" width="208" height="88" rx="10" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
+          <text x="259" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ANGLES &amp; POLYGONES RÉGULIERS</text>
+          <text x="259" y="60" textAnchor="middle" className="text-[10px] font-bold fill-white">Quadrilatère inscrit : Â + Ĉ = 180°</text>
+          <text x="259" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Angle centre = 360° ÷ n</text>
+        </svg>
+      );
+
+    case 'sections-solides':
+      return (
+        <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
+          <polygon points="86,18 42,102 130,102" fill="#0284c7" fillOpacity="0.22" stroke="#38bdf8" strokeWidth="2" />
+          <ellipse cx="86" cy="60" rx="22" ry="5" fill="#fbbf24" fillOpacity="0.45" stroke="#fbbf24" strokeWidth="2" />
+          <rect x="155" y="16" width="208" height="88" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+          <text x="259" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">SECTIONS &amp; TRONC (k, k², k³)</text>
+          <text x="259" y="60" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Aire’ = k²·Aire | Volume’ = k³·Volume</text>
+          <text x="259" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">V_tronc = V_grand − V_petit</text>
         </svg>
       );
   }

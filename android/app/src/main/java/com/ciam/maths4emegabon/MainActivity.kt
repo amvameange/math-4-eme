@@ -1,14 +1,19 @@
 package com.ciam.maths4emegabon
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.graphics.Color
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.view.ViewGroup
-import android.view.WindowInsetsController
+import android.webkit.JavascriptInterface
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -16,12 +21,30 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
 import androidx.webkit.WebViewAssetLoader
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
+    private var fileUploadCallback: ValueCallback<Array<Uri>>? = null
+
+    private val fileChooserLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val callback = fileUploadCallback
+        fileUploadCallback = null
+        if (callback == null) return@registerForActivityResult
+
+        val uris = WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data)
+        callback.onReceiveValue(uris)
+    }
 
     private val assetLoader: WebViewAssetLoader by lazy {
         WebViewAssetLoader.Builder()
@@ -29,34 +52,78 @@ class MainActivity : AppCompatActivity() {
             .build()
     }
 
+    private inner class AndroidBridge {
+        @JavascriptInterface
+        fun shareJson(filename: String, jsonContent: String) {
+            runOnUiThread {
+                try {
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/json"
+                        putExtra(Intent.EXTRA_SUBJECT, filename)
+                        putExtra(Intent.EXTRA_TEXT, jsonContent)
+                    }
+                    startActivity(Intent.createChooser(shareIntent, "Exporter $filename"))
+                } catch (_: Exception) {
+                    // Ignored if no handler installed
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun printPage() {
+            runOnUiThread {
+                if (!::webView.isInitialized) return@runOnUiThread
+                try {
+                    val printManager = getSystemService(Context.PRINT_SERVICE) as? PrintManager
+                        ?: return@runOnUiThread
+                    val jobName = "Fiche_Memo_3eme_BEPC"
+                    val adapter = webView.createPrintDocumentAdapter(jobName)
+                    printManager.print(jobName, adapter, PrintAttributes.Builder().build())
+                } catch (_: Exception) {
+                    // Ignored if print service unavailable
+                }
+            }
+        }
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize full-screen WebView first so decorView/insetsController are attached safely
-        webView = WebView(this)
-        webView.setBackgroundColor(Color.parseColor("#020617"))
+        // Enable Chrome DevTools WebView debugging in debug builds only
+        val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        WebView.setWebContentsDebuggingEnabled(isDebuggable)
+
+        // Android 15 (SDK 35) edge-to-edge safe inset handling
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.decorView.setBackgroundColor(Color.parseColor("#020617"))
+
+        webView = WebView(this).apply {
+            setBackgroundColor(Color.parseColor("#020617"))
+        }
         setContentView(webView)
 
-        // Dark status and navigation bars matching the app's slate-950 theme
-        @Suppress("DEPRECATION")
-        window.statusBarColor = Color.parseColor("#020617")
-        @Suppress("DEPRECATION")
-        window.navigationBarColor = Color.parseColor("#020617")
+        ViewCompat.setOnApplyWindowInsetsListener(webView) { view, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
+            )
+            view.updatePadding(
+                left = insets.left,
+                top = insets.top,
+                right = insets.right,
+                bottom = insets.bottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.decorView.post {
-                window.insetsController?.setSystemBarsAppearance(
-                    0,
-                    WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                )
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = 0
+        // Light icons off => light foreground icons on dark slate-950 system bars
+        WindowInsetsControllerCompat(window, webView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
         }
 
         configureWebViewSettings(webView.settings)
+        webView.addJavascriptInterface(AndroidBridge(), "AndroidBridge")
 
         // Serve Vite ES modules cleanly from https://appassets.androidplatform.net/assets/
         // Avoids file:// CORS restrictions on <script type="module"> in Android WebView
@@ -92,6 +159,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                fileUploadCallback?.onReceiveValue(null)
+                fileUploadCallback = filePathCallback
+                return try {
+                    val intent = fileChooserParams?.createIntent() ?: Intent(Intent.ACTION_GET_CONTENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                    }
+                    fileChooserLauncher.launch(intent)
+                    true
+                } catch (_: Exception) {
+                    fileUploadCallback?.onReceiveValue(null)
+                    fileUploadCallback = null
+                    false
+                }
+            }
+
             override fun onJsAlert(
                 view: WebView?,
                 url: String?,
@@ -124,8 +212,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Load local compiled assets via WebViewAssetLoader HTTPS origin
-        webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
+        if (savedInstanceState != null) {
+            webView.restoreState(savedInstanceState)
+        } else {
+            // Load local compiled assets via WebViewAssetLoader HTTPS origin
+            webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
+        }
 
         // Handle Android hardware/gesture Back button
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -165,6 +257,13 @@ class MainActivity : AppCompatActivity() {
         settings.cacheMode = WebSettings.LOAD_DEFAULT
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::webView.isInitialized) {
+            webView.saveState(outState)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (::webView.isInitialized) {
@@ -180,6 +279,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        fileUploadCallback?.onReceiveValue(null)
+        fileUploadCallback = null
         if (::webView.isInitialized) {
             (webView.parent as? ViewGroup)?.removeView(webView)
             webView.stopLoading()

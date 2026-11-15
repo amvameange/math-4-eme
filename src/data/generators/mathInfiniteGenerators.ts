@@ -1,6 +1,7 @@
 import { ExerciseDifficulty } from '../../types/math';
 import { CHAPTERS } from '../curriculumData';
-import { DIFFICULTY_META, GeneratedExercise, pickRandom, randInt } from './types';
+import { DIFFICULTY_META, GeneratedExercise, pickRandom, randFloat, randInt } from './types';
+import { generateMath3emeExercise } from './math3emeGenerators';
 
 function gcd(a: number, b: number): number {
   let x = Math.abs(a);
@@ -30,8 +31,12 @@ function makeResult(
 
 export function generateMathExercise(
   chapterId: string,
-  difficulty: ExerciseDifficulty
+  difficulty: ExerciseDifficulty,
+  variantIndex = 0
 ): GeneratedExercise {
+  if (chapterId.startsWith('math3-')) {
+    return generateMath3emeExercise(chapterId, difficulty, variantIndex);
+  }
   // 1. NOMBRES RELATIFS
   if (chapterId === 'nombres-relatifs-operations') {
     if (difficulty === 1) {
@@ -1733,7 +1738,7 @@ export function generateMathExercise(
       });
     }
     if (difficulty === 3) {
-      const isRight = Math.random() > 0.5;
+      const isRight = randFloat() > 0.5;
       const [a, b, cBase] = pickRandom(triples);
       const c = isRight ? cBase : cBase + 1;
       return makeResult(chapterId, difficulty, {
@@ -2110,7 +2115,7 @@ export function generateMathExercise(
       });
     }
     if (difficulty === 3) {
-      const parallel = Math.random() > 0.5;
+      const parallel = randFloat() > 0.5;
       const am = 4;
       const ab = 10;
       const an = 6;

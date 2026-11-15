@@ -1,10 +1,10 @@
 import React from 'react';
-import { ChapterIllustrationKey, PhysicsIllustrationKey } from '../../types/math';
+import { ChapterIllustrationKey, GradeLevel, PhysicsIllustrationKey } from '../../types/math';
 import { PhysicsChapterIllustration } from './GabonPhysicsIllustrations';
 
 /**
- * Illustrations pédagogiques vivantes, colorées et culturelles pour les 27 chapitres de Maths 4ème (CIAM Gabon)
- * + routage automatique vers les 20 illustrations de Physique-Chimie 4ème Gabon
+ * Illustrations pédagogiques vivantes, colorées et culturelles pour les chapitres de Maths 4ème & 3ème BEPC (CIAM Gabon)
+ * + routage automatique vers les illustrations de Physique-Chimie 4ème & 3ème Gabon
  */
 
 const PHYSICS_KEYS: Set<string> = new Set<PhysicsIllustrationKey>([
@@ -28,12 +28,24 @@ const PHYSICS_KEYS: Set<string> = new Set<PhysicsIllustrationKey>([
   'combustions',
   'equations-bilan',
   'solutions-ph',
+  'equilibre-deux-forces',
+  'travail-puissance-meca',
+  'energie-mecanique',
+  'association-resistors',
+  'transformateur-diode',
+  'oeil-instruments',
+  'metaux-oxydation',
+  'ions-tests',
+  'acides-bases-neutralisation',
+  'hydrocarbures-alcools',
 ]);
 
-// Mascotte : Koko le Matheux (Version Expert 4ème avec compas & équerre)
-export const MascotKoko: React.FC<{ expression?: 'happy' | 'thinking' | 'victory'; speech?: string }> = ({
-  speech,
-}) => {
+// Mascotte : Koko le Matheux (Version Expert 4ème / 3ème BEPC avec compas & équerre)
+export const MascotKoko: React.FC<{
+  expression?: 'happy' | 'thinking' | 'victory';
+  speech?: string;
+  gradeLevel?: GradeLevel;
+}> = ({ speech, gradeLevel = '4eme' }) => {
   return (
     <div className="flex items-start gap-3.5 p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-sky-500/15 border border-amber-500/30 shadow-lg">
       <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-300 p-1 flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
@@ -64,14 +76,19 @@ export const MascotKoko: React.FC<{ expression?: 'happy' | 'thinking' | 'victory
 
       <div className="flex-1 text-xs">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-extrabold text-amber-400">Koko le Matheux (Classe de 4ème)</span>
+          <span className="font-extrabold text-amber-400">
+            Koko le Matheux ({gradeLevel === '3eme' ? 'Classe de 3ème BEPC' : 'Classe de 4ème'})
+          </span>
           <span className="text-slate-500">·</span>
           <span className="text-[11px] text-emerald-400 font-bold">
             Guide Officiel CIAM Gabon 🇬🇦
           </span>
         </div>
         <p className="text-slate-200 mt-1 leading-relaxed font-medium">
-          {speech || "Mbolo champion ! En 4ème, chaque chapitre est séparé pour que tu maîtrises 100% du programme sans tout mélanger. Observe mes dessins pour tout retenir !"}
+          {speech ||
+            (gradeLevel === '3eme'
+              ? 'Mbolo futur bachelier ! En 3ème BEPC, observe mes figures avant chaque théorème (Thalès, Trigo, Chasles, Sections k³) et pose toujours tes calculs en colonne !'
+              : 'Mbolo champion ! En 4ème, chaque chapitre est séparé pour que tu maîtrises 100% du programme sans tout mélanger. Observe mes dessins pour tout retenir !')}
         </p>
       </div>
     </div>
@@ -722,6 +739,99 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{
   </div>
 );
 
+export const Gabon3eExtrasIllustration: React.FC<{
+  topic: 'systemes-equations' | 'vecteurs-chasles' | 'angles-polygones' | 'sections-solides';
+}> = ({ topic }) => (
+  <div className="rounded-3xl bg-slate-900 border-2 border-indigo-500/40 p-4 sm:p-5 shadow-xl space-y-3">
+    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-indigo-300">
+      <span>
+        {topic === 'systemes-equations' && '🧩 Systèmes d’Équations à 2 Inconnues & Intersection de 2 Droites'}
+        {topic === 'vecteurs-chasles' && '➡️ Vecteurs : Relation de Chasles (AB⃗ + BC⃗ = AC⃗) & Parallélogramme'}
+        {topic === 'angles-polygones' && '⭕ Angles Inscrits, Quadrilatères Inscriptibles & Polygones Réguliers'}
+        {topic === 'sections-solides' && '🔺 Sections Planes, Facteurs (k, k², k³) & Tronc de Cône/Pyramide'}
+      </span>
+      <span className="text-[11px] text-amber-300 font-bold">CIAM 3ème BEPC</span>
+    </div>
+    <div className="flex justify-center bg-slate-950/85 rounded-2xl border border-slate-800 p-3">
+      <svg viewBox="0 0 430 175" className="w-full max-w-lg h-auto select-none">
+        {topic === 'systemes-equations' && (
+          <>
+            <line x1="40" y1="145" x2="210" y2="145" stroke="#64748b" strokeWidth="2" />
+            <line x1="65" y1="155" x2="65" y2="25" stroke="#64748b" strokeWidth="2" />
+            <line x1="50" y1="130" x2="195" y2="40" stroke="#38bdf8" strokeWidth="3" />
+            <line x1="55" y1="35" x2="195" y2="135" stroke="#10b981" strokeWidth="3" />
+            <circle cx="128" cy="82" r="6" fill="#fbbf24" />
+            <text x="140" y="78" className="text-xs font-black fill-amber-300">Solution (x₀ ; y₀)</text>
+            <rect x="235" y="28" width="180" height="118" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+            <text x="325" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">2 MÉTHODES BEPC</text>
+            <text x="325" y="82" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">1. Substitution (isoler x ou y)</text>
+            <text x="325" y="106" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">2. Combinaison (éliminer)</text>
+            <text x="325" y="130" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Couple S = &#123;(x ; y)&#125;</text>
+          </>
+        )}
+
+        {topic === 'vecteurs-chasles' && (
+          <>
+            <circle cx="55" cy="135" r="4" fill="#38bdf8" />
+            <circle cx="145" cy="45" r="4" fill="#fbbf24" />
+            <circle cx="215" cy="135" r="4" fill="#10b981" />
+            <line x1="55" y1="135" x2="140" y2="50" stroke="#38bdf8" strokeWidth="3" />
+            <polygon points="145,45 132,50 140,58" fill="#38bdf8" />
+            <text x="86" y="80" className="text-xs font-black fill-sky-300">AB⃗</text>
+            <line x1="145" y1="45" x2="210" y2="129" stroke="#fbbf24" strokeWidth="3" />
+            <polygon points="215,135 212,121 203,128" fill="#fbbf24" />
+            <text x="190" y="80" className="text-xs font-black fill-amber-300">BC⃗</text>
+            <line x1="55" y1="135" x2="207" y2="135" stroke="#10b981" strokeWidth="3.5" strokeDasharray="5 3" />
+            <polygon points="215,135 203,129 203,141" fill="#10b981" />
+            <text x="135" y="156" textAnchor="middle" className="text-xs font-black fill-emerald-300">AC⃗ = AB⃗ + BC⃗</text>
+
+            <rect x="240" y="28" width="175" height="118" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+            <text x="327" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">LOIS VECTORIELLES</text>
+            <text x="327" y="80" textAnchor="middle" className="text-xs font-mono font-bold fill-white">AB⃗ + BC⃗ = AC⃗</text>
+            <text x="327" y="104" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">AB⃗ = DC⃗ ⇔ ABCD paral.</text>
+            <text x="327" y="128" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">I milieu [AB] ⇔ IA⃗+IB⃗=0⃗</text>
+          </>
+        )}
+
+        {topic === 'angles-polygones' && (
+          <>
+            <circle cx="115" cy="88" r="58" fill="#0f172a" stroke="#38bdf8" strokeWidth="2.5" />
+            <polygon points="115,30 165,60 165,116 115,146 65,116 65,60" fill="#a855f7" fillOpacity="0.25" stroke="#c084fc" strokeWidth="2.5" />
+            <line x1="115" y1="88" x2="115" y2="30" stroke="#fbbf24" strokeWidth="2" strokeDasharray="3 3" />
+            <line x1="115" y1="88" x2="165" y2="60" stroke="#fbbf24" strokeWidth="2" strokeDasharray="3 3" />
+            <circle cx="115" cy="88" r="4" fill="#fbbf24" />
+            <text x="148" y="76" className="text-[10px] font-black fill-amber-300">60°</text>
+            <text x="115" y="164" textAnchor="middle" className="text-[10px] font-black fill-purple-300">Hexagone régulier (n=6)</text>
+
+            <rect x="215" y="28" width="200" height="118" rx="12" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
+            <text x="315" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">ANGLES &amp; POLYGONES</text>
+            <text x="315" y="80" textAnchor="middle" className="text-[10px] font-bold fill-white">Quadrilatère inscrit : Â + Ĉ = 180°</text>
+            <text x="315" y="106" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Angle centre = 360° ÷ n</text>
+            <text x="315" y="130" textAnchor="middle" className="text-[10px] font-mono font-bold fill-sky-300">Angle intérieur = 180° − 360°/n</text>
+          </>
+        )}
+
+        {topic === 'sections-solides' && (
+          <>
+            <polygon points="115,24 55,146 175,146" fill="#0284c7" fillOpacity="0.22" stroke="#38bdf8" strokeWidth="2.5" />
+            <ellipse cx="115" cy="146" rx="60" ry="12" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="2" />
+            <ellipse cx="115" cy="85" rx="30" ry="7" fill="#fbbf24" fillOpacity="0.35" stroke="#fbbf24" strokeWidth="2.5" />
+            <text x="175" y="88" className="text-[10px] font-black fill-amber-300">Section r’=k·r</text>
+            <text x="115" y="169" textAnchor="middle" className="text-[10px] font-black fill-sky-300">Tronc de cône = V − V’</text>
+
+            <rect x="225" y="26" width="190" height="124" rx="12" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+            <text x="320" y="52" textAnchor="middle" className="text-[11px] font-black fill-amber-300">LOI D’ÉCHELLE (k, k², k³)</text>
+            <text x="320" y="78" textAnchor="middle" className="text-[10px] font-bold fill-white">Longueurs × k</text>
+            <text x="320" y="100" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Aires (sections) × k²</text>
+            <text x="320" y="122" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">Volumes × k³</text>
+            <text x="320" y="142" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">k = 1/2 ➔ Volume ÷ 8 !</text>
+          </>
+        )}
+      </svg>
+    </div>
+  </div>
+);
+
 export const ChapterCourseIllustration: React.FC<{ illustrationKey?: ChapterIllustrationKey }> = ({
   illustrationKey,
 }) => {
@@ -743,6 +853,8 @@ export const ChapterCourseIllustration: React.FC<{ illustrationKey?: ChapterIllu
       return <Gabon4eEquationBalanceIllustration isIneq={false} />;
     case 'inequations':
       return <Gabon4eEquationBalanceIllustration isIneq={true} />;
+    case 'systemes-equations':
+      return <Gabon3eExtrasIllustration topic="systemes-equations" />;
     case 'racine-carree':
       return <Gabon4ePythagoreIllustration isRoot={true} />;
     case 'pythagore':
@@ -753,6 +865,12 @@ export const ChapterCourseIllustration: React.FC<{ illustrationKey?: ChapterIllu
       return <Gabon4eThalesMilieuxIllustration isThales={true} />;
     case 'trigonometrie':
       return <Gabon4eTrigoIllustration />;
+    case 'vecteurs-chasles':
+      return <Gabon3eExtrasIllustration topic="vecteurs-chasles" />;
+    case 'angles-polygones':
+      return <Gabon3eExtrasIllustration topic="angles-polygones" />;
+    case 'sections-solides':
+      return <Gabon3eExtrasIllustration topic="sections-solides" />;
     case 'espace-volumes':
       return <Gabon4eStatsVitesseVolumesIllustration topic="volumes" />;
     case 'vitesse':

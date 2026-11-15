@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Physique-Chimie & Maths 4ème Gabon - Programme Officiel & CIAM",
-  "short_name": "Phys & Maths 4e",
-  "description": "20 chapitres de Physique-Chimie et 27 chapitres de Mathématiques CIAM 4ème Gabon : cours rédigés, schémas, simulations et exercices corrigés debout.",
+  "name": "Physique-Chimie & Maths 3ème BEPC Gabon",
+  "short_name": "Sciences 3ème",
+  "description": "Programme officiel 3ème BEPC Gabon (Physique-Chimie & Maths CIAM) : cours rédigés, 3 expériences interactives par chapitre, Exercices Infinis et exercices personnalisés sauvegardés.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

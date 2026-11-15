@@ -1,4 +1,5 @@
 export type SubjectId = 'physique' | 'maths';
+export type GradeLevel = '4eme' | '3eme';
 
 export type MathDomainId =
   | 'nombres-calculs'
@@ -43,6 +44,7 @@ export interface Exercise {
   title: string;
   difficulty: ExerciseDifficulty;
   difficultyLabel: 'Fondamental' | 'Entraînement' | 'Approfondissement' | 'Problème de synthèse';
+  category?: 'application' | 'cours' | 'bepc-chapitre' | 'bepc-examen';
   prompt: string;
   hint: string;
   questionType: 'qcm' | 'numeric' | 'text';
@@ -50,8 +52,36 @@ export interface Exercise {
   correctAnswer: string;
   unit?: string;
   visualBadge?: string;
+  originCountry?: string;
+  originYear?: string;
+  bepcPoints?: string;
+  isExamProblem?: boolean;
+  themeTags?: string[];
   explanationFinal: string;
   steps: CorrectionStep[];
+}
+
+export type BepcCountryId =
+  | 'gabon'
+  | 'france'
+  | 'senegal'
+  | 'cameroun'
+  | 'benin'
+  | 'togo';
+
+export interface BepcArchivePaper {
+  id: string;
+  subject: SubjectId;
+  year: number;
+  countryId: BepcCountryId;
+  countryLabel: string;
+  examTitle: string;
+  duration: string;
+  totalPoints: number;
+  themeSummary: string;
+  isTrainingSubject?: boolean;
+  sourceNotice?: string;
+  parts: Exercise[];
 }
 
 export interface LessonSection {
@@ -117,7 +147,12 @@ export type MathIllustrationKey =
   | 'droites-remarquables'
   | 'espace-volumes'
   | 'reperage-plan'
-  | 'cercle';
+  | 'cercle'
+  // 3ème BEPC Maths
+  | 'systemes-equations'
+  | 'vecteurs-chasles'
+  | 'angles-polygones'
+  | 'sections-solides';
 
 export type PhysicsIllustrationKey =
   | 'circuit-simple'
@@ -139,7 +174,18 @@ export type PhysicsIllustrationKey =
   | 'atomes-molecules'
   | 'combustions'
   | 'equations-bilan'
-  | 'solutions-ph';
+  | 'solutions-ph'
+  // 3ème BEPC Physique-Chimie
+  | 'equilibre-deux-forces'
+  | 'travail-puissance-meca'
+  | 'energie-mecanique'
+  | 'association-resistors'
+  | 'transformateur-diode'
+  | 'oeil-instruments'
+  | 'metaux-oxydation'
+  | 'ions-tests'
+  | 'acides-bases-neutralisation'
+  | 'hydrocarbures-alcools';
 
 export type ChapterIllustrationKey = MathIllustrationKey | PhysicsIllustrationKey;
 
@@ -166,6 +212,7 @@ export interface ExperimentActivity {
 export interface Chapter {
   id: string;
   subject?: SubjectId;
+  gradeLevel?: GradeLevel;
   domainId: DomainId;
   order: number;
   title: string;
@@ -206,4 +253,21 @@ export interface UserProgress {
   totalXp: number;
   streakDays: number;
   notes: Record<string, string>;
+}
+
+export interface CustomExercise {
+  id: string;
+  subject: SubjectId;
+  chapterId: string;
+  chapterTitle: string;
+  title: string;
+  difficulty: ExerciseDifficulty;
+  prompt: string;
+  hint: string;
+  correctAnswer: string;
+  unit?: string;
+  correctionSteps: string[];
+  explanationFinal: string;
+  createdAt: number;
+  updatedAt?: number;
 }

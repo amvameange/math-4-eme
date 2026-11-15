@@ -5,16 +5,19 @@ import {
   Compass,
   FileText,
   GraduationCap,
+  FolderOpen,
+  Award,
 } from 'lucide-react';
 import { SubjectId } from '../types/math';
 
-export type MainViewTab = 'cours' | 'generateur' | 'simulateurs';
+export type MainViewTab = 'cours' | 'bepc' | 'generateur' | 'simulateurs' | 'custom';
 
 interface MathHeaderProps {
   currentTab: MainViewTab;
   onChangeTab: (tab: MainViewTab) => void;
   onOpenMemo: () => void;
   activeSubject: SubjectId;
+  customExercisesCount?: number;
 }
 
 export const MathHeader: React.FC<MathHeaderProps> = ({
@@ -22,6 +25,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
   onChangeTab,
   onOpenMemo,
   activeSubject,
+  customExercisesCount = 0,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800">
@@ -35,15 +39,17 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
           </div>
           <div>
             <div className="font-extrabold text-sm sm:text-base text-white tracking-tight whitespace-nowrap">
-              Sciences & Maths 4ème
+              Sciences &amp; Maths 3ème BEPC
             </div>
             <div className="text-[11px] text-slate-400 whitespace-nowrap">
-              {activeSubject === 'physique' ? 'Physique-Chimie Gabon' : 'Maths CIAM Gabon'}
+              {activeSubject === 'physique'
+                ? 'Physique-Chimie 3ème Gabon'
+                : 'Maths CIAM 3ème Gabon'}
             </div>
           </div>
         </div>
 
-        {/* Zone 2 : Navigation Tabs (3 concise links) */}
+        {/* Zone 2 : Navigation Tabs */}
         <nav className="flex items-center gap-1 p-1 bg-slate-900 rounded-2xl border border-slate-800 overflow-x-auto scrollbar-none">
           <button
             onClick={() => onChangeTab('cours')}
@@ -54,7 +60,19 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Cours & Exercices</span>
+            <span>Cours &amp; Exercices</span>
+          </button>
+
+          <button
+            onClick={() => onChangeTab('bepc')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap shrink-0 ${
+              currentTab === 'bepc'
+                ? 'bg-rose-400 text-slate-950 font-bold shadow'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5" />
+            <span>Type BEPC &amp; Examen</span>
           </button>
 
           <button
@@ -66,7 +84,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Générateur Infini</span>
+            <span>Exercices Infinis</span>
           </button>
 
           <button
@@ -79,6 +97,20 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
           >
             <Compass className="w-3.5 h-3.5" />
             <span>Labo Visuel</span>
+          </button>
+
+          <button
+            onClick={() => onChangeTab('custom')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+              currentTab === 'custom'
+                ? 'bg-indigo-400 text-slate-950 font-bold shadow'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <FolderOpen className="w-3.5 h-3.5" />
+            <span>
+              Mes Exercices{customExercisesCount > 0 ? ` (${customExercisesCount})` : ''}
+            </span>
           </button>
         </nav>
 

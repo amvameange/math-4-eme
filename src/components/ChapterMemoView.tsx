@@ -11,6 +11,7 @@ import { Chapter, ChapterMemo } from '../types/math';
 import { GabonBadgeStamp } from './illustrations/FunFeedbackIllustrations';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { DemonstrationMethodFigure } from './illustrations/PedagogicalFigures';
+import { ChapterThreeExperiencesPanel } from './ChapterThreeExperiencesPanel';
 
 interface ChapterMemoViewProps {
   chapter: Chapter;
@@ -35,13 +36,15 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
             </div>
             <div>
               <div className="text-xs font-extrabold text-amber-300">
-                {chapter.badge} · 🇬🇦 {isPhysics ? 'Programme Physique-Chimie 4ème' : 'Programme CIAM 4ème'}
+                {chapter.badge} · 🇬🇦{' '}
+                {isPhysics ? 'Programme Physique-Chimie 3ème BEPC' : 'Programme CIAM 3ème BEPC'}
               </div>
               <h3 className="text-lg sm:text-xl font-black text-white mt-0.5">
                 Fiche Mémo DS : {chapter.title}
               </h3>
               <p className="text-xs text-slate-300">
-                {memo?.slogan || 'Toutes les formules du cours écrites en colonne verticale pour réussir tes devoirs !'}
+                {memo?.slogan ||
+                  'Toutes les formules du cours écrites en colonne verticale et 3 expériences illustratives !'}
               </p>
             </div>
           </div>
@@ -49,7 +52,9 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
           <button
             onClick={() => {
               try {
-                if (typeof window !== 'undefined' && typeof window.print === 'function') {
+                if (typeof window !== 'undefined' && window.AndroidBridge?.printPage) {
+                  window.AndroidBridge.printPage();
+                } else if (typeof window !== 'undefined' && typeof window.print === 'function') {
                   window.print();
                 }
               } catch (e) {
@@ -65,12 +70,19 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
         </div>
       </div>
 
-      {/* Schéma visuel du chapitre & formules */}
+      {/* Schéma de méthode du chapitre */}
       <DemonstrationMethodFigure
         chapterId={chapter.id}
         illustrationKey={chapter.illustrationKey}
         subject={chapter.subject}
         contextHint={chapter.title}
+      />
+
+      {/* 3 Expériences & Schémas Illustratifs Interactifs du Chapitre */}
+      <ChapterThreeExperiencesPanel
+        chapterId={chapter.id}
+        subject={chapter.subject || 'maths'}
+        mode="memo"
       />
 
       {/* 1. Points Clés à Retenir */}
@@ -157,7 +169,8 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
             <span>Le Super Conseil de Koko pour le Devoir (DS)</span>
           </div>
           <p className="text-xs text-slate-200 leading-relaxed font-medium">
-            {memo?.kokoTip || 'Prends ton temps, écris toujours une étape par ligne et encadre ta réponse finale à la règle !'}
+            {memo?.kokoTip ||
+              'Prends ton temps, écris toujours une étape par ligne et encadre ta réponse finale à la règle !'}
           </p>
         </div>
 
@@ -167,7 +180,8 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
             <span>Le Gros Piège à Éviter Absolument</span>
           </div>
           <p className="text-xs text-rose-100 leading-relaxed font-medium">
-            {memo?.pitfallToAvoid || 'Ne calcule jamais tout d’un coup sur une seule ligne. Aligne toujours les égalités vers le bas.'}
+            {memo?.pitfallToAvoid ||
+              'Ne calcule jamais tout d’un coup sur une seule ligne. Aligne toujours les égalités vers le bas.'}
           </p>
         </div>
       </div>
@@ -181,14 +195,14 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
               Prêt(e) à tester ta mémoire ?
             </div>
             <div className="text-xs text-slate-300">
-              Mets en pratique ces formules avec les {chapter.exercises.length} exercices corrigés étape par étape !
+              Mets en pratique ces formules avec les 90 exercices corrigés étape par étape !
             </div>
           </div>
           <button
             onClick={onGoToExercises}
             className="px-4 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition cursor-pointer shadow shrink-0 active:scale-95 whitespace-nowrap"
           >
-            S’entraîner sur les {chapter.exercises.length} exercices ➔
+            S’entraîner sur les exercices ➔
           </button>
         </div>
       )}

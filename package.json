@@ -1,12 +1,12 @@
 {
-  "name": "physique-maths-4eme-gabon",
+  "name": "physique-maths-3eme-bepc-gabon",
   "private": true,
-  "version": "2.0.0",
+  "version": "3.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
-    "build:android": "vite build && rm -rf android/app/src/main/assets && mkdir -p android/app/src/main/assets && cp -r dist/* android/app/src/main/assets/",
+    "build:android": "vite build && rm -rf android/app/src/main/assets && mkdir -p android/app/src/main/assets && cp -r dist/* android/app/src/main/assets/ && rm -rf android/app/src/main/assets/assets/aistudio",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

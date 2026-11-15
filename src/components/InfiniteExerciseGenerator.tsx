@@ -14,9 +14,14 @@ import {
 import confetti from 'canvas-confetti';
 import { StepByStepCorrection } from './StepByStepCorrection';
 import { DomainId, ExerciseDifficulty, SubjectId } from '../types/math';
-import { CHAPTERS, DOMAINS } from '../data/curriculumData';
-import { PHYSICS_CHAPTERS, PHYSICS_DOMAINS } from '../data/physicsCurriculum';
-import { DIFFICULTY_META, GeneratedExercise, pickRandom } from '../data/generators/types';
+import { MATH_3EME_CHAPTERS, MATH_3EME_DOMAINS } from '../data/math3emeCurriculum';
+import { PHYSICS_3EME_CHAPTERS, PHYSICS_3EME_DOMAINS } from '../data/physics3emeCurriculum';
+import {
+  DIFFICULTY_META,
+  GeneratedExercise,
+  pickRandom,
+  withSeed,
+} from '../data/generators/types';
 import { generatePhysicsExercise } from '../data/generators/physicsInfiniteGenerators';
 import { generateMathExercise } from '../data/generators/mathInfiniteGenerators';
 import {
@@ -29,6 +34,9 @@ interface InfiniteExerciseGeneratorProps {
   subject: SubjectId;
   onSolvedExercise?: (isCorrect: boolean, xpEarned?: number) => void;
 }
+
+const PROGRESSIVE_COUNT = 20;
+const PROGRESSIVE_INDICES = Array.from({ length: PROGRESSIVE_COUNT }, (_, i) => i);
 
 const LEVELS: ExerciseDifficulty[] = [1, 2, 3, 4];
 
@@ -60,12 +68,26 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
   subject,
   onSolvedExercise,
 }) => {
-  const chapters = subject === 'physique' ? PHYSICS_CHAPTERS : CHAPTERS;
-  const domains = subject === 'physique' ? PHYSICS_DOMAINS : DOMAINS;
+  const chapters = subject === 'physique' ? PHYSICS_3EME_CHAPTERS : MATH_3EME_CHAPTERS;
+  const domains = subject === 'physique' ? PHYSICS_3EME_DOMAINS : MATH_3EME_DOMAINS;
+  const gradeLabel = '3ème BEPC';
 
   const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
   const [selectedChapterId, setSelectedChapterId] = useState<string>('all');
   const [difficulty, setDifficulty] = useState<ExerciseDifficulty>(1);
+  const [slotByLevel, setSlotByLevel] = useState<Record<ExerciseDifficulty, number>>({
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+  });
+  const [solvedSlotsByLevel, setSolvedSlotsByLevel] = useState<Record<ExerciseDifficulty, number[]>>({
+    1: [],
+    2: [],
+    3: [],
+    4: [],
+  });
+  const [isRandomMode, setIsRandomMode] = useState<boolean>(false);
   const [autoEvolve, setAutoEvolve] = useState<boolean>(true);
   const [streakAtLevel, setStreakAtLevel] = useState<number>(0);
   const [totalSolved, setTotalSolved] = useState<number>(0);
@@ -86,24 +108,50 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
       : chapters.filter((c) => c.domainId === selectedDomain);
 
   const buildExercise = useCallback(
-    (chapId: string, diff: ExerciseDifficulty, domId: DomainId | 'all'): GeneratedExercise => {
+    (
+      chapId: string,
+      diff: ExerciseDifficulty,
+      domId: DomainId | 'all',
+      slotIdx: number,
+      randomMode: boolean
+    ): GeneratedExercise => {
       const pool =
         domId === 'all' ? chapters : chapters.filter((c) => c.domainId === domId);
-      const targetChapterId =
-        chapId === 'all'
-          ? (pickRandom(pool.length > 0 ? pool : chapters)).id
-          : chapId;
+      const activePool = pool.length > 0 ? pool : chapters;
 
+      if (!randomMode) {
+        const seedKey = `3eme:${subject}:${chapId}:dom-${domId}:lvl${diff}:slot${slotIdx}`;
+        return withSeed(seedKey, () => {
+          const targetChapterId =
+            chapId === 'all'
+              ? activePool[slotIdx % activePool.length].id
+              : chapId;
+          return subject === 'physique'
+            ? generatePhysicsExercise(targetChapterId, diff, slotIdx)
+            : generateMathExercise(targetChapterId, diff, slotIdx);
+        });
+      }
+
+      const targetChapterId =
+        chapId === 'all' ? pickRandom(activePool).id : chapId;
+      const randVariant = Math.floor(Math.random() * 1000);
       return subject === 'physique'
-        ? generatePhysicsExercise(targetChapterId, diff)
-        : generateMathExercise(targetChapterId, diff);
+        ? generatePhysicsExercise(targetChapterId, diff, randVariant)
+        : generateMathExercise(targetChapterId, diff, randVariant);
     },
     [chapters, subject]
   );
 
   const spawnExercise = useCallback(
-    (chapId: string, diff: ExerciseDifficulty, domId: DomainId | 'all') => {
-      const nextEx = buildExercise(chapId, diff, domId);
+    (
+      chapId: string,
+      diff: ExerciseDifficulty,
+      domId: DomainId | 'all',
+      slotIdx: number,
+      randomMode = false
+    ) => {
+      const nextEx = buildExercise(chapId, diff, domId, slotIdx, randomMode);
+      setIsRandomMode(randomMode);
       setExercise(nextEx);
       setExerciseKey((k) => k + 1);
       setUserAnswer('');
@@ -119,10 +167,14 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
     setSelectedDomain('all');
     setSelectedChapterId('all');
     setDifficulty(1);
+    setSlotByLevel({ 1: 0, 2: 0, 3: 0, 4: 0 });
+    setSolvedSlotsByLevel({ 1: [], 2: [], 3: [], 4: [] });
     setStreakAtLevel(0);
     setPromotionBanner(null);
-    spawnExercise('all', 1, 'all');
+    spawnExercise('all', 1, 'all', 0, false);
   }, [subject, spawnExercise]);
+
+  const currentSlot = slotByLevel[difficulty] ?? 0;
 
   const handleSelectDomain = (domId: DomainId | 'all') => {
     setSelectedDomain(domId);
@@ -132,13 +184,13 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
     const nextChap = stillValid ? selectedChapterId : 'all';
     setSelectedChapterId(nextChap);
     setPromotionBanner(null);
-    spawnExercise(nextChap, difficulty, domId);
+    spawnExercise(nextChap, difficulty, domId, currentSlot, false);
   };
 
   const handleSelectChapter = (chapId: string) => {
     setSelectedChapterId(chapId);
     setPromotionBanner(null);
-    spawnExercise(chapId, difficulty, selectedDomain);
+    spawnExercise(chapId, difficulty, selectedDomain, currentSlot, false);
   };
 
   const handleSelectDifficulty = (nextDiff: ExerciseDifficulty) => {
@@ -146,7 +198,21 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
     setStreakAtLevel(0);
     setPromotionBanner(null);
     if (nextDiff > maxLevelReached) setMaxLevelReached(nextDiff);
-    spawnExercise(selectedChapterId, nextDiff, selectedDomain);
+    const nextSlot = slotByLevel[nextDiff] ?? 0;
+    spawnExercise(selectedChapterId, nextDiff, selectedDomain, nextSlot, false);
+  };
+
+  const handleSelectSlot = (slotIdx: number) => {
+    setSlotByLevel((prev) => ({ ...prev, [difficulty]: slotIdx }));
+    setPromotionBanner(null);
+    spawnExercise(selectedChapterId, difficulty, selectedDomain, slotIdx, false);
+  };
+
+  const handleNextProgressive = () => {
+    setPromotionBanner(null);
+    const nextSlot = (currentSlot + 1) % PROGRESSIVE_COUNT;
+    setSlotByLevel((prev) => ({ ...prev, [difficulty]: nextSlot }));
+    spawnExercise(selectedChapterId, difficulty, selectedDomain, nextSlot, false);
   };
 
   const evaluateAnswer = (candidateAnswer: string) => {
@@ -158,6 +224,14 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
 
     if (ok) {
       setTotalSolved((s) => s + 1);
+      if (!isRandomMode) {
+        setSolvedSlotsByLevel((prev) => {
+          const existing = prev[exercise.difficulty] || [];
+          if (existing.includes(currentSlot)) return prev;
+          return { ...prev, [exercise.difficulty]: [...existing, currentSlot] };
+        });
+      }
+
       const nextStreak = streakAtLevel + 1;
       if (autoEvolve && difficulty < 4 && nextStreak >= 2) {
         const promoted = (difficulty + 1) as ExerciseDifficulty;
@@ -201,16 +275,16 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
             <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
               <span>
-                Générateur Infini · Tous les {chapters.length} Chapitres (
-                {subject === 'physique' ? 'Physique-Chimie 4ème' : 'Maths 4ème CIAM'})
+                Exercices Infinis · {chapters.length} Chapitres (
+                {subject === 'physique' ? `Physique-Chimie ${gradeLabel}` : `Maths ${gradeLabel} CIAM`})
               </span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Évolution graduelle du Niveau 1 (Fondamental) au Niveau 4 (Défi Gabon) avec corrections posées debout.
+              20 exercices gradués par niveau de difficulté (Niv. 1 à Niv. 4 = 80 exercices structurés) + variantes aléatoires infinies avec corrections debout.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setAutoEvolve(!autoEvolve)}
@@ -229,22 +303,22 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
               type="button"
               onClick={() => {
                 setPromotionBanner(null);
-                spawnExercise(selectedChapterId, difficulty, selectedDomain);
+                spawnExercise(selectedChapterId, difficulty, selectedDomain, currentSlot, true);
               }}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-xs font-extrabold text-slate-950 transition cursor-pointer active:scale-95 shadow shrink-0 whitespace-nowrap"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Nouvel exercice</span>
+              <span>Variante aléatoire ∞</span>
             </button>
           </div>
         </div>
 
-        {/* Échelle d'évolution graduelle (4 niveaux) + Stats session */}
+        {/* Échelle d'évolution graduelle (4 niveaux × 20 exercices) + Stats session */}
         <div className="rounded-2xl bg-slate-950 border border-slate-800 p-3.5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <span className="font-bold text-slate-300 flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-amber-400" />
-              <span>Progression de difficulté (clique pour choisir ou laisse monter automatiquement) :</span>
+              <span>Progression de difficulté (20 exercices graduels par niveau) :</span>
             </span>
             <div className="flex items-center gap-3 text-[11px] font-bold tabular-nums">
               <span className="text-emerald-400">{totalSolved} réussis</span>
@@ -261,6 +335,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
             {LEVELS.map((lvl) => {
               const meta = DIFFICULTY_META[lvl];
               const isActive = difficulty === lvl;
+              const solvedAtLvl = solvedSlotsByLevel[lvl]?.length || 0;
               return (
                 <button
                   key={lvl}
@@ -276,12 +351,48 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
                     <span>
                       {meta.emoji} Niveau {lvl}
                     </span>
-                    <span className="text-[10px] font-mono tabular-nums">+{meta.xp} XP</span>
+                    <span className="text-[10px] font-mono tabular-nums">
+                      {solvedAtLvl}/20 · +{meta.xp} XP
+                    </span>
                   </div>
                   <div className="text-[11px] font-bold mt-0.5 truncate">{meta.label}</div>
                 </button>
               );
             })}
+          </div>
+
+          {/* 20 exercices graduels du niveau sélectionné */}
+          <div className="pt-2 border-t border-slate-800/80 space-y-2">
+            <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <span className="font-bold text-slate-300">
+                Série {diffMeta.emoji} Niveau {difficulty} — Exercices 1 à 20 (croissance de difficulté) :
+              </span>
+              <span className="font-mono text-amber-300 tabular-nums">
+                {isRandomMode ? 'Mode ∞ aléatoire' : `Exercice #${currentSlot + 1} / 20`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+              {PROGRESSIVE_INDICES.map((idx) => {
+                const isCurr = !isRandomMode && currentSlot === idx;
+                const isDone = solvedSlotsByLevel[difficulty]?.includes(idx);
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectSlot(idx)}
+                    className={`min-w-[34px] h-8 rounded-lg text-[11px] font-bold border transition cursor-pointer shrink-0 tabular-nums ${
+                      isCurr
+                        ? 'bg-amber-400 text-slate-950 border-amber-300 shadow'
+                        : isDone
+                        ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
+                        : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800'
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -366,7 +477,8 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
             type="button"
             onClick={() => {
               setPromotionBanner(null);
-              spawnExercise(selectedChapterId, promotionBanner, selectedDomain);
+              const nextSlot = slotByLevel[promotionBanner] ?? 0;
+              spawnExercise(selectedChapterId, promotionBanner, selectedDomain, nextSlot, false);
             }}
             className="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold flex items-center gap-1 cursor-pointer whitespace-nowrap"
           >
@@ -382,7 +494,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="space-y-0.5">
               <div className="text-[11px] font-semibold text-slate-400">
-                {exercise.chapterTitle}
+                {exercise.chapterTitle} · {isRandomMode ? 'Variante aléatoire ∞' : `Série #${currentSlot + 1}/20`}
               </div>
               <div className="font-extrabold text-sky-300 text-sm">{exercise.title}</div>
             </div>
@@ -539,13 +651,10 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setPromotionBanner(null);
-                    spawnExercise(selectedChapterId, difficulty, selectedDomain);
-                  }}
+                  onClick={handleNextProgressive}
                   className="ml-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow whitespace-nowrap"
                 >
-                  <span>Exercice suivant ({diffMeta.emoji} Niv. {difficulty})</span>
+                  <span>Exercice suivant ({diffMeta.emoji} #{((currentSlot + 1) % PROGRESSIVE_COUNT) + 1}/20)</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>

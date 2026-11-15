@@ -1,11 +1,14 @@
 import React from 'react';
-import { PhysicsIllustrationKey } from '../../types/math';
+import { GradeLevel, PhysicsIllustrationKey } from '../../types/math';
 
 /**
- * Illustrations pédagogiques vivantes, colorées et gabonaises pour les 20 chapitres de Physique-Chimie 4ème Gabon
+ * Illustrations pédagogiques vivantes, colorées et gabonaises pour Physique-Chimie 4ème & 3ème BEPC Gabon
  */
 
-export const MascotKokoPhysics: React.FC<{ speech?: string }> = ({ speech }) => {
+export const MascotKokoPhysics: React.FC<{ speech?: string; gradeLevel?: GradeLevel }> = ({
+  speech,
+  gradeLevel = '4eme',
+}) => {
   return (
     <div className="flex items-start gap-3.5 p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-sky-500/10 to-purple-500/15 border border-sky-500/35 shadow-lg">
       <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-400 to-emerald-400 p-1 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
@@ -39,14 +42,19 @@ export const MascotKokoPhysics: React.FC<{ speech?: string }> = ({ speech }) => 
 
       <div className="flex-1 text-xs">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-extrabold text-sky-300">Prof. Koko le Physicien (4ème)</span>
+          <span className="font-extrabold text-sky-300">
+            Prof. Koko le Physicien ({gradeLevel === '3eme' ? '3ème BEPC' : '4ème'})
+          </span>
           <span className="text-slate-500">·</span>
           <span className="text-[11px] text-emerald-400 font-bold">
             Programme Officiel Physique-Chimie Gabon 🇬🇦
           </span>
         </div>
         <p className="text-slate-200 mt-1 leading-relaxed font-medium">
-          {speech || "Mbolo jeune scientifique ! En Physique-Chimie 4ème, on rédige toujours en 4 temps : 1) Données & conversions, 2) Formule littérale, 3) Calcul posé debout, 4) Phrase réponse avec la bonne unité !"}
+          {speech ||
+            (gradeLevel === '3eme'
+              ? 'Mbolo futur lauréat du BEPC ! En 3ème, chaque exercice se rédige avec rigueur : 1) Bilan / Données SI, 2) Formule littérale, 3) Calcul debout en colonne, 4) Conclusion avec l’unité exacte !'
+              : 'Mbolo jeune scientifique ! En Physique-Chimie 4ème, on rédige toujours en 4 temps : 1) Données & conversions, 2) Formule littérale, 3) Calcul posé debout, 4) Phrase réponse avec la bonne unité !')}
         </p>
       </div>
     </div>
@@ -69,7 +77,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
           {illustrationKey === 'propagation-lumiere' && '🔦 Propagation Rectiligne & Vitesse c = 300 000 km/s'}
           {illustrationKey === 'ombres-eclipses' && '🌒 Cône d’Ombre & Éclipse Solaire / Lunaire'}
           {illustrationKey === 'reflexion-refraction' && '🪞 Réflexion sur Miroir (i = r) & Réfraction Air ➔ Eau'}
-          {illustrationKey === 'lentilles' && '🔍 Lentille Convergente, Foyer F’ & Vergence C = 1/f'}
+          {illustrationKey === 'lentilles' && '🔍 Lentille Convergente, Foyer F’ & Grandissement γ'}
           {illustrationKey === 'dispersion-couleurs' && '🌈 Dispersion par Prisme & Synthèse Additive (RVB)'}
           {illustrationKey === 'masse-volumique' && '🪵 Masse Volumique ρ = m/V & Flottabilité de l’Okoumé'}
           {illustrationKey === 'forces-dynamometre' && '🏹 Les 4 Caractéristiques d’une Force & Dynamomètre (N)'}
@@ -80,8 +88,18 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
           {illustrationKey === 'combustions' && '🔥 Triangle du Feu, Combustion Complète vs Incomplète'}
           {illustrationKey === 'equations-bilan' && '⚖️ Équilibrage & Conservation de Masse (Loi de Lavoisier)'}
           {illustrationKey === 'solutions-ph' && '🧪 Concentration Massique Cm = m/V & Échelle pH (0 à 14)'}
+          {illustrationKey === 'equilibre-deux-forces' && '⚖️ Équilibre à 2 Forces & Poussée d’Archimède (Pa = P − P’)'}
+          {illustrationKey === 'travail-puissance-meca' && '🏗️ Travail W = F × d (J) & Puissance Mécanique P = W ÷ t = F × v'}
+          {illustrationKey === 'energie-mecanique' && '🎢 Énergie Mécanique Em = Ec (½mv²) + Ep (mgh) — Conservation'}
+          {illustrationKey === 'association-resistors' && '🔌 Résistors Série (Req = R₁+R₂), Dérivation & Pont Diviseur'}
+          {illustrationKey === 'transformateur-diode' && '🔄 Transformateur (Us/Up = Ns/Np), Diode & Transistor NPN'}
+          {illustrationKey === 'oeil-instruments' && '👁️ Œil Réduit, Myopie (−) / Hypermétropie (+) & Loupe G = C/4'}
+          {illustrationKey === 'metaux-oxydation' && '🔩 Métaux Usuels (Fe, Cu, Al, Zn), Rouille & Aluminothermie'}
+          {illustrationKey === 'ions-tests' && '🧫 Cations, Anions & Tests aux Précipités (Cu²⁺, Fe²⁺, Fe³⁺, Cl⁻)'}
+          {illustrationKey === 'acides-bases-neutralisation' && '⚗️ Acides (H⁺), Bases (OH⁻), Dilution & Neutralisation'}
+          {illustrationKey === 'hydrocarbures-alcools' && '🛢️ Alcanes CₙH₂ₙ₊₂, Raffinage SOGARA & Combustion du Butane'}
         </span>
-        <span className="text-[11px] text-amber-300 font-bold">Schéma du Cours 4ème</span>
+        <span className="text-[11px] text-amber-300 font-bold">Schéma du Cours</span>
       </div>
 
       <div className="flex justify-center bg-slate-950/85 rounded-2xl border border-slate-800 p-3">
@@ -578,8 +596,226 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               </text>
             </>
           )}
+
+          {/* 21. ÉQUILIBRE À DEUX FORCES & ARCHIMÈDE (3ème) */}
+          {illustrationKey === 'equilibre-deux-forces' && (
+            <>
+              <rect x="30" y="72" width="150" height="106" rx="10" fill="#0284c7" fillOpacity="0.22" stroke="#38bdf8" strokeWidth="2" />
+              <path d="M 32 82 Q 68 76 105 82 T 178 82" fill="none" stroke="#38bdf8" strokeWidth="2" />
+              <rect x="78" y="88" width="54" height="44" rx="6" fill="#fbbf24" fillOpacity="0.85" stroke="#f59e0b" strokeWidth="2" />
+              <circle cx="105" cy="110" r="3.5" fill="#0f172a" />
+              <line x1="105" y1="110" x2="105" y2="30" stroke="#10b981" strokeWidth="3.5" />
+              <polygon points="105,22 99,34 111,34" fill="#10b981" />
+              <text x="116" y="42" className="text-xs font-black fill-emerald-300">Pa (↑)</text>
+              <line x1="105" y1="110" x2="105" y2="170" stroke="#f43f5e" strokeWidth="3.5" />
+              <polygon points="105,178 99,166 111,166" fill="#f43f5e" />
+              <text x="116" y="168" className="text-xs font-black fill-rose-300">P (↓)</text>
+              <rect x="200" y="24" width="240" height="150" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+              <text x="320" y="50" textAnchor="middle" className="text-xs font-black fill-amber-300">ÉQUILIBRE À 2 FORCES</text>
+              <text x="320" y="76" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">F₁⃗ + F₂⃗ = 0⃗  ⇔  F₁ = F₂</text>
+              <text x="320" y="102" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Même droite · Sens contraires</text>
+              <text x="320" y="130" textAnchor="middle" className="text-[11px] font-mono font-bold fill-emerald-300">Pa = P − P’ = ρ_liq × V × g</text>
+              <text x="320" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Flotte si Pa_max &gt; P</text>
+            </>
+          )}
+
+          {/* 22. TRAVAIL & PUISSANCE MÉCANIQUE (3ème) */}
+          {illustrationKey === 'travail-puissance-meca' && (
+            <>
+              <line x1="25" y1="145" x2="215" y2="145" stroke="#64748b" strokeWidth="3" />
+              <rect x="40" y="102" width="48" height="42" rx="6" fill="#38bdf8" fillOpacity="0.35" stroke="#38bdf8" strokeWidth="2.5" />
+              <rect x="155" y="102" width="48" height="42" rx="6" fill="#10b981" fillOpacity="0.35" stroke="#10b981" strokeWidth="2.5" strokeDasharray="4 3" />
+              <line x1="88" y1="122" x2="148" y2="122" stroke="#fbbf24" strokeWidth="3.5" />
+              <polygon points="154,122 142,116 142,128" fill="#fbbf24" />
+              <text x="118" y="112" textAnchor="middle" className="text-xs font-black fill-amber-300">F⃗</text>
+              <line x1="64" y1="164" x2="179" y2="164" stroke="#f43f5e" strokeWidth="2" />
+              <text x="122" y="180" textAnchor="middle" className="text-[11px] font-black fill-rose-300">Distance d (m)</text>
+              <rect x="232" y="24" width="208" height="150" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+              <text x="336" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">TRAVAIL (J) &amp; PUISSANCE (W)</text>
+              <text x="336" y="76" textAnchor="middle" className="text-xs font-mono font-bold fill-white">W(F⃗) = F × d</text>
+              <text x="336" y="100" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">W(P⃗) = m × g × h</text>
+              <text x="336" y="128" textAnchor="middle" className="text-xs font-mono font-bold fill-emerald-300">P = W ÷ t = F × v</text>
+              <text x="336" y="156" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Toujours v en m/s (÷ 3,6)</text>
+            </>
+          )}
+
+          {/* 23. ÉNERGIE MÉCANIQUE (3ème) */}
+          {illustrationKey === 'energie-mecanique' && (
+            <>
+              <path d="M 30 38 Q 95 162 210 158" fill="none" stroke="#38bdf8" strokeWidth="4" />
+              <circle cx="42" cy="48" r="10" fill="#fbbf24" />
+              <text x="72" y="48" className="text-[10px] font-black fill-amber-300">Haut h max : Ep max, Ec = 0</text>
+              <circle cx="176" cy="154" r="10" fill="#10b981" />
+              <text x="140" y="128" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">Bas (h = 0) : Ec max</text>
+              <rect x="234" y="24" width="206" height="150" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+              <text x="337" y="50" textAnchor="middle" className="text-xs font-black fill-amber-300">CONSERVATION DE Em</text>
+              <text x="337" y="78" textAnchor="middle" className="text-xs font-mono font-bold fill-sky-300">Ec = ½ × m × v² (J)</text>
+              <text x="337" y="104" textAnchor="middle" className="text-xs font-mono font-bold fill-amber-300">Ep = m × g × h (J)</text>
+              <text x="337" y="132" textAnchor="middle" className="text-xs font-mono font-black fill-emerald-300">Em = Ec + Ep = Cte</text>
+              <text x="337" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">v_sol = √(2 × g × h)</text>
+            </>
+          )}
+
+          {/* 24. ASSOCIATION DE RÉSISTORS (3ème) */}
+          {illustrationKey === 'association-resistors' && (
+            <>
+              <text x="115" y="26" textAnchor="middle" className="text-[11px] font-black fill-amber-300">SÉRIE vs DÉRIVATION</text>
+              <line x1="28" y1="62" x2="202" y2="62" stroke="#94a3b8" strokeWidth="2.5" />
+              <rect x="55" y="48" width="46" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
+              <text x="78" y="66" textAnchor="middle" className="text-[11px] font-black fill-sky-300">R₁</text>
+              <rect x="130" y="48" width="46" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
+              <text x="153" y="66" textAnchor="middle" className="text-[11px] font-black fill-sky-300">R₂</text>
+              <text x="115" y="94" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Série : Req = R₁ + R₂</text>
+
+              <line x1="35" y1="140" x2="62" y2="140" stroke="#94a3b8" strokeWidth="2.5" />
+              <line x1="168" y1="140" x2="195" y2="140" stroke="#94a3b8" strokeWidth="2.5" />
+              <rect x="62" y="116" width="106" height="48" fill="none" stroke="#94a3b8" strokeWidth="2" />
+              <rect x="92" y="104" width="46" height="24" rx="4" fill="#0f172a" stroke="#fbbf24" strokeWidth="2" />
+              <text x="115" y="120" textAnchor="middle" className="text-[10px] font-black fill-amber-300">R₁</text>
+              <rect x="92" y="152" width="46" height="24" rx="4" fill="#0f172a" stroke="#fbbf24" strokeWidth="2" />
+              <text x="115" y="168" textAnchor="middle" className="text-[10px] font-black fill-amber-300">R₂</text>
+
+              <rect x="225" y="24" width="215" height="150" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
+              <text x="332" y="50" textAnchor="middle" className="text-xs font-black fill-amber-300">LOIS D’ASSOCIATION (Ω)</text>
+              <text x="332" y="80" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">1/Req = 1/R₁ + 1/R₂</text>
+              <text x="332" y="108" textAnchor="middle" className="text-[11px] font-mono font-bold fill-emerald-300">Req = (R₁×R₂) ÷ (R₁+R₂)</text>
+              <text x="332" y="142" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Pont diviseur : U₂ = U·R₂/(R₁+R₂)</text>
+            </>
+          )}
+
+          {/* 25. TRANSFORMATEUR, DIODE & TRANSISTOR (3ème) */}
+          {illustrationKey === 'transformateur-diode' && (
+            <>
+              <rect x="88" y="34" width="54" height="118" rx="6" fill="none" stroke="#94a3b8" strokeWidth="6" />
+              <path d="M 52 58 Q 76 58 76 74 T 52 90 T 76 106 T 52 122" fill="none" stroke="#38bdf8" strokeWidth="3" />
+              <text x="48" y="42" textAnchor="middle" className="text-[10px] font-black fill-sky-300">Up (Np)</text>
+              <path d="M 178 66 Q 154 66 154 84 T 178 102" fill="none" stroke="#10b981" strokeWidth="3" />
+              <text x="186" y="48" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">Us (Ns)</text>
+              <text x="115" y="174" textAnchor="middle" className="text-[10px] font-black fill-rose-300">AC uniquement !</text>
+
+              <rect x="225" y="24" width="215" height="150" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+              <text x="332" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">TRANSFORMATEUR &amp; DIODE</text>
+              <text x="332" y="76" textAnchor="middle" className="text-xs font-mono font-bold fill-white">Us ÷ Up = Ns ÷ Np = k</text>
+              <text x="332" y="106" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300">Diode : passe A ➔ K (bloqué K ➔ A)</text>
+              <text x="332" y="136" textAnchor="middle" className="text-[11px] font-mono font-bold fill-purple-300">Transistor NPN : Ic = β × Ib</text>
+            </>
+          )}
+
+          {/* 26. L'ŒIL & INSTRUMENTS D'OPTIQUE (3ème) */}
+          {illustrationKey === 'oeil-instruments' && (
+            <>
+              <circle cx="115" cy="96" r="64" fill="#0f172a" stroke="#38bdf8" strokeWidth="3" />
+              <ellipse cx="72" cy="96" rx="10" ry="30" fill="#38bdf8" fillOpacity="0.45" stroke="#7dd3fc" strokeWidth="2" />
+              <text x="72" y="146" textAnchor="middle" className="text-[10px] font-black fill-sky-300">Cristallin</text>
+              <line x1="25" y1="78" x2="72" y2="78" stroke="#fbbf24" strokeWidth="2.5" />
+              <line x1="25" y1="114" x2="72" y2="114" stroke="#fbbf24" strokeWidth="2.5" />
+              <line x1="72" y1="78" x2="176" y2="96" stroke="#10b981" strokeWidth="2.5" />
+              <line x1="72" y1="114" x2="176" y2="96" stroke="#10b981" strokeWidth="2.5" />
+              <circle cx="176" cy="96" r="4.5" fill="#10b981" />
+              <text x="188" y="114" className="text-[10px] font-black fill-rose-300">Rétine</text>
+
+              <rect x="225" y="24" width="215" height="150" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+              <text x="332" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">ŒIL RÉDUIT &amp; LOUPE</text>
+              <text x="332" y="76" textAnchor="middle" className="text-[11px] font-bold fill-sky-300">Myope (flou loin) ➔ Divergente (−)</text>
+              <text x="332" y="102" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300">Hypermétrope ➔ Convergente (+)</text>
+              <text x="332" y="136" textAnchor="middle" className="text-xs font-mono font-bold fill-amber-300">Loupe : G = C ÷ 4</text>
+            </>
+          )}
+
+          {/* 27. MÉTAUX & OXYDATION (3ème) */}
+          {illustrationKey === 'metaux-oxydation' && (
+            <>
+              <rect x="30" y="34" width="84" height="58" rx="10" fill="#b45309" fillOpacity="0.4" stroke="#f59e0b" strokeWidth="2" />
+              <text x="72" y="60" textAnchor="middle" className="text-xs font-black fill-amber-300">Cu (Rouge)</text>
+              <text x="72" y="78" textAnchor="middle" className="text-[9px] fill-slate-200">Câbles SEEG</text>
+              <rect x="128" y="34" width="84" height="58" rx="10" fill="#475569" fillOpacity="0.5" stroke="#cbd5e1" strokeWidth="2" />
+              <text x="170" y="60" textAnchor="middle" className="text-xs font-black fill-slate-100">Al (Léger)</text>
+              <text x="170" y="78" textAnchor="middle" className="text-[9px] fill-emerald-300">Alumine protège</text>
+              <rect x="30" y="106" width="182" height="62" rx="10" fill="#7f1d1d" fillOpacity="0.35" stroke="#f87171" strokeWidth="2" />
+              <text x="121" y="130" textAnchor="middle" className="text-xs font-black fill-rose-300">Fe + Air humide ➔ Rouille</text>
+              <text x="121" y="152" textAnchor="middle" className="text-[11px] font-mono fill-white">4 Fe + 3 O₂ ➔ 2 Fe₂O₃</text>
+
+              <rect x="228" y="24" width="212" height="150" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
+              <text x="334" y="50" textAnchor="middle" className="text-xs font-black fill-amber-300">OXYDATION &amp; RÉDUCTION</text>
+              <text x="334" y="82" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">3 Fe + 2 O₂ ➔ Fe₃O₄ (vif)</text>
+              <text x="334" y="112" textAnchor="middle" className="text-[11px] font-mono font-bold fill-emerald-300">Fe₂O₃ + 2 Al ➔ 2 Fe + Al₂O₃</text>
+              <text x="334" y="142" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Aimant attire uniquement Fe !</text>
+            </>
+          )}
+
+          {/* 28. IONS & TESTS DE RECONNAISSANCE (3ème) */}
+          {illustrationKey === 'ions-tests' && (
+            <>
+              {[
+                { x: 42, col: '#38bdf8', ion: 'Cu²⁺', label: 'Bleu' },
+                { x: 96, col: '#22c55e', ion: 'Fe²⁺', label: 'Vert' },
+                { x: 150, col: '#ea580c', ion: 'Fe³⁺', label: 'Rouille' },
+                { x: 204, col: '#f8fafc', ion: 'Cl⁻', label: 'Blanc' },
+              ].map((t) => (
+                <g key={t.ion}>
+                  <rect x={t.x} y="38" width="32" height="104" rx="12" fill="#0f172a" stroke="#64748b" strokeWidth="2" />
+                  <ellipse cx={t.x + 16} cy="122" rx="12" ry="12" fill={t.col} fillOpacity="0.85" />
+                  <text x={t.x + 16} y="64" textAnchor="middle" className="text-[11px] font-black fill-white">{t.ion}</text>
+                  <text x={t.x + 16} y="162" textAnchor="middle" className="text-[10px] font-black fill-amber-300">{t.label}</text>
+                </g>
+              ))}
+              <rect x="252" y="24" width="190" height="150" rx="14" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
+              <text x="347" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">TESTS AU LABO (NaOH / Ag⁺)</text>
+              <text x="347" y="76" textAnchor="middle" className="text-[11px] font-bold fill-sky-300">Cation (+) : a PERDU des e⁻</text>
+              <text x="347" y="102" textAnchor="middle" className="text-[11px] font-bold fill-rose-300">Anion (−) : a GAGNÉ des e⁻</text>
+              <text x="347" y="132" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Cl⁻ + Ag⁺ ➔ AgCl ↓ (noircit)</text>
+              <text x="347" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Solution neutre : Σ(+) = Σ(−)</text>
+            </>
+          )}
+
+          {/* 29. ACIDES, BASES & NEUTRALISATION (3ème) */}
+          {illustrationKey === 'acides-bases-neutralisation' && (
+            <>
+              <defs>
+                <linearGradient id="phGrad3" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#ef4444" />
+                  <stop offset="50%" stopColor="#22c55e" />
+                  <stop offset="100%" stopColor="#7c3aed" />
+                </linearGradient>
+              </defs>
+              <rect x="28" y="32" width="404" height="26" rx="8" fill="url(#phGrad3)" />
+              <text x="36" y="76" className="text-[11px] font-black fill-rose-300">0 — Acide (H⁺ majoritaire)</text>
+              <text x="230" y="76" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">7 (Neutre)</text>
+              <text x="424" y="76" textAnchor="end" className="text-[11px] font-black fill-purple-300">Basique (OH⁻) — 14</text>
+
+              <rect x="28" y="94" width="404" height="78" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
+              <text x="230" y="118" textAnchor="middle" className="text-xs font-mono font-black fill-white">
+                Neutralisation : H⁺ + OH⁻ ➔ H₂O    |    Équivalence : Ca·Va = Cb·Vb
+              </text>
+              <text x="230" y="142" textAnchor="middle" className="text-[11px] font-bold fill-amber-300">
+                Acide sur Zinc/Fer : Zn + 2 H⁺ ➔ Zn²⁺ + H₂↑ (détonation)
+              </text>
+              <text x="230" y="162" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">
+                Diluer ramène TOUJOURS le pH vers 7 sans jamais le franchir !
+              </text>
+            </>
+          )}
+
+          {/* 30. HYDROCARBURES & ALCOOLS (3ème) */}
+          {illustrationKey === 'hydrocarbures-alcools' && (
+            <>
+              <rect x="28" y="30" width="182" height="142" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
+              <text x="119" y="54" textAnchor="middle" className="text-xs font-black fill-amber-300">ALCANES CₙH₂ₙ₊₂</text>
+              <text x="119" y="80" textAnchor="middle" className="text-[11px] font-mono fill-white">n=1 : CH₄ (Méthane)</text>
+              <text x="119" y="102" textAnchor="middle" className="text-[11px] font-mono fill-sky-300">n=3 : C₃H₈ (Propane)</text>
+              <text x="119" y="124" textAnchor="middle" className="text-[11px] font-mono fill-emerald-300">n=4 : C₄H₁₀ (Butane)</text>
+              <text x="119" y="152" textAnchor="middle" className="text-[10px] font-bold fill-purple-300">Éthanol : C₂H₅OH</text>
+
+              <rect x="224" y="30" width="212" height="142" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
+              <text x="330" y="54" textAnchor="middle" className="text-xs font-black fill-sky-300">RAFFINAGE SOGARA &amp; FEU</text>
+              <text x="330" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">2 C₄H₁₀ + 13 O₂ ➔ 8 CO₂ + 10 H₂O</text>
+              <text x="330" y="114" textAnchor="middle" className="text-[11px] font-bold fill-sky-400">Flamme BLEUE = Complète (CO₂)</text>
+              <text x="330" y="142" textAnchor="middle" className="text-[11px] font-bold fill-rose-400">Flamme JAUNE = Danger CO !</text>
+            </>
+          )}
         </svg>
       </div>
     </div>
   );
 };
+

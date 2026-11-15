@@ -60,7 +60,7 @@ export const PWAInstallBanner: React.FC = () => {
         <div>
           <div className="font-bold">Installer sur Android</div>
           <div className="text-[10px] text-emerald-100">
-            Accédez à vos gains et alarmes en 1 clic
+            Révisez hors-ligne vos cours, labos et épreuves BEPC 3ème
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-# Proguard rules for Maths 4ème Gabon
+# Proguard rules for Physique & Maths 3ème BEPC Gabon
 -keepattributes JavascriptInterface
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
@@ -11,4 +11,7 @@
 }
 -keepclassmembers class * extends androidx.webkit.WebViewAssetLoader {
     <methods>;
+}
+-keep class com.ciam.maths4emegabon.MainActivity$AndroidBridge {
+    *;
 }

@@ -44,7 +44,7 @@ const CHAPTER_ICONS: Record<string, { emoji: string; accent: string }> = {
   'reperage-plan-coordonnees': { emoji: '📍', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
   'cercle-proprietes-avancees': { emoji: '⭕', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
 
-  // Physique-Chimie (20 exact IDs)
+  // Physique-Chimie 4ème (20 exact IDs)
   'phys-circuit-simple': { emoji: '💡', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
   'phys-circuits-serie-derivation': { emoji: '🔀', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
   'phys-intensite': { emoji: '⚡', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
@@ -65,6 +65,37 @@ const CHAPTER_ICONS: Record<string, { emoji: string; accent: string }> = {
   'phys-combustions': { emoji: '🔥', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
   'phys-equations-bilan': { emoji: '⚖️', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
   'phys-solutions-ph': { emoji: '🧪', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+
+  // Physique-Chimie 3ème BEPC (13 exact IDs)
+  'phys3-actions-mecaniques': { emoji: '🏗️', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'phys3-equilibre-solide': { emoji: '⚖️', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'phys3-travail-puissance': { emoji: '⚙️', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'phys3-energie-mecanique': { emoji: '🎢', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  'phys3-conducteurs-ohmiques': { emoji: '🎛️', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'phys3-energie-puissance-seeg': { emoji: '🔌', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'phys3-transformateur-electronique': { emoji: '🔋', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
+  'phys3-lentilles-construction': { emoji: '🔬', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'phys3-oeil-instruments': { emoji: '👁️', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'phys3-metaux-oxydation': { emoji: '🪨', accent: 'bg-orange-500/15 border-orange-400/40 text-orange-300' },
+  'phys3-ions-tests': { emoji: '🧫', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
+  'phys3-acides-bases-ph': { emoji: '🧪', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  'phys3-hydrocarbures-alcools': { emoji: '🛢️', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+
+  // Mathématiques 3ème CIAM BEPC (14 exact IDs)
+  'math3-racines-carrees': { emoji: '√', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  'math3-calcul-litteral-equations': { emoji: '🧩', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'math3-inequations-intervalles': { emoji: '📏', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'math3-systemes-equations': { emoji: '🔗', accent: 'bg-pink-500/15 border-pink-400/40 text-pink-300' },
+  'math3-applications-affines': { emoji: '📈', accent: 'bg-blue-500/15 border-blue-400/40 text-blue-300' },
+  'math3-statistiques-3eme': { emoji: '📊', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'math3-probabilites-3eme': { emoji: '🎲', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  'math3-thales-3eme': { emoji: '🔺', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'math3-trigonometrie-3eme': { emoji: '📐', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'math3-vecteurs-translations': { emoji: '🧭', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'math3-angles-polygones': { emoji: '⭕', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
+  'math3-reperage-droites': { emoji: '📍', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'math3-pyramides-cones': { emoji: '🏛️', accent: 'bg-emerald-600/15 border-emerald-400/40 text-emerald-300' },
+  'math3-sections-agrandissement': { emoji: '🔍', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
 };
 
 export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
@@ -154,8 +185,18 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
               accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300',
             };
 
-            const solvedInChap = chap.exercises.filter((e) => checkedState[e.id]?.correct).length;
-            const allSolved = chap.exercises.length > 0 && solvedInChap === chap.exercises.length;
+            const prefixApp = `${chap.id}-app-`;
+            const prefixCours = `${chap.id}-c-lvl`;
+            const legacyIds = new Set(chap.exercises.map((e) => e.id));
+            const solvedInChap = Math.min(
+              90,
+              Object.entries(checkedState).filter(
+                ([id, rec]) =>
+                  rec?.correct &&
+                  (id.startsWith(prefixApp) || id.startsWith(prefixCours) || legacyIds.has(id))
+              ).length
+            );
+            const allSolved = solvedInChap >= 90;
 
             return (
               <div
@@ -194,7 +235,7 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
                     <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-2 mt-0.5 tabular-nums">
                       <span className={allSolved ? 'text-emerald-400 font-bold flex items-center gap-1' : 'text-emerald-400/90 font-semibold'}>
                         {allSolved && <CheckCircle2 className="w-3 h-3" />}
-                        {solvedInChap}/{chap.exercises.length} exercices réussis
+                        {solvedInChap}/90 exercices (10 app. + 80 cours)
                       </span>
                       <span>·</span>
                       <span>~{chap.readingTimeMinutes} min</span>

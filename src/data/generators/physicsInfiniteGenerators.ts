@@ -1,6 +1,7 @@
 import { ExerciseDifficulty } from '../../types/math';
 import { PHYSICS_CHAPTERS } from '../physicsCurriculum';
-import { DIFFICULTY_META, GeneratedExercise, pickRandom, randInt } from './types';
+import { DIFFICULTY_META, GeneratedExercise, pickRandom, randFloat, randInt } from './types';
+import { generatePhysics3emeExercise } from './physics3emeGenerators';
 
 function makeResult(
   chapterId: string,
@@ -19,12 +20,17 @@ function makeResult(
 
 export function generatePhysicsExercise(
   chapterId: string,
-  difficulty: ExerciseDifficulty
+  difficulty: ExerciseDifficulty,
+  variantIndex = 0
 ): GeneratedExercise {
+  if (chapterId.startsWith('phys3-')) {
+    return generatePhysics3emeExercise(chapterId, difficulty, variantIndex);
+  }
+
   // 1. CIRCUIT SIMPLE
   if (chapterId === 'phys-circuit-simple') {
     if (difficulty === 1) {
-      const closed = Math.random() > 0.5;
+      const closed = randFloat() > 0.5;
       return makeResult(chapterId, difficulty, {
         title: 'État du circuit électrique et sens du courant',
         prompt: `Dans un circuit simple pile + interrupteur + lampe, l’interrupteur est ${closed ? 'FERMÉ' : 'OUVERT'}.\nLa lampe brille-t-elle ?`,
@@ -146,7 +152,7 @@ export function generatePhysicsExercise(
   // 2. SÉRIE VS DÉRIVATION & COURT-CIRCUIT
   if (chapterId === 'phys-circuits-serie-derivation') {
     if (difficulty === 1) {
-      const isSerie = Math.random() > 0.5;
+      const isSerie = randFloat() > 0.5;
       return makeResult(chapterId, difficulty, {
         title: 'Effet d’une panne sur L1 (Série vs Dérivation)',
         prompt: `Deux lampes L1 et L2 sont branchées en ${isSerie ? 'SÉRIE' : 'DÉRIVATION'}. Soudain, le filament de L1 grille.\nQue fait la lampe L2 ?`,
@@ -194,7 +200,7 @@ export function generatePhysicsExercise(
       });
     }
     if (difficulty === 3) {
-      const isGenShort = Math.random() > 0.5;
+      const isGenShort = randFloat() > 0.5;
       return makeResult(chapterId, difficulty, {
         title: 'Court-circuit d’un dipôle ou du générateur',
         prompt: isGenShort
@@ -843,7 +849,7 @@ export function generatePhysicsExercise(
   // 8. OMBRES & ÉCLIPSES
   if (chapterId === 'phys-ombres-eclipses') {
     if (difficulty === 1) {
-      const solar = Math.random() > 0.5;
+      const solar = randFloat() > 0.5;
       return makeResult(chapterId, difficulty, {
         title: 'Ordre d’alignement lors d’une éclipse',
         prompt: solar
@@ -1858,7 +1864,7 @@ export function generatePhysicsExercise(
       });
     }
     if (difficulty === 2) {
-      const complete = Math.random() > 0.5;
+      const complete = randFloat() > 0.5;
       return makeResult(chapterId, difficulty, {
         title: 'Couleur de flamme : Combustion complète vs incomplète',
         prompt: complete
