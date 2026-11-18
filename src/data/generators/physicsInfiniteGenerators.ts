@@ -2,6 +2,7 @@ import { ExerciseDifficulty } from '../../types/math';
 import { PHYSICS_CHAPTERS } from '../physicsCurriculum';
 import { DIFFICULTY_META, GeneratedExercise, pickRandom, randFloat, randInt } from './types';
 import { generatePhysics3emeExercise } from './physics3emeGenerators';
+import { generatePhysicsTcExercise } from './physicsTcGenerators';
 
 function makeResult(
   chapterId: string,
@@ -23,6 +24,9 @@ export function generatePhysicsExercise(
   difficulty: ExerciseDifficulty,
   variantIndex = 0
 ): GeneratedExercise {
+  if (chapterId.startsWith('physTc-')) {
+    return generatePhysicsTcExercise(chapterId, difficulty, variantIndex);
+  }
   if (chapterId.startsWith('phys3-')) {
     return generatePhysics3emeExercise(chapterId, difficulty, variantIndex);
   }

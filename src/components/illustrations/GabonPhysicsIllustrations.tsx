@@ -1,8 +1,9 @@
 import React from 'react';
 import { GradeLevel, PhysicsIllustrationKey } from '../../types/math';
+import { TerminaleCPhysicsDrawing } from './TerminaleCPhysicsDrawings';
 
 /**
- * Illustrations pédagogiques vivantes, colorées et gabonaises pour Physique-Chimie 4ème & 3ème BEPC Gabon
+ * Illustrations pédagogiques vivantes, colorées et gabonaises pour Physique-Chimie Terminale C Gabon
  */
 
 export const MascotKokoPhysics: React.FC<{ speech?: string; gradeLevel?: GradeLevel }> = ({
@@ -43,7 +44,7 @@ export const MascotKokoPhysics: React.FC<{ speech?: string; gradeLevel?: GradeLe
       <div className="flex-1 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-extrabold text-sky-300">
-            Prof. Koko le Physicien ({gradeLevel === '3eme' ? '3ème BEPC' : '4ème'})
+            Prof. Koko le Physicien ({gradeLevel === 'Terminale C' ? 'Terminale C · Bac' : gradeLevel === '3eme' ? '3ème BEPC' : '4ème'})
           </span>
           <span className="text-slate-500">·</span>
           <span className="text-[11px] text-emerald-400 font-bold">
@@ -52,7 +53,9 @@ export const MascotKokoPhysics: React.FC<{ speech?: string; gradeLevel?: GradeLe
         </div>
         <p className="text-slate-200 mt-1 leading-relaxed font-medium">
           {speech ||
-            (gradeLevel === '3eme'
+            (gradeLevel === 'Terminale C'
+              ? 'Mbolo futur bachelier de Terminale Série C ! Rédige toujours avec la rigueur du Bac C : 1) Référentiel / Système & Bilan, 2) Équation littérale & différentielle, 3) Application numérique SI, 4) Conclusion encadrée !'
+              : gradeLevel === '3eme'
               ? 'Mbolo futur lauréat du BEPC ! En 3ème, chaque exercice se rédige avec rigueur : 1) Bilan / Données SI, 2) Formule littérale, 3) Calcul debout en colonne, 4) Conclusion avec l’unité exacte !'
               : 'Mbolo jeune scientifique ! En Physique-Chimie 4ème, on rédige toujours en 4 temps : 1) Données & conversions, 2) Formule littérale, 3) Calcul posé debout, 4) Phrase réponse avec la bonne unité !')}
         </p>
@@ -64,6 +67,9 @@ export const MascotKokoPhysics: React.FC<{ speech?: string; gradeLevel?: GradeLe
 export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllustrationKey }> = ({
   illustrationKey,
 }) => {
+  if (illustrationKey.startsWith('tc-')) {
+    return <TerminaleCPhysicsDrawing illustrationKey={illustrationKey} />;
+  }
   return (
     <div className="rounded-3xl bg-slate-900 border-2 border-sky-500/35 p-4 sm:p-5 shadow-xl space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-sky-300">

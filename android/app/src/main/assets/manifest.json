@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Physique-Chimie & Maths 3ème BEPC Gabon",
-  "short_name": "Sciences 3ème",
-  "description": "Programme officiel 3ème BEPC Gabon (Physique-Chimie & Maths CIAM) : cours rédigés, 3 expériences interactives par chapitre, Exercices Infinis et exercices personnalisés sauvegardés.",
+  "name": "Physique-Chimie & Maths Terminale C Gabon",
+  "short_name": "Sciences Tle C",
+  "description": "Programme officiel Terminale Série C Gabon (Physique-Chimie & Mathématiques BAC C) : cours illustrés, 280 expériences SVG interactives, 444 épreuves 1990–2026, Exercices Infinis et exercices personnalisés sauvegardés.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

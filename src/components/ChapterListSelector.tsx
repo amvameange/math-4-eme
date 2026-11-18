@@ -2,6 +2,7 @@ import React from 'react';
 import { Chapter, DomainId, DomainMeta, SubjectId } from '../types/math';
 import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
 import { Play, BookOpen, FileText, CheckCircle2 } from 'lucide-react';
+import { scrollToSectionById } from '../utils/uiFeedback';
 
 interface ChapterListSelectorProps {
   subject: SubjectId;
@@ -96,6 +97,38 @@ const CHAPTER_ICONS: Record<string, { emoji: string; accent: string }> = {
   'math3-reperage-droites': { emoji: '📍', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
   'math3-pyramides-cones': { emoji: '🏛️', accent: 'bg-emerald-600/15 border-emerald-400/40 text-emerald-300' },
   'math3-sections-agrandissement': { emoji: '🔍', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
+
+  // Physique-Chimie Terminale C (14 chapitres)
+  'physTc-cinematique': { emoji: '🚀', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'physTc-dynamique': { emoji: '⚡', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'physTc-gravitation': { emoji: '🛰️', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
+  'physTc-oscillations-energie': { emoji: '🌀', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
+  'physTc-dipoles-rc-rl': { emoji: '🔋', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'physTc-oscillations-rlc': { emoji: '🎛️', accent: 'bg-orange-500/15 border-orange-400/40 text-orange-300' },
+  'physTc-ondes-mecaniques': { emoji: '🌊', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'physTc-interferences-lumiere': { emoji: '🔦', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  'physTc-noyau-radioactivite': { emoji: '☢️', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'physTc-reactions-nucleaires': { emoji: '⚛️', accent: 'bg-pink-500/15 border-pink-400/40 text-pink-300' },
+  'physTc-cinetique-chimique': { emoji: '⏱️', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
+  'physTc-acides-bases-ph': { emoji: '⚗️', accent: 'bg-fuchsia-500/15 border-fuchsia-400/40 text-fuchsia-300' },
+  'physTc-alcools-carbonyles': { emoji: '🧪', accent: 'bg-emerald-600/15 border-emerald-400/40 text-emerald-300' },
+  'physTc-esterification-saponification': { emoji: '🧼', accent: 'bg-amber-600/15 border-amber-400/40 text-amber-300' },
+
+  // Mathématiques Terminale C (14 chapitres)
+  'mathTc-arithmetique': { emoji: '🔢', accent: 'bg-blue-500/15 border-blue-400/40 text-blue-300' },
+  'mathTc-complexes-algebre': { emoji: 'ℂ', accent: 'bg-indigo-500/15 border-indigo-400/40 text-indigo-300' },
+  'mathTc-complexes-geometrie': { emoji: '📐', accent: 'bg-sky-500/15 border-sky-400/40 text-sky-300' },
+  'mathTc-barycentre-matrices': { emoji: '⚖️', accent: 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300' },
+  'mathTc-limites-continuite': { emoji: '📈', accent: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-300' },
+  'mathTc-derivation-primitives': { emoji: '📉', accent: 'bg-teal-500/15 border-teal-400/40 text-teal-300' },
+  'mathTc-ln-exp-equadiff': { emoji: '🌿', accent: 'bg-green-500/15 border-green-400/40 text-green-300' },
+  'mathTc-suites-recurrence': { emoji: '🔁', accent: 'bg-violet-500/15 border-violet-400/40 text-violet-300' },
+  'mathTc-calcul-integral': { emoji: '∫', accent: 'bg-amber-500/15 border-amber-400/40 text-amber-300' },
+  'mathTc-denombrement-probas': { emoji: '🎲', accent: 'bg-orange-500/15 border-orange-400/40 text-orange-300' },
+  'mathTc-lois-probas-stats': { emoji: '📊', accent: 'bg-yellow-500/15 border-yellow-400/40 text-yellow-300' },
+  'mathTc-geometrie-espace': { emoji: '🧊', accent: 'bg-pink-500/15 border-pink-400/40 text-pink-300' },
+  'mathTc-isometries-similitudes': { emoji: '🔄', accent: 'bg-rose-500/15 border-rose-400/40 text-rose-300' },
+  'mathTc-coniques': { emoji: '🪐', accent: 'bg-purple-500/15 border-purple-400/40 text-purple-300' },
 };
 
 export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
@@ -128,8 +161,8 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
           type="text"
           placeholder={
             subject === 'physique'
-              ? `Rechercher parmi les ${chapters.length} chapitres (ex: Ohm, SEEG, lentilles, poids, atomes, pH...)`
-              : `Rechercher parmi les ${chapters.length} chapitres (ex: Thalès, fractions, racine carrée, rotation...)`
+              ? `Rechercher parmi les ${chapters.length} chapitres Tle C (ex: Frenet, Lorentz, Kepler, RLC, Oklo, pK_a, ester...)`
+              : `Rechercher parmi les ${chapters.length} chapitres Tle C (ex: Bézout, complexes, TVI, ln/exp, intégrales, coniques...)`
           }
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -145,7 +178,10 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
       {/* Domain Filter Bar */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         <button
-          onClick={() => onSelectDomain('all')}
+          onClick={() => {
+            onSelectDomain('all');
+            scrollToSectionById('chapter-list-cards', 45);
+          }}
           className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 ${
             selectedDomain === 'all'
               ? 'bg-white text-slate-950 font-bold shadow'
@@ -158,7 +194,10 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
         {domains.map((dom) => (
           <button
             key={dom.id}
-            onClick={() => onSelectDomain(dom.id)}
+            onClick={() => {
+              onSelectDomain(dom.id);
+              scrollToSectionById('chapter-list-cards', 45);
+            }}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer shrink-0 ${
               selectedDomain === dom.id
                 ? 'bg-sky-500 text-slate-950 font-bold shadow'
@@ -171,7 +210,7 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
       </div>
 
       {/* Liste des chapitres séparés */}
-      <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+      <div id="chapter-list-cards" className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
         {filteredChapters.length === 0 ? (
           <div className="p-6 text-center text-xs text-slate-400 rounded-2xl bg-slate-900 border border-slate-800">
             Aucun chapitre trouvé pour « {searchQuery} ». Efface la recherche pour afficher les {chapters.length} chapitres.

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Printer, ArrowDown, FileText, FlaskConical } from 'lucide-react';
-import { MATH_3EME_CHAPTERS } from '../data/math3emeCurriculum';
-import { PHYSICS_3EME_CHAPTERS } from '../data/physics3emeCurriculum';
+import { MATH_TC_CHAPTERS } from '../data/mathTcCurriculum';
+import { PHYSICS_TC_CHAPTERS } from '../data/physicsTcCurriculum';
 import { SubjectId } from '../types/math';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { ChapterThreeExperiencesPanel } from './ChapterThreeExperiencesPanel';
@@ -30,14 +30,14 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
   if (!isOpen) return null;
 
   const subjectChapters =
-    modalSubject === 'physique' ? PHYSICS_3EME_CHAPTERS : MATH_3EME_CHAPTERS;
+    modalSubject === 'physique' ? PHYSICS_TC_CHAPTERS : MATH_TC_CHAPTERS;
   const activeChapters =
     selectedChapId === 'all'
       ? subjectChapters
       : subjectChapters.filter((c) => c.id === selectedChapId);
 
-  const physCount = PHYSICS_3EME_CHAPTERS.length;
-  const mathCount = MATH_3EME_CHAPTERS.length;
+  const physCount = PHYSICS_TC_CHAPTERS.length;
+  const mathCount = MATH_TC_CHAPTERS.length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
@@ -50,12 +50,12 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
             </div>
             <div>
               <h3 className="text-sm sm:text-base font-black text-white">
-                Fiches Mémos, Formules &amp; 3 Expériences (3ème BEPC Gabon)
+                Fiches Mémos, Formules &amp; 10 Expériences (Terminale C · BAC Gabon)
               </h3>
               <div className="text-[11px] text-slate-400">
                 {modalSubject === 'physique'
-                  ? `Physique-Chimie 3ème BEPC · ${physCount} Chapitres`
-                  : `Mathématiques CIAM 3ème BEPC · ${mathCount} Chapitres`}
+                  ? `Physique-Chimie Terminale C · ${physCount} Chapitres`
+                  : `Mathématiques Terminale C · ${mathCount} Chapitres`}
               </div>
             </div>
           </div>
@@ -155,8 +155,8 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
                     <div className="text-[11px] font-extrabold text-amber-300">
                       {ch.badge} ·{' '}
                       {modalSubject === 'physique'
-                        ? 'Physique-Chimie 3ème BEPC'
-                        : 'Collection CIAM 3ème BEPC'}
+                        ? 'Physique-Chimie Terminale C'
+                        : 'Mathématiques Terminale C'}
                     </div>
                     <h4 className="text-base font-black text-white mt-0.5">{ch.title}</h4>
                   </div>
@@ -175,8 +175,8 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
                       <FlaskConical className="w-3.5 h-3.5 text-amber-400" />
                       <span>
                         {showThreeExps
-                          ? 'Masquer les 3 expériences'
-                          : 'Ouvrir les 3 expériences SVG'}
+                          ? 'Masquer les 10 expériences'
+                          : 'Ouvrir les 10 expériences SVG'}
                       </span>
                     </button>
                   )}
@@ -246,7 +246,7 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
         {/* Modal Footer */}
         <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
           <div className="text-[11px] text-slate-400">
-            🇬🇦 Conforme au programme officiel 3ème BEPC Gabon · Monnaie : Franc CFA
+            🇬🇦 Conforme au programme officiel Terminale Série C Gabon · BAC C
           </div>
           <button
             onClick={onClose}

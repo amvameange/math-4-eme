@@ -13,9 +13,11 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { StepByStepCorrection } from './StepByStepCorrection';
+import { MultiQuestionRunner } from './MultiQuestionRunner';
+import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
 import { DomainId, ExerciseDifficulty, SubjectId } from '../types/math';
-import { MATH_3EME_CHAPTERS, MATH_3EME_DOMAINS } from '../data/math3emeCurriculum';
-import { PHYSICS_3EME_CHAPTERS, PHYSICS_3EME_DOMAINS } from '../data/physics3emeCurriculum';
+import { MATH_TC_CHAPTERS, MATH_TC_DOMAINS } from '../data/mathTcCurriculum';
+import { PHYSICS_TC_CHAPTERS, PHYSICS_TC_DOMAINS } from '../data/physicsTcCurriculum';
 import {
   DIFFICULTY_META,
   GeneratedExercise,
@@ -29,6 +31,7 @@ import {
   KokoEncouragingFeedback,
 } from './illustrations/FunFeedbackIllustrations';
 import { ExerciseVisualFigure } from './illustrations/PedagogicalFigures';
+import { playUiClickSound, scrollToSectionById } from '../utils/uiFeedback';
 
 interface InfiniteExerciseGeneratorProps {
   subject: SubjectId;
@@ -68,9 +71,9 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
   subject,
   onSolvedExercise,
 }) => {
-  const chapters = subject === 'physique' ? PHYSICS_3EME_CHAPTERS : MATH_3EME_CHAPTERS;
-  const domains = subject === 'physique' ? PHYSICS_3EME_DOMAINS : MATH_3EME_DOMAINS;
-  const gradeLabel = '3ème BEPC';
+  const chapters = subject === 'physique' ? PHYSICS_TC_CHAPTERS : MATH_TC_CHAPTERS;
+  const domains = subject === 'physique' ? PHYSICS_TC_DOMAINS : MATH_TC_DOMAINS;
+  const gradeLabel = 'Terminale C';
 
   const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
   const [selectedChapterId, setSelectedChapterId] = useState<string>('all');
@@ -101,6 +104,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showHint, setShowHint] = useState<boolean>(false);
   const [showCorrection, setShowCorrection] = useState<boolean>(false);
+  const [subCheckedState, setSubCheckedState] = useState<Record<string, ExerciseCheckRecord>>({});
 
   const filteredChapters =
     selectedDomain === 'all'
@@ -120,7 +124,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
       const activePool = pool.length > 0 ? pool : chapters;
 
       if (!randomMode) {
-        const seedKey = `3eme:${subject}:${chapId}:dom-${domId}:lvl${diff}:slot${slotIdx}`;
+        const seedKey = `tc:${subject}:${chapId}:dom-${domId}:lvl${diff}:slot${slotIdx}`;
         return withSeed(seedKey, () => {
           const targetChapterId =
             chapId === 'all'
@@ -159,9 +163,24 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
       setIsCorrect(false);
       setShowHint(false);
       setShowCorrection(false);
+      setSubCheckedState({});
     },
     [buildExercise]
   );
+
+  const handleRecordSubAttempt = useCallback((id: string, isCorrectAttempt: boolean) => {
+    setSubCheckedState((prev) => {
+      const existing = prev[id];
+      return {
+        ...prev,
+        [id]: {
+          answered: true,
+          correct: Boolean(existing?.correct || isCorrectAttempt),
+          attempts: (existing?.attempts || 0) + 1,
+        },
+      };
+    });
+  }, []);
 
   useEffect(() => {
     setSelectedDomain('all');
@@ -185,12 +204,14 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
     setSelectedChapterId(nextChap);
     setPromotionBanner(null);
     spawnExercise(nextChap, difficulty, domId, currentSlot, false);
+    scrollToSectionById('infinite-exercise-card', 55);
   };
 
   const handleSelectChapter = (chapId: string) => {
     setSelectedChapterId(chapId);
     setPromotionBanner(null);
     spawnExercise(chapId, difficulty, selectedDomain, currentSlot, false);
+    scrollToSectionById('infinite-exercise-card', 55);
   };
 
   const handleSelectDifficulty = (nextDiff: ExerciseDifficulty) => {
@@ -200,12 +221,14 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
     if (nextDiff > maxLevelReached) setMaxLevelReached(nextDiff);
     const nextSlot = slotByLevel[nextDiff] ?? 0;
     spawnExercise(selectedChapterId, nextDiff, selectedDomain, nextSlot, false);
+    scrollToSectionById('infinite-exercise-card', 55);
   };
 
   const handleSelectSlot = (slotIdx: number) => {
     setSlotByLevel((prev) => ({ ...prev, [difficulty]: slotIdx }));
     setPromotionBanner(null);
     spawnExercise(selectedChapterId, difficulty, selectedDomain, slotIdx, false);
+    scrollToSectionById('infinite-exercise-card', 55);
   };
 
   const handleNextProgressive = () => {
@@ -213,40 +236,46 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
     const nextSlot = (currentSlot + 1) % PROGRESSIVE_COUNT;
     setSlotByLevel((prev) => ({ ...prev, [difficulty]: nextSlot }));
     spawnExercise(selectedChapterId, difficulty, selectedDomain, nextSlot, false);
+    scrollToSectionById('infinite-exercise-card', 55);
+  };
+
+  const markExerciseSolved = (solvedExercise: GeneratedExercise) => {
+    setTotalSolved((s) => s + 1);
+    if (!isRandomMode) {
+      setSolvedSlotsByLevel((prev) => {
+        const existing = prev[solvedExercise.difficulty] || [];
+        if (existing.includes(currentSlot)) return prev;
+        return { ...prev, [solvedExercise.difficulty]: [...existing, currentSlot] };
+      });
+    }
+
+    const nextStreak = streakAtLevel + 1;
+    if (autoEvolve && difficulty < 4 && nextStreak >= 2) {
+      const promoted = (difficulty + 1) as ExerciseDifficulty;
+      setDifficulty(promoted);
+      setStreakAtLevel(0);
+      setPromotionBanner(promoted);
+      if (promoted > maxLevelReached) setMaxLevelReached(promoted);
+    } else {
+      setStreakAtLevel(nextStreak);
+      setPromotionBanner(null);
+    }
+
+    if (onSolvedExercise) {
+      onSolvedExercise(true, DIFFICULTY_META[solvedExercise.difficulty].xp);
+    }
   };
 
   const evaluateAnswer = (candidateAnswer: string) => {
     if (!exercise || !candidateAnswer.trim() || isAnswered) return;
 
     const ok = answersMatch(candidateAnswer, exercise.correctAnswer, exercise.questionType);
+    playUiClickSound(ok ? 'success' : 'error');
     setIsCorrect(ok);
     setIsAnswered(true);
 
     if (ok) {
-      setTotalSolved((s) => s + 1);
-      if (!isRandomMode) {
-        setSolvedSlotsByLevel((prev) => {
-          const existing = prev[exercise.difficulty] || [];
-          if (existing.includes(currentSlot)) return prev;
-          return { ...prev, [exercise.difficulty]: [...existing, currentSlot] };
-        });
-      }
-
-      const nextStreak = streakAtLevel + 1;
-      if (autoEvolve && difficulty < 4 && nextStreak >= 2) {
-        const promoted = (difficulty + 1) as ExerciseDifficulty;
-        setDifficulty(promoted);
-        setStreakAtLevel(0);
-        setPromotionBanner(promoted);
-        if (promoted > maxLevelReached) setMaxLevelReached(promoted);
-      } else {
-        setStreakAtLevel(nextStreak);
-        setPromotionBanner(null);
-      }
-
-      if (onSolvedExercise) {
-        onSolvedExercise(true, DIFFICULTY_META[exercise.difficulty].xp);
-      }
+      markExerciseSolved(exercise);
 
       try {
         confetti({
@@ -276,11 +305,11 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
               <Sparkles className="w-5 h-5 text-amber-400" />
               <span>
                 Exercices Infinis · {chapters.length} Chapitres (
-                {subject === 'physique' ? `Physique-Chimie ${gradeLabel}` : `Maths ${gradeLabel} CIAM`})
+                {subject === 'physique' ? `Physique-Chimie ${gradeLabel}` : `Maths ${gradeLabel}`})
               </span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              20 exercices gradués par niveau de difficulté (Niv. 1 à Niv. 4 = 80 exercices structurés) + variantes aléatoires infinies avec corrections debout.
+              Énoncés de natures différentes à chaque série, niveau très difficile avec 10 questions progressives et correction détaillée en 10 étapes.
             </p>
           </div>
 
@@ -304,6 +333,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
               onClick={() => {
                 setPromotionBanner(null);
                 spawnExercise(selectedChapterId, difficulty, selectedDomain, currentSlot, true);
+                scrollToSectionById('infinite-exercise-card', 55);
               }}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-xs font-extrabold text-slate-950 transition cursor-pointer active:scale-95 shadow shrink-0 whitespace-nowrap"
             >
@@ -479,6 +509,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
               setPromotionBanner(null);
               const nextSlot = slotByLevel[promotionBanner] ?? 0;
               spawnExercise(selectedChapterId, promotionBanner, selectedDomain, nextSlot, false);
+              scrollToSectionById('infinite-exercise-card', 55);
             }}
             className="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold flex items-center gap-1 cursor-pointer whitespace-nowrap"
           >
@@ -490,7 +521,10 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
 
       {/* Carte d'exercice généré */}
       {exercise && (
-        <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
+        <div
+          id="infinite-exercise-card"
+          className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="space-y-0.5">
               <div className="text-[11px] font-semibold text-slate-400">
@@ -524,8 +558,8 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
               <span>📐</span>
               <span>
                 {subject === 'physique'
-                  ? 'Méthode : 1) Données & conversions  2) Formule  3) Calcul debout  4) Unité !'
-                  : 'Méthode CIAM : Pose chaque calcul debout ligne par ligne (= bien alignés) !'}
+                  ? 'Méthode BAC C : 1) Données & conversions SI  2) Loi / Équation diff.  3) Calcul debout  4) Unité !'
+                  : 'Méthode BAC C : Pose chaque équivalence ou calcul debout ligne par ligne (= bien alignés) !'}
               </span>
             </span>
             <span className="text-[11px] font-mono text-slate-400 shrink-0 tabular-nums">
@@ -533,159 +567,203 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
             </span>
           </div>
 
-          <div>
-            {!showHint ? (
-              <button
-                type="button"
-                onClick={() => setShowHint(true)}
-                className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-medium cursor-pointer"
-              >
-                <HelpCircle className="w-4 h-4" />
-                <span>Besoin d’un indice ?</span>
-              </button>
-            ) : (
-              <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2 animate-fade-in">
-                <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="font-semibold text-amber-300">Indice :</strong> {exercise.hint}
-                </div>
-              </div>
-            )}
-          </div>
+          {exercise.subQuestions && exercise.subQuestions.length > 0 ? (
+            <>
+              <MultiQuestionRunner
+                exercise={exercise}
+                exerciseId={`inf-${exerciseKey}`}
+                subject={subject}
+                chapterId={exercise.chapterId}
+                checkedState={subCheckedState}
+                onRecordAttempt={handleRecordSubAttempt}
+                onExerciseCompleted={() => markExerciseSolved(exercise)}
+              />
 
-          {/* Zone de réponse : QCM ou saisie libre */}
-          <div className="space-y-2.5 pt-2 border-t border-slate-800">
-            <label className="text-xs text-slate-400 font-medium block">
-              {exercise.questionType === 'qcm' && exercise.options
-                ? 'Choisis la bonne réponse :'
-                : 'Ta réponse :'}
-            </label>
-
-            {exercise.questionType === 'qcm' && exercise.options && exercise.options.length > 0 ? (
-              <div className="grid sm:grid-cols-2 gap-2">
-                {exercise.options.map((opt) => {
-                  const selected = userAnswer === opt;
-                  const isRightOpt =
-                    isAnswered && normalizeAnswer(opt) === normalizeAnswer(exercise.correctAnswer);
-                  const isWrongSelected = isAnswered && selected && !isRightOpt;
-                  return (
-                    <button
-                      key={opt}
-                      type="button"
-                      disabled={isAnswered}
-                      onClick={() => {
-                        setUserAnswer(opt);
-                        evaluateAnswer(opt);
-                      }}
-                      className={`p-3 rounded-xl border text-left text-xs sm:text-sm font-bold transition cursor-pointer ${
-                        isRightOpt
-                          ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200'
-                          : isWrongSelected
-                          ? 'bg-rose-500/20 border-rose-400 text-rose-200'
-                          : selected
-                          ? 'bg-sky-500/20 border-sky-400 text-white'
-                          : 'bg-slate-950 border-slate-800 text-slate-200 hover:bg-slate-800 disabled:cursor-default'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  disabled={isAnswered}
-                  placeholder={
-                    exercise.unit
-                      ? `Ex: 24 (en ${exercise.unit})`
-                      : 'Tape ta réponse ici (ex: 3/4 ou -12)...'
-                  }
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && evaluateAnswer(userAnswer)}
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-sky-500 focus:outline-none disabled:opacity-70"
-                />
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => evaluateAnswer(userAnswer)}
-                  disabled={!userAnswer.trim() || isAnswered}
-                  className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 shrink-0 whitespace-nowrap"
+                  onClick={() => {
+                    setPromotionBanner(null);
+                    spawnExercise(selectedChapterId, difficulty, selectedDomain, currentSlot, true);
+                    scrollToSectionById('infinite-exercise-card', 55);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/35 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Vérifier</span>
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Nouvel énoncé aléatoire ∞</span>
                 </button>
-              </div>
-            )}
-          </div>
-
-          {isAnswered && (
-            <div className="pt-2 space-y-3 animate-fade-in">
-              {isCorrect ? (
-                <KokoSuccessCelebration
-                  message={`Akiba ! Bonne réponse (+${DIFFICULTY_META[exercise.difficulty].xp} XP) !`}
-                  subMessage="Consulte la rédaction posée debout ci-dessous ou passe à l’exercice suivant."
-                />
-              ) : (
-                <KokoEncouragingFeedback
-                  title={`Réponse attendue : ${exercise.correctAnswer}${
-                    exercise.unit ? ` ${exercise.unit}` : ''
-                  }`}
-                  message="Regarde la correction détaillée debout ci-dessous pour maîtriser la méthode !"
-                  onShowSolution={() => setShowCorrection(true)}
-                />
-              )}
-
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                {!showCorrection && (
-                  <button
-                    type="button"
-                    onClick={() => setShowCorrection(true)}
-                    className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 font-semibold cursor-pointer"
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    <span>Voir la correction détaillée debout</span>
-                  </button>
-                )}
 
                 <button
                   type="button"
                   onClick={handleNextProgressive}
                   className="ml-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow whitespace-nowrap"
                 >
-                  <span>Exercice suivant ({diffMeta.emoji} #{((currentSlot + 1) % PROGRESSIVE_COUNT) + 1}/20)</span>
+                  <span>
+                    Exercice suivant ({diffMeta.emoji} #{((currentSlot + 1) % PROGRESSIVE_COUNT) + 1}/20)
+                  </span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
-            </div>
-          )}
+            </>
+          ) : (
+            <>
+              <div>
+                {!showHint ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowHint(true)}
+                    className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-medium cursor-pointer"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Besoin d’un indice ?</span>
+                  </button>
+                ) : (
+                  <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2 animate-fade-in">
+                    <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="font-semibold text-amber-300">Indice :</strong> {exercise.hint}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-          {!isAnswered && !showCorrection && (
-            <div className="pt-1 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowCorrection(true)}
-                className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 font-semibold cursor-pointer"
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Afficher directement la correction pas à pas</span>
-              </button>
-            </div>
-          )}
+              {/* Zone de réponse : QCM ou saisie libre */}
+              <div className="space-y-2.5 pt-2 border-t border-slate-800">
+                <label className="text-xs text-slate-400 font-medium block">
+                  {exercise.questionType === 'qcm' && exercise.options
+                    ? 'Choisis la bonne réponse :'
+                    : 'Ta réponse :'}
+                </label>
 
-          {showCorrection && (
-            <div className="pt-3 border-t border-slate-800 animate-fade-in">
-              <StepByStepCorrection
-                key={exerciseKey}
-                steps={exercise.steps}
-                finalResult={exercise.explanationFinal}
-                initialShowAll={false}
-                chapterId={exercise.chapterId}
-                subject={subject}
-                contextHint={`${exercise.title} ${exercise.prompt}`}
-              />
-            </div>
+                {exercise.questionType === 'qcm' && exercise.options && exercise.options.length > 0 ? (
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {exercise.options.map((opt) => {
+                      const selected = userAnswer === opt;
+                      const isRightOpt =
+                        isAnswered && normalizeAnswer(opt) === normalizeAnswer(exercise.correctAnswer);
+                      const isWrongSelected = isAnswered && selected && !isRightOpt;
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          data-sound="custom"
+                          disabled={isAnswered}
+                          onClick={() => {
+                            setUserAnswer(opt);
+                            evaluateAnswer(opt);
+                          }}
+                          className={`p-3 rounded-xl border text-left text-xs sm:text-sm font-bold transition cursor-pointer ${
+                            isRightOpt
+                              ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200'
+                              : isWrongSelected
+                              ? 'bg-rose-500/20 border-rose-400 text-rose-200'
+                              : selected
+                              ? 'bg-sky-500/20 border-sky-400 text-white'
+                              : 'bg-slate-950 border-slate-800 text-slate-200 hover:bg-slate-800 disabled:cursor-default'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      disabled={isAnswered}
+                      placeholder={
+                        exercise.unit
+                          ? `Ex: 24 (en ${exercise.unit})`
+                          : 'Tape ta réponse ici (ex: 3/4 ou -12)...'
+                      }
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && evaluateAnswer(userAnswer)}
+                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-sky-500 focus:outline-none disabled:opacity-70"
+                    />
+                    <button
+                      type="button"
+                      data-sound="custom"
+                      onClick={() => evaluateAnswer(userAnswer)}
+                      disabled={!userAnswer.trim() || isAnswered}
+                      className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 shrink-0 whitespace-nowrap"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Vérifier</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isAnswered && (
+                <div className="pt-2 space-y-3 animate-fade-in">
+                  {isCorrect ? (
+                    <KokoSuccessCelebration
+                      message={`Akiba ! Bonne réponse (+${DIFFICULTY_META[exercise.difficulty].xp} XP) !`}
+                      subMessage="Consulte la rédaction posée debout ci-dessous ou passe à l’exercice suivant."
+                    />
+                  ) : (
+                    <KokoEncouragingFeedback
+                      title={`Réponse attendue : ${exercise.correctAnswer}${
+                        exercise.unit ? ` ${exercise.unit}` : ''
+                      }`}
+                      message="Regarde la correction détaillée debout ci-dessous pour maîtriser la méthode !"
+                      onShowSolution={() => setShowCorrection(true)}
+                    />
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    {!showCorrection && (
+                      <button
+                        type="button"
+                        onClick={() => setShowCorrection(true)}
+                        className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 font-semibold cursor-pointer"
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        <span>Voir la correction détaillée debout</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleNextProgressive}
+                      className="ml-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 transition cursor-pointer shadow whitespace-nowrap"
+                    >
+                      <span>Exercice suivant ({diffMeta.emoji} #{((currentSlot + 1) % PROGRESSIVE_COUNT) + 1}/20)</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!isAnswered && !showCorrection && (
+                <div className="pt-1 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowCorrection(true)}
+                    className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 font-semibold cursor-pointer"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>Afficher directement la correction pas à pas</span>
+                  </button>
+                </div>
+              )}
+
+              {showCorrection && (
+                <div className="pt-3 border-t border-slate-800 animate-fade-in">
+                  <StepByStepCorrection
+                    key={exerciseKey}
+                    steps={exercise.steps}
+                    finalResult={exercise.explanationFinal}
+                    initialShowAll={false}
+                    chapterId={exercise.chapterId}
+                    subject={subject}
+                    contextHint={`${exercise.title} ${exercise.prompt}`}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

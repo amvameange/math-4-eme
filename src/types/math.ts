@@ -1,5 +1,5 @@
 export type SubjectId = 'physique' | 'maths';
-export type GradeLevel = '4eme' | '3eme';
+export type GradeLevel = 'Terminale C' | '3eme' | '4eme';
 
 export type MathDomainId =
   | 'nombres-calculs'
@@ -11,6 +11,7 @@ export type PhysicsDomainId =
   | 'electricite'
   | 'optique'
   | 'mecanique'
+  | 'nucleaire'
   | 'chimie';
 
 export type DomainId = MathDomainId | PhysicsDomainId;
@@ -38,6 +39,19 @@ export interface CorrectionStep {
 
 export type ExerciseDifficulty = 1 | 2 | 3 | 4; // 1: Fondamental, 2: Entraînement, 3: Approfondissement, 4: Problème de synthèse
 
+export interface SubQuestion {
+  questionNumber: number;
+  questionPrompt: string;
+  questionType: 'qcm' | 'numeric' | 'text';
+  options?: string[];
+  correctAnswer: string;
+  unit?: string;
+  hint: string;
+  ruleApplied: string;
+  mathExpression: string;
+  explanation: string;
+}
+
 export interface Exercise {
   id: string;
   chapterId: string;
@@ -59,6 +73,7 @@ export interface Exercise {
   themeTags?: string[];
   explanationFinal: string;
   steps: CorrectionStep[];
+  subQuestions?: SubQuestion[];
 }
 
 export type BepcCountryId =
@@ -79,6 +94,8 @@ export interface BepcArchivePaper {
   duration: string;
   totalPoints: number;
   themeSummary: string;
+  isOfficial?: boolean;
+  officialReference?: string;
   isTrainingSubject?: boolean;
   sourceNotice?: string;
   parts: Exercise[];
@@ -87,6 +104,7 @@ export interface BepcArchivePaper {
 export interface LessonSection {
   title: string;
   explanation: string[];
+  illustrationNote?: string;
   rules?: {
     name: string;
     description: string;
@@ -148,11 +166,25 @@ export type MathIllustrationKey =
   | 'espace-volumes'
   | 'reperage-plan'
   | 'cercle'
-  // 3ème BEPC Maths
   | 'systemes-equations'
   | 'vecteurs-chasles'
   | 'angles-polygones'
-  | 'sections-solides';
+  | 'sections-solides'
+  // Terminale Série C Maths
+  | 'tc-arithmetique'
+  | 'tc-complexes-algebre'
+  | 'tc-complexes-geometrie'
+  | 'tc-barycentre-vectoriel'
+  | 'tc-limites-tvi'
+  | 'tc-derivation-iaf'
+  | 'tc-ln-exp-equadiff'
+  | 'tc-suites-adjacentes'
+  | 'tc-calcul-integral'
+  | 'tc-probas-conditionnelles'
+  | 'tc-binomiale-stats2'
+  | 'tc-espace-analytique'
+  | 'tc-isometries-similitudes'
+  | 'tc-coniques';
 
 export type PhysicsIllustrationKey =
   | 'circuit-simple'
@@ -175,7 +207,6 @@ export type PhysicsIllustrationKey =
   | 'combustions'
   | 'equations-bilan'
   | 'solutions-ph'
-  // 3ème BEPC Physique-Chimie
   | 'equilibre-deux-forces'
   | 'travail-puissance-meca'
   | 'energie-mecanique'
@@ -185,7 +216,22 @@ export type PhysicsIllustrationKey =
   | 'metaux-oxydation'
   | 'ions-tests'
   | 'acides-bases-neutralisation'
-  | 'hydrocarbures-alcools';
+  | 'hydrocarbures-alcools'
+  // Terminale Série C Physique-Chimie
+  | 'tc-cinematique-frenet'
+  | 'tc-dynamique-lorentz'
+  | 'tc-gravitation-kepler'
+  | 'tc-oscillations-pendule'
+  | 'tc-dipoles-rc-rl'
+  | 'tc-resonance-rlc'
+  | 'tc-ondes-diffraction'
+  | 'tc-young-photoelectrique'
+  | 'tc-noyau-radioactivite'
+  | 'tc-fission-fusion'
+  | 'tc-cinetique-chimique'
+  | 'tc-acides-bases-titrage'
+  | 'tc-alcools-carbonyles'
+  | 'tc-esterification-saponification';
 
 export type ChapterIllustrationKey = MathIllustrationKey | PhysicsIllustrationKey;
 

@@ -8,7 +8,7 @@ import React from 'react';
 // 1. Festive celebration when the student answers correctly
 export const KokoSuccessCelebration: React.FC<{ message?: string; subMessage?: string }> = ({
   message = "Akiba ! C'est la bonne réponse !",
-  subMessage = "Tu as assuré comme un vrai champion des maths au Gabon !",
+  subMessage = "Tu as assuré comme un vrai candidat au Baccalauréat Série C au Gabon !",
 }) => {
   return (
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950/80 via-slate-900 to-amber-950/70 border-2 border-emerald-500/60 p-4 shadow-2xl animate-fade-in">
@@ -86,7 +86,7 @@ export const KokoSuccessCelebration: React.FC<{ message?: string; subMessage?: s
             </span>
             <span className="text-xs font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-800 flex items-center gap-1">
               <span>🇬🇦</span>
-              <span>100% CIAM 4ème</span>
+              <span>100% BAC C GABON</span>
             </span>
           </div>
 
@@ -100,9 +100,9 @@ export const KokoSuccessCelebration: React.FC<{ message?: string; subMessage?: s
           </p>
 
           <div className="pt-1 flex items-center justify-center sm:justify-start gap-2 text-[11px] text-emerald-400 font-semibold">
-            <span>⚡ +20 XP de Matheux 4ème</span>
+            <span>⚡ +20 XP de Terminale C</span>
             <span>•</span>
-            <span>Regarde la rédaction modèle ci-dessous pour le prochain devoir !</span>
+            <span>Regarde la rédaction modèle ci-dessous pour le Baccalauréat !</span>
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@ export const KokoEncouragingFeedback: React.FC<{
   onShowSolution?: () => void;
 }> = ({
   title = "Pas de panique, Koko t'explique tout !",
-  message = "En maths de 4ème, faire une erreur est le meilleur moyen d'apprendre. Suis la méthode ci-dessous étape par étape pour débloquer le calcul !",
+  message = "En Terminale C, analyser son erreur est le meilleur moyen de progresser vers la mention. Suis la méthode ci-dessous étape par étape !",
   onShowSolution,
 }) => {
   return (
@@ -128,8 +128,8 @@ export const KokoEncouragingFeedback: React.FC<{
           <svg viewBox="0 0 100 100" className="w-full h-full select-none">
             {/* Slate Background */}
             <rect x="6" y="8" width="88" height="84" rx="8" fill="#1e293b" stroke="#475569" strokeWidth="2" />
-            <text x="50" y="24" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#38bdf8">
-              ASTUCE DU DÉCLIC 4e
+            <text x="50" y="24" textAnchor="middle" fontSize="6.8" fontWeight="bold" fill="#38bdf8">
+              ASTUCE BAC C
             </text>
 
             {/* Panther Head with Thinking Glasses */}
@@ -174,7 +174,7 @@ export const KokoEncouragingFeedback: React.FC<{
               <span>COUP DE POUCE PÉDAGOGIQUE</span>
             </span>
             <span className="text-xs font-bold text-sky-300 bg-sky-950/80 px-2 py-0.5 rounded-full border border-sky-800">
-              Méthode CIAM 4ème
+              Méthode Terminale C
             </span>
           </div>
 
@@ -258,13 +258,13 @@ export const GabonBadgeStamp: React.FC<{ chapterTitle?: string }> = () => {
         </div>
         <div>
           <div className="font-extrabold text-emerald-300 flex items-center gap-1.5">
-            <span>RÉDACTION MODÈLE CIAM 4ème</span>
+            <span>RÉDACTION MODÈLE BAC C GABON</span>
             <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-bold">
               CONTRÔLE VALIDÉ
             </span>
           </div>
           <div className="text-[11px] text-slate-300">
-            Écris exactement comme ceci sur ta copie de devoir surveillé pour viser 20/20 !
+            Écris exactement comme ceci sur ta copie du Baccalauréat Série C pour viser 20/20 !
           </div>
         </div>
       </div>

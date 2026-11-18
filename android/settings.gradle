@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PhysiqueMaths3emeBEPC"
+rootProject.name = "PhysiqueMathsTerminaleC"
 include ':app'

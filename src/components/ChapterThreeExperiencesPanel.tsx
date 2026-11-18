@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { FlaskConical, Compass, Layers } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Compass, FlaskConical, Layers } from 'lucide-react';
 import { SubjectId } from '../types/math';
 import {
-  PHYSICS_3EME_EXPERIENCE_META,
-  Physics3emeExperiences,
-} from './Physics3emeExperiences';
+  PHYSICS_TC_EXPERIENCE_META,
+  PhysicsTcExperiences,
+} from './PhysicsTcExperiences';
 import {
-  MATH_3EME_EXPERIENCE_META,
-  Math3emeExperiences,
-} from './Math3emeExperiences';
+  MATH_TC_EXPERIENCE_META,
+  MathTcExperiences,
+} from './MathTcExperiences';
+import { scrollToSectionById } from '../utils/uiFeedback';
 
 interface ChapterThreeExperiencesPanelProps {
   chapterId: string;
@@ -21,29 +22,31 @@ export const ChapterThreeExperiencesPanel: React.FC<ChapterThreeExperiencesPanel
   subject,
   mode = 'labo',
 }) => {
-  const [selectedExp, setSelectedExp] = useState<0 | 1 | 2>(0);
-  const [showAllThree, setShowAllThree] = useState<boolean>(false);
+  const [selectedExp, setSelectedExp] = useState<number>(0);
+  const [showAll, setShowAll] = useState<boolean>(false);
 
   useEffect(() => {
     setSelectedExp(0);
-    setShowAllThree(false);
+    setShowAll(false);
   }, [chapterId]);
 
   const meta =
     subject === 'physique'
-      ? PHYSICS_3EME_EXPERIENCE_META[chapterId]
-      : MATH_3EME_EXPERIENCE_META[chapterId];
+      ? PHYSICS_TC_EXPERIENCE_META[chapterId]
+      : MATH_TC_EXPERIENCE_META[chapterId];
 
   if (!meta) return null;
 
   const isPhysics = subject === 'physique';
-  const indices: (0 | 1 | 2)[] = [0, 1, 2];
+  const count = meta.titles.length;
+  const indices = Array.from({ length: count }, (_, i) => i);
+  const safeIdx = Math.min(selectedExp, Math.max(0, count - 1));
 
-  const renderExperience = (idx: 0 | 1 | 2) =>
+  const renderExperience = (idx: number) =>
     isPhysics ? (
-      <Physics3emeExperiences chapterId={chapterId} experienceIndex={idx} />
+      <PhysicsTcExperiences chapterId={chapterId} experienceIndex={idx} />
     ) : (
-      <Math3emeExperiences chapterId={chapterId} experienceIndex={idx} />
+      <MathTcExperiences chapterId={chapterId} experienceIndex={idx} />
     );
 
   return (
@@ -66,40 +69,44 @@ export const ChapterThreeExperiencesPanel: React.FC<ChapterThreeExperiencesPanel
           <div>
             <div className="text-[11px] font-black uppercase tracking-wider text-amber-300">
               {mode === 'memo'
-                ? '3 Expériences & Schémas Illustratifs du Mémo'
-                : '3 Expériences Interactives du Chapitre'}
+                ? `${count} Expériences & Schémas Illustratifs du Mémo`
+                : `${count} Expériences Interactives du Chapitre`}
             </div>
             <p className="text-xs text-slate-400">
-              Manipule les 3 expériences distinctes avec leurs schémas SVG interactifs en direct.
+              Manipule les {count} expériences distinctes avec leurs schémas SVG interactifs en direct.
             </p>
           </div>
         </div>
 
         <button
           type="button"
-          onClick={() => setShowAllThree((v) => !v)}
+          onClick={() => setShowAll((v) => !v)}
           className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-            showAllThree
+            showAll
               ? 'bg-emerald-500 text-slate-950 border-emerald-400'
               : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
-          <span>{showAllThree ? 'Mode onglets (1 par 1)' : 'Afficher les 3 ensemble'}</span>
+          <span>{showAll ? 'Mode onglets (1 par 1)' : `Afficher les ${count} ensemble`}</span>
         </button>
       </div>
 
-      {!showAllThree ? (
+      {!showAll ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {indices.map((idx) => {
-              const active = selectedExp === idx;
+              const active = safeIdx === idx;
               return (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setSelectedExp(idx)}
-                  className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
+                  onClick={() => {
+                    setSelectedExp(idx);
+                    scrollToSectionById('labo-experience-viewer', 45);
+                  }}
+                  title={meta.titles[idx]}
+                  className={`p-2.5 rounded-2xl border text-left transition cursor-pointer ${
                     active
                       ? isPhysics
                         ? 'bg-sky-500/15 border-sky-400 text-white shadow'
@@ -107,8 +114,8 @@ export const ChapterThreeExperiencesPanel: React.FC<ChapterThreeExperiencesPanel
                       : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
                   }`}
                 >
-                  <div className="text-[10px] font-black uppercase tracking-wider text-amber-300">
-                    Expérience {idx + 1} / 3
+                  <div className="text-[10px] font-black uppercase tracking-wider text-amber-300 tabular-nums">
+                    Exp. {idx + 1} / {count}
                   </div>
                   <div className="text-xs font-bold mt-0.5 truncate">
                     {meta.shortTitles[idx]}
@@ -118,11 +125,42 @@ export const ChapterThreeExperiencesPanel: React.FC<ChapterThreeExperiencesPanel
             })}
           </div>
 
-          <div className="rounded-2xl bg-slate-950/60 border border-slate-800 p-3.5 sm:p-4 space-y-3">
-            <div className="text-xs sm:text-sm font-black text-sky-300 border-b border-slate-800 pb-2">
-              {meta.titles[selectedExp]}
+          <div
+            id="labo-experience-viewer"
+            className="rounded-2xl bg-slate-950/60 border border-slate-800 p-3.5 sm:p-4 space-y-3"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+              <div className="text-xs sm:text-sm font-black text-sky-300">
+                {meta.titles[safeIdx]}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={safeIdx === 0}
+                  onClick={() => {
+                    setSelectedExp((i) => Math.max(0, i - 1));
+                    scrollToSectionById('labo-experience-viewer', 45);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-bold text-slate-200 border border-slate-700 transition cursor-pointer disabled:cursor-not-allowed flex items-center gap-1 whitespace-nowrap shrink-0"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Préc.</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={safeIdx === count - 1}
+                  onClick={() => {
+                    setSelectedExp((i) => Math.min(count - 1, i + 1));
+                    scrollToSectionById('labo-experience-viewer', 45);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-bold text-slate-200 border border-slate-700 transition cursor-pointer disabled:cursor-not-allowed flex items-center gap-1 whitespace-nowrap shrink-0"
+                >
+                  <span>Suiv.</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-            {renderExperience(selectedExp)}
+            {renderExperience(safeIdx)}
           </div>
         </div>
       ) : (

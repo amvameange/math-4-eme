@@ -7,6 +7,8 @@ import {
   GraduationCap,
   FolderOpen,
   Award,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { SubjectId } from '../types/math';
 
@@ -18,6 +20,8 @@ interface MathHeaderProps {
   onOpenMemo: () => void;
   activeSubject: SubjectId;
   customExercisesCount?: number;
+  soundEnabled: boolean;
+  onToggleSound: () => void;
 }
 
 export const MathHeader: React.FC<MathHeaderProps> = ({
@@ -26,6 +30,8 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
   onOpenMemo,
   activeSubject,
   customExercisesCount = 0,
+  soundEnabled,
+  onToggleSound,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800">
@@ -39,12 +45,12 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
           </div>
           <div>
             <div className="font-extrabold text-sm sm:text-base text-white tracking-tight whitespace-nowrap">
-              Sciences &amp; Maths 3ème BEPC
+              Sciences &amp; Maths Terminale C
             </div>
             <div className="text-[11px] text-slate-400 whitespace-nowrap">
               {activeSubject === 'physique'
-                ? 'Physique-Chimie 3ème Gabon'
-                : 'Maths CIAM 3ème Gabon'}
+                ? 'Physique-Chimie Tle C · BAC Gabon'
+                : 'Mathématiques Tle C · BAC Gabon'}
             </div>
           </div>
         </div>
@@ -72,7 +78,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
             }`}
           >
             <Award className="w-3.5 h-3.5" />
-            <span>Type BEPC &amp; Examen</span>
+            <span>Type BAC &amp; Examen</span>
           </button>
 
           <button
@@ -114,14 +120,32 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
           </button>
         </nav>
 
-        {/* Zone 3 : Primary CTA */}
-        <button
-          onClick={onOpenMemo}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition cursor-pointer shadow active:scale-95 whitespace-nowrap shrink-0"
-        >
-          <FileText className="w-3.5 h-3.5" />
-          <span>Fiches Mémos</span>
-        </button>
+        {/* Zone 3 : Sound Toggle + Primary CTA */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            data-sound="custom"
+            onClick={onToggleSound}
+            title={soundEnabled ? 'Désactiver le son doux au clic' : 'Activer le son doux au clic'}
+            aria-label={soundEnabled ? 'Couper le son' : 'Activer le son'}
+            className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-bold border transition cursor-pointer whitespace-nowrap ${
+              soundEnabled
+                ? 'bg-slate-900 border-emerald-500/40 text-emerald-300 hover:bg-slate-800'
+                : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{soundEnabled ? 'Son doux' : 'Muet'}</span>
+          </button>
+
+          <button
+            onClick={onOpenMemo}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition cursor-pointer shadow active:scale-95 whitespace-nowrap shrink-0"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Fiches Mémos</span>
+          </button>
+        </div>
       </div>
     </header>
   );

@@ -1,13 +1,13 @@
 # Guide d'installation et de build sur Android Studio 📱🇬🇦
 
-Cette application de **Physique-Chimie & Mathématiques (3ème BEPC Gabon — version 3.2.0)** est configurée pour être ouverte, exécutée et compilée directement dans **Android Studio** (APK Debug / Release ou App Bundle).
+Cette application de **Physique-Chimie & Mathématiques (Terminale Série C · BAC Gabon — version 4.0.0)** est configurée pour être ouverte, exécutée et compilée directement dans **Android Studio** (APK Debug / Release ou App Bundle).
 
 Elle embarque hors-ligne :
-- **27 chapitres complets de 3ème** (13 Physique-Chimie + 14 Maths CIAM Gabon) avec 10 exercices d'application + 80 exercices progressifs par chapitre ;
-- **270 exercices Type BEPC par chapitre** (10 par chapitre à difficulté croissante, Gabon & International) ;
-- **40 grands Problèmes Type Examen BEPC** (20 Physique-Chimie + 20 Maths) corrigés étape par étape ;
-- **444 Épreuves complètes d'entraînement BEPC 1990–2026** (6 pays × 37 années × 2 matières = 1 776 exercices détaillés sur 20 pts : Gabon, France, Sénégal, Cameroun, Bénin, Togo) ;
-- **81 expériences interactives SVG** (3 par chapitre dans Labo Visuel & Mémo), **Exercices Infinis** et **Mes Exercices** sauvegardés localement.
+- **28 chapitres complets de Terminale Série C** (14 Physique-Chimie + 14 Mathématiques) avec dessins illustratifs dédiés, 10 exercices d'application + 80 exercices progressifs par chapitre ;
+- **280 exercices Type BAC C par chapitre** (10 par chapitre à difficulté croissante, Gabon & International) ;
+- **40 grands Problèmes Type Examen BAC C** (20 Physique-Chimie + 20 Maths) corrigés étape par étape ;
+- **444 Épreuves complètes d'entraînement BAC C 1990–2026** (6 pays × 37 années × 2 matières = 1 776 exercices détaillés sur 20 pts : Gabon, France, Sénégal, Cameroun, Bénin, Togo) ;
+- **84 expériences interactives SVG** (3 par chapitre dans Labo Visuel & Mémo), **Exercices Infinis** et **Mes Exercices** sauvegardés localement.
 
 ---
 
@@ -19,7 +19,7 @@ Elle embarque hors-ligne :
    ```
    Cela compile l'application Vite dans `dist/` et copie l'intégralité du bundle dans `android/app/src/main/assets/`.
 2. Ouvre **Android Studio** → **File > Open** → sélectionne le dossier `android/` de ce projet.
-3. Laisse Android Studio effectuer le **Gradle Sync** (**Gradle 8.9**, **AGP `8.7.3`**, **Kotlin `1.9.25`**, **Java 17**, **compileSdk / targetSdk 35**, `versionCode 5` / `3.2.0`).
+3. Laisse Android Studio effectuer le **Gradle Sync** (**Gradle 8.11.1**, **AGP `8.9.1`**, **Kotlin `2.1.0`**, **Java 17**, **compileSdk / targetSdk 35**, `versionCode 6` / `4.0.0`).
    - `android/settings.gradle` centralise les dépôts (`RepositoriesMode.PREFER_SETTINGS`).
    - `android/build.gradle` déclare les plugins au format moderne (`plugins { ... apply false }`) sans conflit `allprojects`.
 4. Clique sur **Run ▶** (émulateur ou appareil USB) ou **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
@@ -28,10 +28,14 @@ Elle embarque hors-ligne :
 
 ## 🔍 Correctifs Android Studio, Android 15 (SDK 35) & WebView
 
-1. **Résolution du warning `SDK XML versions up to 3 but an SDK XML file of version 4 was encountered`** :
-   - Cause : Les anciennes versions d'AGP (`8.2.x`) et de Gradle (`8.2`) utilisent un parseur `repository2-3.xml` incompatible avec les fichiers XML v4 (`repository2-4.xml`) des SDK Tools récents d'Android Studio.
-   - Correction appliquée : Passage à **AGP `8.7.3`**, **Gradle `8.9`**, **Kotlin `1.9.25`**, `compileSdk 35` / `targetSdk 35`, `versionCode 5` (`3.2.0`), `packaging { resources { excludes += '/META-INF/{AL2.0,LGPL2.1}' } }`, et dépendances AndroidX à jour (`core-ktx:1.15.0`, `appcompat:1.7.0`, `material:1.12.0`, `webkit:1.12.1`, `activity-ktx:1.9.3`).
-   - Dans Android Studio, si un ancien cache Gradle subsiste : **File > Sync Project with Gradle Files** (ou **Build > Clean Project**).
+1. **Résolution de `Unknown command-line option '--jvm-vendor'` et de l’avertissement `SDK XML versions up to 3 ... version 4`** :
+   - Cause (`--jvm-vendor`) : Les versions récentes d’Android Studio invoquent la tâche Gradle `updateDaemonJvm --jvm-vendor ...`, prise en charge à partir de **Gradle `8.10`**.
+   - Cause (`SDK XML version 4`) : Cet avertissement (*Warning*, non bloquant pour générer l’APK) provient d’un décalage entre le parseur SDK du projet/IDE et les fichiers `package.xml` locaux du dossier `Android/Sdk/` (souvent `Android SDK Command-line Tools` obsolète ou installé à une autre date qu’Android Studio).
+   - Correction côté projet : Passage à **Gradle `8.11.1`**, **AGP `8.9.1`**, **Kotlin `2.1.0`**, `compileSdk 35` / `targetSdk 35`, `versionCode 5` (`3.2.0`), `packaging { resources { excludes += '/META-INF/{AL2.0,LGPL2.1}' } }`, et dépendances AndroidX à jour (`core-ktx:1.15.0`, `appcompat:1.7.0`, `material:1.12.0`, `webkit:1.12.1`, `activity-ktx:1.9.3`).
+   - **Action à faire dans Android Studio sur ton PC** (pour supprimer l’avertissement `SDK XML version 4` sur ton poste) :
+     1. Ouvre **Tools > SDK Manager** → onglet **SDK Tools**.
+     2. Coche **Android SDK Command-line Tools (latest)** (si déjà coché, coche *Show Package Details* en bas pour désinstaller une éventuelle ancienne version et installer la dernière), puis clique sur **Apply**.
+     3. Fais **File > Sync Project with Gradle Files** (et si besoin **Build > Clean Project**).
 2. **Compatibilité Android 15 Edge-to-Edge & Clavier (`MainActivity.kt`)** :
    - `WindowCompat.setDecorFitsSystemWindows(window, false)` couplé à `ViewCompat.setOnApplyWindowInsetsListener(webView)` applique proprement les marges `systemBars()` + `ime()` sur Android 15 (`targetSdk 35`) pour éviter tout chevauchement de la barre d'état ou du clavier.
    - `WindowInsetsControllerCompat` gère les icônes claires sur fond sombre (`#020617`) sans API dépréciées.

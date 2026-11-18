@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CustomExercise } from '../types/math';
 
-const STORAGE_KEY = 'gabon_3eme_custom_exercises_v1';
+const STORAGE_KEY = 'gabon_tlec_custom_exercises_v1';
 
 export function useCustomExercises() {
   const [customExercises, setCustomExercises] = useState<CustomExercise[]>(() => {

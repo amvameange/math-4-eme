@@ -2,6 +2,7 @@ import { ExerciseDifficulty } from '../../types/math';
 import { CHAPTERS } from '../curriculumData';
 import { DIFFICULTY_META, GeneratedExercise, pickRandom, randFloat, randInt } from './types';
 import { generateMath3emeExercise } from './math3emeGenerators';
+import { generateMathTcExercise } from './mathTcGenerators';
 
 function gcd(a: number, b: number): number {
   let x = Math.abs(a);
@@ -34,6 +35,9 @@ export function generateMathExercise(
   difficulty: ExerciseDifficulty,
   variantIndex = 0
 ): GeneratedExercise {
+  if (chapterId.startsWith('mathTc-')) {
+    return generateMathTcExercise(chapterId, difficulty, variantIndex);
+  }
   if (chapterId.startsWith('math3-')) {
     return generateMath3emeExercise(chapterId, difficulty, variantIndex);
   }

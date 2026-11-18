@@ -1,5 +1,7 @@
 import React from 'react';
-import { Chapter, ChapterIllustrationKey, SubjectId } from '../../types/math';
+import { Chapter, ChapterIllustrationKey, PhysicsIllustrationKey, SubjectId } from '../../types/math';
+import { TerminaleCPhysicsDrawing } from './TerminaleCPhysicsDrawings';
+import { TerminaleCMathDrawing } from './TerminaleCMathDrawings';
 
 interface DemonstrationMethodFigureProps {
   chapterId?: string;
@@ -1169,6 +1171,64 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
   }
 };
 
+function resolveTcIllustrationKey(
+  chapterId?: string,
+  illustrationKey?: ChapterIllustrationKey
+): ChapterIllustrationKey | null {
+  if (illustrationKey && illustrationKey.startsWith('tc-')) return illustrationKey;
+  if (!chapterId) return null;
+  const map: Record<string, ChapterIllustrationKey> = {
+    'physTc-cinematique': 'tc-cinematique-frenet',
+    'physTc-dynamique': 'tc-dynamique-lorentz',
+    'physTc-gravitation': 'tc-gravitation-kepler',
+    'physTc-oscillations-energie': 'tc-oscillations-pendule',
+    'physTc-dipoles-rc-rl': 'tc-dipoles-rc-rl',
+    'physTc-oscillations-rlc': 'tc-resonance-rlc',
+    'physTc-ondes-mecaniques': 'tc-ondes-diffraction',
+    'physTc-interferences-lumiere': 'tc-young-photoelectrique',
+    'physTc-noyau-radioactivite': 'tc-noyau-radioactivite',
+    'physTc-reactions-nucleaires': 'tc-fission-fusion',
+    'physTc-cinetique-chimique': 'tc-cinetique-chimique',
+    'physTc-acides-bases-ph': 'tc-acides-bases-titrage',
+    'physTc-alcools-carbonyles': 'tc-alcools-carbonyles',
+    'physTc-esterification-saponification': 'tc-esterification-saponification',
+    'mathTc-arithmetique': 'tc-arithmetique',
+    'mathTc-complexes-algebre': 'tc-complexes-algebre',
+    'mathTc-complexes-geometrie': 'tc-complexes-geometrie',
+    'mathTc-barycentre-matrices': 'tc-barycentre-vectoriel',
+    'mathTc-limites-continuite': 'tc-limites-tvi',
+    'mathTc-derivation-primitives': 'tc-derivation-iaf',
+    'mathTc-ln-exp-equadiff': 'tc-ln-exp-equadiff',
+    'mathTc-suites-recurrence': 'tc-suites-adjacentes',
+    'mathTc-calcul-integral': 'tc-calcul-integral',
+    'mathTc-denombrement-probas': 'tc-probas-conditionnelles',
+    'mathTc-lois-probas-stats': 'tc-binomiale-stats2',
+    'mathTc-geometrie-espace': 'tc-espace-analytique',
+    'mathTc-isometries-similitudes': 'tc-isometries-similitudes',
+    'mathTc-coniques': 'tc-coniques',
+  };
+  return map[chapterId] || null;
+}
+
+function isTcPhysicsKey(key: ChapterIllustrationKey): boolean {
+  return (
+    key === 'tc-cinematique-frenet' ||
+    key === 'tc-dynamique-lorentz' ||
+    key === 'tc-gravitation-kepler' ||
+    key === 'tc-oscillations-pendule' ||
+    key === 'tc-dipoles-rc-rl' ||
+    key === 'tc-resonance-rlc' ||
+    key === 'tc-ondes-diffraction' ||
+    key === 'tc-young-photoelectrique' ||
+    key === 'tc-noyau-radioactivite' ||
+    key === 'tc-fission-fusion' ||
+    key === 'tc-cinetique-chimique' ||
+    key === 'tc-acides-bases-titrage' ||
+    key === 'tc-alcools-carbonyles' ||
+    key === 'tc-esterification-saponification'
+  );
+}
+
 export const DemonstrationMethodFigure: React.FC<DemonstrationMethodFigureProps> = ({
   chapterId,
   illustrationKey,
@@ -1176,6 +1236,15 @@ export const DemonstrationMethodFigure: React.FC<DemonstrationMethodFigureProps>
   compact = false,
   contextHint,
 }) => {
+  const tcKey = resolveTcIllustrationKey(chapterId, illustrationKey);
+  if (tcKey) {
+    return isTcPhysicsKey(tcKey) ? (
+      <TerminaleCPhysicsDrawing illustrationKey={tcKey as PhysicsIllustrationKey} />
+    ) : (
+      <TerminaleCMathDrawing illustrationKey={tcKey} />
+    );
+  }
+
   const topic = resolveFigureTopic(chapterId, illustrationKey, subject);
   const caption = getTopicCaption(topic);
 
@@ -1202,6 +1271,22 @@ export const FormulaVisualSchema: React.FC<{
   chapter: Chapter;
   ruleName?: string;
 }> = ({ chapter, ruleName }) => {
+  const tcKey = resolveTcIllustrationKey(chapter.id, chapter.illustrationKey);
+  if (tcKey) {
+    return (
+      <div className="space-y-1.5">
+        <div className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider">
+          Schéma explicatif du cours{ruleName ? ` · ${ruleName}` : ''}
+        </div>
+        {isTcPhysicsKey(tcKey) ? (
+          <TerminaleCPhysicsDrawing illustrationKey={tcKey as PhysicsIllustrationKey} />
+        ) : (
+          <TerminaleCMathDrawing illustrationKey={tcKey} />
+        )}
+      </div>
+    );
+  }
+
   const topic = resolveFigureTopic(chapter.id, chapter.illustrationKey, chapter.subject);
   return (
     <div className="rounded-2xl bg-slate-950/90 border border-slate-800 p-3 space-y-1.5">
@@ -1220,6 +1305,22 @@ export const ExerciseVisualFigure: React.FC<{
   prompt?: string;
   title?: string;
 }> = ({ chapterId, illustrationKey, subject, prompt = '', title = '' }) => {
+  const tcKey = resolveTcIllustrationKey(chapterId, illustrationKey);
+  if (tcKey) {
+    return (
+      <div className="space-y-1.5">
+        <div className="text-[11px] font-extrabold text-sky-300 uppercase tracking-wider">
+          📐 Schéma &amp; Figure d’appui Terminale C
+        </div>
+        {isTcPhysicsKey(tcKey) ? (
+          <TerminaleCPhysicsDrawing illustrationKey={tcKey as PhysicsIllustrationKey} />
+        ) : (
+          <TerminaleCMathDrawing illustrationKey={tcKey} />
+        )}
+      </div>
+    );
+  }
+
   const topic = resolveFigureTopic(chapterId, illustrationKey, subject);
   const caption = getTopicCaption(topic);
 

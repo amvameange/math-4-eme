@@ -20,23 +20,30 @@ import { PhysicsVisualizers } from './components/PhysicsVisualizers';
 import { MemoSheetModal } from './components/MemoSheetModal';
 import { CustomExercisesStudio } from './components/CustomExercisesStudio';
 import { BepcStudioView, BepcStudioMode } from './components/BepcStudioView';
-import { MATH_3EME_CHAPTERS, MATH_3EME_DOMAINS } from './data/math3emeCurriculum';
-import { PHYSICS_3EME_CHAPTERS, PHYSICS_3EME_DOMAINS } from './data/physics3emeCurriculum';
+import { MATH_TC_CHAPTERS, MATH_TC_DOMAINS } from './data/mathTcCurriculum';
+import { PHYSICS_TC_CHAPTERS, PHYSICS_TC_DOMAINS } from './data/physicsTcCurriculum';
 import { DomainId, SubjectId } from './types/math';
 import { useLearningProgress } from './hooks/useLearningProgress';
 import { useCustomExercises } from './hooks/useCustomExercises';
+import {
+  isUiSoundEnabled,
+  playUiClickSound,
+  scrollToSectionById,
+  setUiSoundEnabled,
+} from './utils/uiFeedback';
 
-import heroPhysicsImg from './assets/images/hero_physique_gabon_1794682660874.jpg';
-import heroMathsImg from './assets/images/hero_maths_gabon_1794682660645.jpg';
+import heroPhysicsImg from './assets/images/hero_physique_tlec_gabon_1794934644736.jpg';
+import heroMathsImg from './assets/images/hero_maths_tlec_gabon_1794934645449.jpg';
 
 export default function App() {
   const [activeSubject, setActiveSubject] = useState<SubjectId>('physique');
   const [currentTab, setCurrentTab] = useState<MainViewTab>('cours');
   const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => isUiSoundEnabled());
 
   const [selectedChapterIds, setSelectedChapterIds] = useState<Record<SubjectId, string>>({
-    physique: PHYSICS_3EME_CHAPTERS[0].id,
-    maths: MATH_3EME_CHAPTERS[0].id,
+    physique: PHYSICS_TC_CHAPTERS[0].id,
+    maths: MATH_TC_CHAPTERS[0].id,
   });
 
   const [chapterSubTab, setChapterSubTab] = useState<'cours' | 'memo' | 'exercices'>('cours');
@@ -61,23 +68,25 @@ export default function App() {
   } = useCustomExercises();
 
   const activeChapters =
-    activeSubject === 'physique' ? PHYSICS_3EME_CHAPTERS : MATH_3EME_CHAPTERS;
+    activeSubject === 'physique' ? PHYSICS_TC_CHAPTERS : MATH_TC_CHAPTERS;
   const activeDomains =
-    activeSubject === 'physique' ? PHYSICS_3EME_DOMAINS : MATH_3EME_DOMAINS;
+    activeSubject === 'physique' ? PHYSICS_TC_DOMAINS : MATH_TC_DOMAINS;
 
-  const physCount = PHYSICS_3EME_CHAPTERS.length;
-  const mathCount = MATH_3EME_CHAPTERS.length;
+  const physCount = PHYSICS_TC_CHAPTERS.length;
+  const mathCount = MATH_TC_CHAPTERS.length;
 
   const selectedChapterId = selectedChapterIds[activeSubject] || activeChapters[0].id;
   const selectedChapterIndex = activeChapters.findIndex((c) => c.id === selectedChapterId);
   const currentChapter = activeChapters[selectedChapterIndex] || activeChapters[0];
 
   const activeTotalExercises = activeChapters.length * 100 + 20 + 888;
+  const bacChapterPrefix = activeSubject === 'physique' ? 'bac-phys-' : 'bac-math-';
+  const bacExamPrefix = activeSubject === 'physique' ? 'bac-exam-phys-' : 'bac-exam-math-';
   const solvedInSubject =
     activeChapters.reduce((acc, ch) => {
       const prefixApp = `${ch.id}-app-`;
       const prefixCours = `${ch.id}-c-lvl`;
-      const prefixBepc = `${ch.id}-bepc-`;
+      const prefixBac = `${bacChapterPrefix}${ch.id}-`;
       const legacyIds = new Set(ch.exercises.map((e) => e.id));
       const solvedInChap = Math.min(
         100,
@@ -86,7 +95,7 @@ export default function App() {
             rec?.correct &&
             (id.startsWith(prefixApp) ||
               id.startsWith(prefixCours) ||
-              id.startsWith(prefixBepc) ||
+              id.startsWith(prefixBac) ||
               legacyIds.has(id))
         ).length
       );
@@ -95,14 +104,33 @@ export default function App() {
     Object.entries(checkedState).filter(
       ([id, rec]) =>
         rec?.correct &&
-        (id.startsWith(`exam-bepc-${activeSubject}-`) ||
-          id.startsWith(`archive-${activeSubject}-`))
+        (id.startsWith(bacExamPrefix) || id.startsWith(`archive-${activeSubject}-`))
     ).length;
+
+  const handleToggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabled(next);
+    setUiSoundEnabled(next);
+    if (next) {
+      playUiClickSound('step');
+    }
+  };
+
+  const handleRootClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+    const interactive = target.closest('button, [role="button"], select');
+    if (!interactive) return;
+    if ((interactive as HTMLButtonElement).disabled) return;
+    if (interactive.getAttribute('data-sound') === 'custom') return;
+    playUiClickSound('tap');
+  };
 
   const handleSwitchSubject = (subj: SubjectId) => {
     setActiveSubject(subj);
     setSelectedDomain('all');
     setChapterSubTab('cours');
+    scrollToSectionById('active-workspace', 60);
   };
 
   const handleSelectChapter = (
@@ -111,6 +139,7 @@ export default function App() {
   ) => {
     setSelectedChapterIds((prev) => ({ ...prev, [activeSubject]: id }));
     setChapterSubTab(targetTab);
+    scrollToSectionById(targetTab === 'exercices' ? 'lesson-exercise-section' : 'lesson-workspace', 65);
   };
 
   const handleNextChapter = () => {
@@ -118,7 +147,7 @@ export default function App() {
       const nextId = activeChapters[selectedChapterIndex + 1].id;
       setSelectedChapterIds((prev) => ({ ...prev, [activeSubject]: nextId }));
       setChapterSubTab('cours');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToSectionById('lesson-workspace', 60);
     }
   };
 
@@ -127,7 +156,7 @@ export default function App() {
       const prevId = activeChapters[selectedChapterIndex - 1].id;
       setSelectedChapterIds((prev) => ({ ...prev, [activeSubject]: prevId }));
       setChapterSubTab('cours');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToSectionById('lesson-workspace', 60);
     }
   };
 
@@ -135,19 +164,22 @@ export default function App() {
     setCustomStudioChapterId(chapterId);
     setCustomStudioMode('ajouter');
     setCurrentTab('custom');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToSectionById('active-workspace', 60);
   };
 
   const handleOpenCustomLibrary = () => {
     setCustomStudioMode('consulter');
     setCurrentTab('custom');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToSectionById('active-workspace', 60);
   };
 
   const currentHeroImg = activeSubject === 'physique' ? heroPhysicsImg : heroMathsImg;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased">
+    <div
+      onClickCapture={handleRootClickCapture}
+      className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased"
+    >
       <MathHeader
         currentTab={currentTab}
         onChangeTab={(tab) => {
@@ -155,10 +187,13 @@ export default function App() {
             setCustomStudioMode('consulter');
           }
           setCurrentTab(tab);
+          scrollToSectionById('active-workspace', 65);
         }}
         onOpenMemo={() => setIsMemoOpen(true)}
         activeSubject={activeSubject}
         customExercisesCount={customExercises.length}
+        soundEnabled={soundEnabled}
+        onToggleSound={handleToggleSound}
       />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
@@ -166,11 +201,11 @@ export default function App() {
         <section className="rounded-3xl bg-slate-900 border border-slate-800 p-4 sm:p-5 shadow-xl">
           <div className="grid lg:grid-cols-12 gap-5 items-center">
             <div className="lg:col-span-7 space-y-3">
-              {/* Subject Switcher (3ème BEPC Gabon uniquement) */}
+              {/* Subject Switcher (Terminale C BAC Gabon) */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-xs font-extrabold text-emerald-300">
                   <GraduationCap className="w-4 h-4" />
-                  <span>Classe de 3ème BEPC Gabon</span>
+                  <span>Terminale Série C · BAC Gabon</span>
                 </div>
 
                 <div className="inline-flex flex-wrap gap-1 p-1 rounded-2xl bg-slate-950 border border-slate-800">
@@ -195,7 +230,7 @@ export default function App() {
                     }`}
                   >
                     <Calculator className="w-4 h-4" />
-                    <span>Maths CIAM ({mathCount} ch.)</span>
+                    <span>Mathématiques ({mathCount} ch.)</span>
                   </button>
                 </div>
               </div>
@@ -203,13 +238,13 @@ export default function App() {
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   {activeSubject === 'physique'
-                    ? 'Programme Officiel de Physique-Chimie 3ème BEPC Gabon'
-                    : 'Programme Officiel de Mathématiques 3ème CIAM Gabon'}
+                    ? 'Programme Officiel de Physique-Chimie Terminale C · Gabon'
+                    : 'Programme Officiel de Mathématiques Terminale C · Gabon'}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
                   {activeSubject === 'physique'
-                    ? `${activeChapters.length} chapitres complets · 3 expériences SVG interactives par chapitre, 10 application + 80 cours + 10 Type BEPC / ch., 20 Problèmes Examen BEPC, 222 Épreuves complètes 1990–2026 (6 pays × 37 ans) & Exercices Infinis.`
-                    : `${activeChapters.length} chapitres CIAM complets · 3 expériences SVG interactives par chapitre, 10 application + 80 cours + 10 Type BEPC / ch., 20 Problèmes Examen BEPC, 222 Épreuves complètes 1990–2026 (6 pays × 37 ans) & Exercices Infinis.`}
+                    ? `${activeChapters.length} chapitres complets · Dessins illustratifs, 10 expériences SVG interactives par chapitre, 10 application + 80 cours + 10 Type BAC C / ch., 20 Problèmes Examen, 222 Épreuves 1990–2026 (6 pays × 37 ans) & Exercices Infinis.`
+                    : `${activeChapters.length} chapitres complets · Dessins illustratifs, 10 expériences SVG interactives par chapitre, 10 application + 80 cours + 10 Type BAC C / ch., 20 Problèmes Examen, 222 Épreuves 1990–2026 (6 pays × 37 ans) & Exercices Infinis.`}
                 </p>
               </div>
 
@@ -229,28 +264,31 @@ export default function App() {
                   onClick={() => {
                     setBepcMode('chapitre');
                     setCurrentTab('bepc');
+                    scrollToSectionById('active-workspace', 65);
                   }}
                   className="text-rose-300 hover:text-rose-200 font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   <Award className="w-3.5 h-3.5" />
-                  <span>Type BEPC (10/ch.)</span>
+                  <span>Type BAC C (10/ch.)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setBepcMode('examen');
                     setCurrentTab('bepc');
+                    scrollToSectionById('active-workspace', 65);
                   }}
                   className="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                 >
                   <ScrollText className="w-3.5 h-3.5" />
-                  <span>Examen BEPC (20 Pb.)</span>
+                  <span>Examen BAC C (20 Pb.)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setBepcMode('epreuves');
                     setCurrentTab('bepc');
+                    scrollToSectionById('active-workspace', 65);
                   }}
                   className="text-emerald-300 hover:text-emerald-200 font-bold flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
                 >
@@ -294,8 +332,8 @@ export default function App() {
                     src={currentHeroImg}
                     alt={
                       activeSubject === 'physique'
-                        ? 'Laboratoire de Physique-Chimie 3ème BEPC Gabon'
-                        : 'Atelier de Mathématiques CIAM 3ème BEPC Gabon'
+                        ? 'Laboratoire de Physique-Chimie Terminale C BAC Gabon'
+                        : 'Atelier de Mathématiques Terminale C BAC Gabon'
                     }
                     referrerPolicy="no-referrer"
                     onError={() =>
@@ -310,79 +348,81 @@ export default function App() {
                     </span>
                     <div className="text-xs font-black text-white">
                       {activeSubject === 'physique'
-                        ? 'Physique-Chimie 3ème BEPC Gabon'
-                        : 'Mathématiques 3ème CIAM Gabon'}
+                        ? 'Physique-Chimie Terminale C · Gabon'
+                        : 'Mathématiques Terminale C · Gabon'}
                     </div>
                   </div>
                 )}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent px-3.5 py-2.5 flex items-center justify-between text-[11px] font-bold">
                   <span className="text-amber-300">
-                    🇬🇦 {activeChapters.length} Chapitres × 3 Expériences ({activeChapters.length * 3} schémas)
+                    🇬🇦 {activeChapters.length} Chapitres × 10 Expériences ({activeChapters.length * 10} schémas)
                   </span>
-                  <span className="text-emerald-300">10 app. + 80 cours + 10 BEPC / ch.</span>
+                  <span className="text-emerald-300">10 questions · Très difficile</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {currentTab === 'cours' && (
-          <div className="space-y-6">
-            <ChapterListSelector
-              subject={activeSubject}
-              domains={activeDomains}
-              chapters={activeChapters}
-              selectedChapterId={selectedChapterId}
-              onSelectChapter={handleSelectChapter}
-              selectedDomain={selectedDomain}
-              onSelectDomain={setSelectedDomain}
-              checkedState={checkedState}
-            />
+        <div id="active-workspace" className="space-y-6">
+          {currentTab === 'cours' && (
+            <div className="space-y-6">
+              <ChapterListSelector
+                subject={activeSubject}
+                domains={activeDomains}
+                chapters={activeChapters}
+                selectedChapterId={selectedChapterId}
+                onSelectChapter={handleSelectChapter}
+                selectedDomain={selectedDomain}
+                onSelectDomain={setSelectedDomain}
+                checkedState={checkedState}
+              />
 
-            <LessonChapterView
-              chapter={currentChapter}
-              requestedTab={chapterSubTab}
-              onTabChange={setChapterSubTab}
-              onNextChapter={
-                selectedChapterIndex < activeChapters.length - 1 ? handleNextChapter : undefined
-              }
-              onPrevChapter={selectedChapterIndex > 0 ? handlePrevChapter : undefined}
+              <LessonChapterView
+                chapter={currentChapter}
+                requestedTab={chapterSubTab}
+                onTabChange={setChapterSubTab}
+                onNextChapter={
+                  selectedChapterIndex < activeChapters.length - 1 ? handleNextChapter : undefined
+                }
+                onPrevChapter={selectedChapterIndex > 0 ? handlePrevChapter : undefined}
+                checkedState={checkedState}
+                onRecordAttempt={recordExerciseAttempt}
+                customExercises={customExercises}
+                onOpenCustomCreator={handleOpenCustomCreator}
+                onOpenCustomLibrary={handleOpenCustomLibrary}
+              />
+            </div>
+          )}
+
+          {currentTab === 'bepc' && (
+            <BepcStudioView
+              subject={activeSubject}
               checkedState={checkedState}
               onRecordAttempt={recordExerciseAttempt}
-              customExercises={customExercises}
-              onOpenCustomCreator={handleOpenCustomCreator}
-              onOpenCustomLibrary={handleOpenCustomLibrary}
+              initialMode={bepcMode}
+              initialChapterId={currentChapter.id}
             />
-          </div>
-        )}
+          )}
 
-        {currentTab === 'bepc' && (
-          <BepcStudioView
-            subject={activeSubject}
-            checkedState={checkedState}
-            onRecordAttempt={recordExerciseAttempt}
-            initialMode={bepcMode}
-            initialChapterId={currentChapter.id}
-          />
-        )}
+          {currentTab === 'generateur' && <InfiniteExerciseGenerator subject={activeSubject} />}
 
-        {currentTab === 'generateur' && <InfiniteExerciseGenerator subject={activeSubject} />}
+          {currentTab === 'simulateurs' &&
+            (activeSubject === 'physique' ? <PhysicsVisualizers /> : <MathVisualizers />)}
 
-        {currentTab === 'simulateurs' &&
-          (activeSubject === 'physique' ? <PhysicsVisualizers /> : <MathVisualizers />)}
-
-        {currentTab === 'custom' && (
-          <CustomExercisesStudio
-            customExercises={customExercises}
-            onAddExercise={addCustomExercise}
-            onUpdateExercise={updateCustomExercise}
-            onDeleteExercise={deleteCustomExercise}
-            onImportExercises={importCustomExercises}
-            initialSubject={activeSubject}
-            initialChapterId={customStudioChapterId}
-            initialSubTab={customStudioMode}
-          />
-        )}
+          {currentTab === 'custom' && (
+            <CustomExercisesStudio
+              customExercises={customExercises}
+              onAddExercise={addCustomExercise}
+              onUpdateExercise={updateCustomExercise}
+              onDeleteExercise={deleteCustomExercise}
+              onImportExercises={importCustomExercises}
+              initialSubject={activeSubject}
+              initialChapterId={customStudioChapterId}
+              initialSubTab={customStudioMode}
+            />
+          )}
+        </div>
       </main>
 
       <MemoSheetModal
@@ -392,7 +432,7 @@ export default function App() {
       />
 
       <footer className="border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500 px-4">
-        Physique-Chimie &amp; Mathématiques CIAM 3ème BEPC Gabon · 27 Chapitres · 270 Sujets BEPC + 40 Problèmes + 444 Épreuves complètes 1990–2026 (6 pays × 37 ans) · 81 Expériences · Franc CFA
+        Physique-Chimie &amp; Mathématiques Terminale Série C · BAC Gabon · 28 Chapitres · 280 Sujets Type BAC C + 40 Problèmes + 444 Épreuves complètes 1990–2026 (6 pays × 37 ans) · 280 Expériences SVG
       </footer>
     </div>
   );

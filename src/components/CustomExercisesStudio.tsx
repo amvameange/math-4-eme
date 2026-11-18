@@ -22,8 +22,8 @@ import {
   ExerciseDifficulty,
   SubjectId,
 } from '../types/math';
-import { PHYSICS_3EME_CHAPTERS } from '../data/physics3emeCurriculum';
-import { MATH_3EME_CHAPTERS } from '../data/math3emeCurriculum';
+import { PHYSICS_TC_CHAPTERS } from '../data/physicsTcCurriculum';
+import { MATH_TC_CHAPTERS } from '../data/mathTcCurriculum';
 import { StepByStepCorrection } from './StepByStepCorrection';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import {
@@ -51,7 +51,7 @@ const DIFFICULTY_OPTIONS: { value: ExerciseDifficulty; label: string }[] = [
   { value: 1, label: 'Niveau 1 · Fondamental' },
   { value: 2, label: 'Niveau 2 · Entraînement' },
   { value: 3, label: 'Niveau 3 · Approfondissement' },
-  { value: 4, label: 'Niveau 4 · Défi BEPC Gabon' },
+  { value: 4, label: 'Niveau 4 · Défi BAC C Gabon' },
 ];
 
 function normalizeAnswer(raw: string): string {
@@ -90,7 +90,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
   // Form states
   const [formSubject, setFormSubject] = useState<SubjectId>(initialSubject);
   const formChapters =
-    formSubject === 'physique' ? PHYSICS_3EME_CHAPTERS : MATH_3EME_CHAPTERS;
+    formSubject === 'physique' ? PHYSICS_TC_CHAPTERS : MATH_TC_CHAPTERS;
 
   const [formChapterId, setFormChapterId] = useState<string>(
     initialChapterId || formChapters[0].id
@@ -130,8 +130,8 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
 
   useEffect(() => {
     if (initialChapterId) {
-      const isPhys = PHYSICS_3EME_CHAPTERS.some((c) => c.id === initialChapterId);
-      const isMath = MATH_3EME_CHAPTERS.some((c) => c.id === initialChapterId);
+      const isPhys = PHYSICS_TC_CHAPTERS.some((c) => c.id === initialChapterId);
+      const isMath = MATH_TC_CHAPTERS.some((c) => c.id === initialChapterId);
       if (isPhys) {
         setFormSubject('physique');
         setFormChapterId(initialChapterId);
@@ -144,7 +144,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
 
   const handleSubjectFormChange = (nextSubj: SubjectId) => {
     setFormSubject(nextSubj);
-    const list = nextSubj === 'physique' ? PHYSICS_3EME_CHAPTERS : MATH_3EME_CHAPTERS;
+    const list = nextSubj === 'physique' ? PHYSICS_TC_CHAPTERS : MATH_TC_CHAPTERS;
     if (!list.some((c) => c.id === formChapterId)) {
       setFormChapterId(list[0].id);
     }
@@ -164,38 +164,37 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
 
   const handleLoadExampleTemplate = () => {
     if (formSubject === 'physique') {
-      setFormChapterId('phys3-conducteurs-ohmiques');
+      setFormChapterId('physTc-dipoles-rc-rl');
       setFormDifficulty(2);
-      setFormTitle('Résistance d’un fer à repasser au Gabon');
+      setFormTitle('Constante de temps d’un dipôle RC de laboratoire');
       setFormPrompt(
-        'Un conducteur ohmique est traversé par un courant d’intensité I = 0,5 A sous une tension U = 12 V.\nCalcule la valeur de sa résistance R en ohms (Ω).'
+        'Un condensateur de capacité C = 200 µF est chargé à travers une résistance R = 500 Ω.\nCalcule la constante de temps τ du dipôle RC en secondes (s).'
       );
-      setFormAnswer('24');
-      setFormUnit('Ω');
-      setFormHint('Utilise la loi d’Ohm : U = R × I donc R = U ÷ I.');
+      setFormAnswer('0.1');
+      setFormUnit('s');
+      setFormHint('Utilise τ = R × C avec C en farads (1 µF = 10⁻⁶ F).');
       setFormSteps([
-        'Données : U = 12 V et I = 0,5 A',
-        'Formule : R = U ÷ I',
-        'Calcul : R = 12 ÷ 0,5 = 24 Ω',
+        'Données : R = 500 Ω et C = 200 µF = 200 × 10⁻⁶ F = 2 × 10⁻⁴ F',
+        'Formule : τ = R × C',
+        'Calcul : τ = 500 × 2 × 10⁻⁴ = 0,10 s',
       ]);
-      setFormFinal('La résistance du conducteur ohmique est R = 24 Ω.');
+      setFormFinal('La constante de temps du circuit RC vaut τ = 0,1 s.');
     } else {
-      setFormChapterId('math3-thales-3eme');
+      setFormChapterId('mathTc-complexes-algebre');
       setFormDifficulty(2);
-      setFormTitle('Hauteur d’un manguier par le théorème de Thalès');
+      setFormTitle('Module et argument d’un nombre complexe');
       setFormPrompt(
-        'Dans un triangle ABC, M ∈ [AB] et N ∈ [AC] avec (MN) // (BC).\nOn donne AM = 3 cm, AB = 9 cm et BC = 12 cm.\nCalcule la longueur MN en cm.'
+        'Soit le nombre complexe z = 1 + i√3.\nCalcule le module |z|.'
       );
-      setFormAnswer('4');
-      setFormUnit('cm');
-      setFormHint('Écris le rapport de Thalès : AM / AB = MN / BC.');
+      setFormAnswer('2');
+      setFormUnit('');
+      setFormHint('Rappelle-toi : |a + ib| = √(a² + b²).');
       setFormSteps([
-        'On sait que (MN) // (BC) dans le triangle ABC',
-        'D’après Thalès : AM / AB = MN / BC',
-        '3 / 9 = MN / 12',
-        'MN = (3 × 12) ÷ 9 = 36 ÷ 9 = 4 cm',
+        'Partie réelle a = 1 et partie imaginaire b = √3',
+        '|z| = √(1² + (√3)²)',
+        '|z| = √(1 + 3) = √4 = 2',
       ]);
-      setFormFinal('La longueur cherchée est MN = 4 cm.');
+      setFormFinal('Le module du complexe z = 1 + i√3 vaut |z| = 2 (et arg(z) = π/3).');
     }
     setFormError(null);
   };
@@ -234,7 +233,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
       title: formTitle.trim(),
       difficulty: formDifficulty,
       prompt: formPrompt.trim(),
-      hint: formHint.trim() || 'Relis bien la formule du chapitre 3ème BEPC.',
+      hint: formHint.trim() || 'Relis bien la formule du chapitre Terminale C.',
       correctAnswer: formAnswer.trim(),
       unit: formUnit.trim() || undefined,
       correctionSteps: cleanedSteps,
@@ -295,7 +294,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
   };
 
   const handleExportJson = () => {
-    const filename = `mes-exercices-3eme-gabon-${new Date().toISOString().slice(0, 10)}.json`;
+    const filename = `mes-exercices-tle-c-gabon-${new Date().toISOString().slice(0, 10)}.json`;
     const payload = JSON.stringify(customExercises, null, 2);
 
     try {
@@ -350,10 +349,10 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
     e.target.value = '';
   };
 
-  const all3emeChapters = useMemo(() => {
-    if (filterSubject === 'physique') return PHYSICS_3EME_CHAPTERS;
-    if (filterSubject === 'maths') return MATH_3EME_CHAPTERS;
-    return [...PHYSICS_3EME_CHAPTERS, ...MATH_3EME_CHAPTERS];
+  const allTcChapters = useMemo(() => {
+    if (filterSubject === 'physique') return PHYSICS_TC_CHAPTERS;
+    if (filterSubject === 'maths') return MATH_TC_CHAPTERS;
+    return [...PHYSICS_TC_CHAPTERS, ...MATH_TC_CHAPTERS];
   }, [filterSubject]);
 
   const filteredExercises = useMemo(() => {
@@ -391,7 +390,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
             </div>
             <div>
               <div className="text-xs font-bold text-amber-300">
-                Programme 3ème BEPC Gabon · Sauvegarde Locale Automatique
+                Programme Terminale Série C Gabon · Sauvegarde Locale Automatique
               </div>
               <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
                 Mes Exercices &amp; Corrections Personnalisés
@@ -471,7 +470,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                 className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Préremplir un modèle 3ème</span>
+                <span>Préremplir un modèle Tle C</span>
               </button>
               {editingId && (
                 <button
@@ -494,7 +493,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
           {/* Subject + Chapter + Difficulty */}
           <div className="grid sm:grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">Matière (3ème BEPC)</label>
+              <label className="text-xs font-bold text-slate-300 block">Matière (Terminale C)</label>
               <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-950 border border-slate-800">
                 <button
                   type="button"
@@ -516,7 +515,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                       : 'text-slate-300 hover:bg-slate-800'
                   }`}
                 >
-                  Maths CIAM
+                  Mathématiques
                 </button>
               </div>
             </div>
@@ -733,8 +732,8 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                 className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-sky-500 focus:outline-none"
               >
                 <option value="all">Toutes les matières ({customExercises.length})</option>
-                <option value="physique">Physique-Chimie 3ème</option>
-                <option value="maths">Mathématiques 3ème</option>
+                <option value="physique">Physique-Chimie Tle C</option>
+                <option value="maths">Mathématiques Tle C</option>
               </select>
 
               <select
@@ -742,8 +741,8 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                 onChange={(e) => setFilterChapterId(e.target.value)}
                 className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-sky-500 focus:outline-none"
               >
-                <option value="all">Tous les chapitres 3ème</option>
-                {all3emeChapters.map((ch) => (
+                <option value="all">Tous les chapitres Terminale C</option>
+                {allTcChapters.map((ch) => (
                   <option key={ch.id} value={ch.id}>
                     {ch.badge} · {ch.title}
                   </option>
@@ -820,7 +819,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                   : 'Aucun exercice ne correspond à ces filtres'}
               </h3>
               <p className="text-xs text-slate-400 max-w-md mx-auto">
-                Ajoute tes exercices de devoirs, d’annales BEPC ou de cahier avec leur correction détaillée pour les réviser ici quand tu veux.
+                Ajoute tes exercices de devoirs, d’annales BAC C ou de cahier avec leur correction détaillée pour les réviser ici quand tu veux.
               </p>
               <button
                 type="button"
@@ -848,7 +847,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                       <div className="space-y-1">
                         <div className="text-[11px] font-bold text-amber-300 flex flex-wrap items-center gap-1.5">
                           <span>
-                            {ex.subject === 'physique' ? '⚗️ Physique-Chimie 3ème' : '📐 Maths CIAM 3ème'}
+                            {ex.subject === 'physique' ? '⚗️ Physique-Chimie Tle C' : '📐 Maths Tle C'}
                           </span>
                           <span className="text-slate-600">·</span>
                           <span className="text-sky-300">{ex.chapterTitle}</span>

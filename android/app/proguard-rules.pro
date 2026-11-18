@@ -1,4 +1,4 @@
-# Proguard rules for Physique & Maths 3ème BEPC Gabon
+# Proguard rules for Physique-Chimie & Maths Terminale C Gabon
 -keepattributes JavascriptInterface
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;

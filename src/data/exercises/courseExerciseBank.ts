@@ -4,7 +4,16 @@ import { generatePhysicsExercise } from '../generators/physicsInfiniteGenerators
 import { DIFFICULTY_META, GeneratedExercise, withSeed } from '../generators/types';
 
 function isPhysicsChapter(chapter: Chapter): boolean {
-  return chapter.subject === 'physique' || chapter.id.startsWith('phys-') || chapter.id.startsWith('phys3-');
+  return (
+    chapter.subject === 'physique' ||
+    chapter.id.startsWith('phys-') ||
+    chapter.id.startsWith('phys3-') ||
+    chapter.id.startsWith('physTc-')
+  );
+}
+
+function isTcChapter(chapter: Chapter): boolean {
+  return chapter.id.startsWith('mathTc-') || chapter.id.startsWith('physTc-');
 }
 
 function toExercise(
@@ -28,6 +37,7 @@ function toExercise(
     unit: gen.unit,
     explanationFinal: gen.explanationFinal,
     steps: gen.steps,
+    subQuestions: gen.subQuestions,
   };
 }
 
@@ -63,28 +73,30 @@ function generateSeededVariant(
 
 /**
  * Retourne exactement 10 Exercices d'application directe pour un chapitre donné.
+ * Pour la Terminale C, chaque exercice est de niveau très difficile avec 10 questions et 10 étapes de correction.
  */
 export function getChapterApplicationExercises(chapter: Chapter): Exercise[] {
   const result: Exercise[] = [];
   const seenPrompts = new Set<string>();
+  const tcMode = isTcChapter(chapter);
 
-  // 1. Inclure en priorité les exercices fondamentaux/entraînement du chapitre
-  const directCandidates = chapter.exercises.filter((e) => e.difficulty <= 2);
-  for (const ex of directCandidates) {
-    if (result.length >= 10) break;
-    seenPrompts.add(ex.prompt);
-    result.push({
-      ...ex,
-      id: `${chapter.id}-app-${result.length + 1}`,
-      category: 'application',
-      title: `App. ${result.length + 1} — ${ex.title}`,
-    });
+  if (!tcMode) {
+    const directCandidates = chapter.exercises.filter((e) => e.difficulty <= 2);
+    for (const ex of directCandidates) {
+      if (result.length >= 10) break;
+      seenPrompts.add(ex.prompt);
+      result.push({
+        ...ex,
+        id: `${chapter.id}-app-${result.length + 1}`,
+        category: 'application',
+        title: `App. ${result.length + 1} — ${ex.title}`,
+      });
+    }
   }
 
-  // 2. Compléter à 10 avec le générateur paramétré déterministe (Niv. 1 et Niv. 2)
   let slot = 0;
   while (result.length < 10) {
-    const diff: ExerciseDifficulty = result.length % 2 === 0 ? 1 : 2;
+    const diff: ExerciseDifficulty = tcMode ? 4 : result.length % 2 === 0 ? 1 : 2;
     const gen = generateSeededVariant(chapter, diff, slot, 'app', seenPrompts);
     result.push(
       toExercise(
@@ -101,7 +113,8 @@ export function getChapterApplicationExercises(chapter: Chapter): Exercise[] {
 }
 
 /**
- * Retourne exactement 20 exercices par niveau de croissance de difficulté (Niv. 1, 2, 3, 4 = 80 exercices au total).
+ * Retourne exactement 20 exercices par niveau (Niv. 1, 2, 3, 4 = 80 exercices au total).
+ * Pour la Terminale C, chaque exercice comporte 10 questions très difficiles et 10 étapes détaillées.
  */
 export function getChapterCourseExercisesByLevel(
   chapter: Chapter
@@ -113,22 +126,26 @@ export function getChapterCourseExercisesByLevel(
     4: [],
   };
 
+  const tcMode = isTcChapter(chapter);
   const levels: ExerciseDifficulty[] = [1, 2, 3, 4];
+
   for (const lvl of levels) {
     const seenPrompts = new Set<string>();
-    const curated = chapter.exercises.filter((e) => e.difficulty === lvl);
 
-    for (const ex of curated) {
-      if (byLevel[lvl].length >= 20) break;
-      seenPrompts.add(ex.prompt);
-      const num = byLevel[lvl].length + 1;
-      byLevel[lvl].push({
-        ...ex,
-        id: `${chapter.id}-c-lvl${lvl}-${num}`,
-        category: 'cours',
-        difficultyLabel: DIFFICULTY_META[lvl].label,
-        title: `Niv.${lvl} · #${num} — ${ex.title}`,
-      });
+    if (!tcMode) {
+      const curated = chapter.exercises.filter((e) => e.difficulty === lvl);
+      for (const ex of curated) {
+        if (byLevel[lvl].length >= 20) break;
+        seenPrompts.add(ex.prompt);
+        const num = byLevel[lvl].length + 1;
+        byLevel[lvl].push({
+          ...ex,
+          id: `${chapter.id}-c-lvl${lvl}-${num}`,
+          category: 'cours',
+          difficultyLabel: DIFFICULTY_META[lvl].label,
+          title: `Niv.${lvl} · #${num} — ${ex.title}`,
+        });
+      }
     }
 
     let slot = 0;
@@ -137,7 +154,11 @@ export function getChapterCourseExercisesByLevel(
       const gen = generateSeededVariant(chapter, lvl, slot, 'cours', seenPrompts);
       byLevel[lvl].push(
         toExercise(
-          gen,
+          {
+            ...gen,
+            difficulty: tcMode ? 4 : gen.difficulty,
+            difficultyLabel: tcMode ? 'Problème de synthèse' : gen.difficultyLabel,
+          },
           `${chapter.id}-c-lvl${lvl}-${num}`,
           'cours',
           `Niv.${lvl} · #${num}`

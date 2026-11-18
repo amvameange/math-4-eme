@@ -1,10 +1,11 @@
 import React from 'react';
 import { ChapterIllustrationKey, GradeLevel, PhysicsIllustrationKey } from '../../types/math';
 import { PhysicsChapterIllustration } from './GabonPhysicsIllustrations';
+import { TerminaleCMathDrawing } from './TerminaleCMathDrawings';
 
 /**
- * Illustrations pédagogiques vivantes, colorées et culturelles pour les chapitres de Maths 4ème & 3ème BEPC (CIAM Gabon)
- * + routage automatique vers les illustrations de Physique-Chimie 4ème & 3ème Gabon
+ * Illustrations pédagogiques vivantes, colorées et culturelles pour Terminale C Gabon
+ * + routage automatique vers les illustrations de Physique-Chimie & Maths Terminale C
  */
 
 const PHYSICS_KEYS: Set<string> = new Set<PhysicsIllustrationKey>([
@@ -38,6 +39,20 @@ const PHYSICS_KEYS: Set<string> = new Set<PhysicsIllustrationKey>([
   'ions-tests',
   'acides-bases-neutralisation',
   'hydrocarbures-alcools',
+  'tc-cinematique-frenet',
+  'tc-dynamique-lorentz',
+  'tc-gravitation-kepler',
+  'tc-oscillations-pendule',
+  'tc-dipoles-rc-rl',
+  'tc-resonance-rlc',
+  'tc-ondes-diffraction',
+  'tc-young-photoelectrique',
+  'tc-noyau-radioactivite',
+  'tc-fission-fusion',
+  'tc-cinetique-chimique',
+  'tc-acides-bases-titrage',
+  'tc-alcools-carbonyles',
+  'tc-esterification-saponification',
 ]);
 
 // Mascotte : Koko le Matheux (Version Expert 4ème / 3ème BEPC avec compas & équerre)
@@ -77,16 +92,18 @@ export const MascotKoko: React.FC<{
       <div className="flex-1 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-extrabold text-amber-400">
-            Koko le Matheux ({gradeLevel === '3eme' ? 'Classe de 3ème BEPC' : 'Classe de 4ème'})
+            Koko le Matheux ({gradeLevel === 'Terminale C' ? 'Terminale Série C · Bac' : gradeLevel === '3eme' ? 'Classe de 3ème BEPC' : 'Classe de 4ème'})
           </span>
           <span className="text-slate-500">·</span>
           <span className="text-[11px] text-emerald-400 font-bold">
-            Guide Officiel CIAM Gabon 🇬🇦
+            Programme Officiel Gabon (BAC C) 🇬🇦
           </span>
         </div>
         <p className="text-slate-200 mt-1 leading-relaxed font-medium">
           {speech ||
-            (gradeLevel === '3eme'
+            (gradeLevel === 'Terminale C'
+              ? 'Mbolo futur bachelier Série C ! Observe toujours les schémas illustratifs (Frenet, Argand, TVI, IAF, Coniques) avant de lancer tes démonstrations et rédige chaque étape avec rigueur !'
+              : gradeLevel === '3eme'
               ? 'Mbolo futur bachelier ! En 3ème BEPC, observe mes figures avant chaque théorème (Thalès, Trigo, Chasles, Sections k³) et pose toujours tes calculs en colonne !'
               : 'Mbolo champion ! En 4ème, chaque chapitre est séparé pour que tu maîtrises 100% du programme sans tout mélanger. Observe mes dessins pour tout retenir !')}
         </p>
@@ -837,6 +854,9 @@ export const ChapterCourseIllustration: React.FC<{ illustrationKey?: ChapterIllu
 }) => {
   if (illustrationKey && PHYSICS_KEYS.has(illustrationKey)) {
     return <PhysicsChapterIllustration illustrationKey={illustrationKey as PhysicsIllustrationKey} />;
+  }
+  if (illustrationKey && illustrationKey.startsWith('tc-')) {
+    return <TerminaleCMathDrawing illustrationKey={illustrationKey} />;
   }
 
   switch (illustrationKey) {

@@ -1,31 +1,33 @@
 import React, { useState } from 'react';
 import { Atom, FileText, Sparkles } from 'lucide-react';
-import { PHYSICS_3EME_CHAPTERS, PHYSICS_3EME_DOMAINS } from '../data/physics3emeCurriculum';
+import { PHYSICS_TC_CHAPTERS, PHYSICS_TC_DOMAINS } from '../data/physicsTcCurriculum';
 import { DomainId } from '../types/math';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { DemonstrationMethodFigure } from './illustrations/PedagogicalFigures';
 import { ChapterThreeExperiencesPanel } from './ChapterThreeExperiencesPanel';
-import { PHYSICS_3EME_EXPERIENCE_META } from './Physics3emeExperiences';
+import { PHYSICS_TC_EXPERIENCE_META } from './PhysicsTcExperiences';
+import { scrollToSectionById } from '../utils/uiFeedback';
 
-const PHYSICS_3EME_CHAPTER_META: Record<string, { emoji: string; shortTitle: string }> = {
-  'phys3-actions-mecaniques': { emoji: '🏹', shortTitle: 'Forces & Poids P=mg' },
-  'phys3-equilibre-solide': { emoji: '⚓', shortTitle: 'Équilibre & Archimède' },
-  'phys3-travail-puissance': { emoji: '🏗️', shortTitle: 'Travail & Puissance' },
-  'phys3-energie-mecanique': { emoji: '🎢', shortTitle: 'Énergie Ec + Ep' },
-  'phys3-conducteurs-ohmiques': { emoji: '🎛️', shortTitle: 'Résistors Série/Par.' },
-  'phys3-energie-puissance-seeg': { emoji: '⚡', shortTitle: 'Joule & Compteur SEEG' },
-  'phys3-transformateur-electronique': { emoji: '🔌', shortTitle: 'Transfo, Diode & NPN' },
-  'phys3-lentilles-construction': { emoji: '🔍', shortTitle: 'Lentilles & Images' },
-  'phys3-oeil-instruments': { emoji: '👁️', shortTitle: 'Œil, Myopie & Loupe' },
-  'phys3-metaux-oxydation': { emoji: '🔩', shortTitle: 'Métaux & Oxydation' },
-  'phys3-ions-tests': { emoji: '🧫', shortTitle: 'Ions & Précipités' },
-  'phys3-acides-bases-ph': { emoji: '⚗️', shortTitle: 'Acides, Bases & Dosage' },
-  'phys3-hydrocarbures-alcools': { emoji: '🛢️', shortTitle: 'Alcanes & SOGARA' },
+const PHYSICS_TC_CHAPTER_META: Record<string, { emoji: string; shortTitle: string }> = {
+  'physTc-cinematique': { emoji: '🚀', shortTitle: 'Cinématique & Frenet' },
+  'physTc-dynamique': { emoji: '⚡', shortTitle: 'Newton & Lorentz qv⃗∧B⃗' },
+  'physTc-gravitation': { emoji: '🛰️', shortTitle: 'Kepler & Satellites' },
+  'physTc-oscillations-energie': { emoji: '🌀', shortTitle: 'Oscillateurs & Énergie' },
+  'physTc-dipoles-rc-rl': { emoji: '🔋', shortTitle: 'Dipôles RC, RL & LC' },
+  'physTc-oscillations-rlc': { emoji: '🎛️', shortTitle: 'Résonance RLC & Fresnel' },
+  'physTc-ondes-mecaniques': { emoji: '🌊', shortTitle: 'Ondes & Diffraction' },
+  'physTc-interferences-lumiere': { emoji: '🔦', shortTitle: 'Young & Photoélectrique' },
+  'physTc-noyau-radioactivite': { emoji: '☢️', shortTitle: 'Radioactivité & Décroiss.' },
+  'physTc-reactions-nucleaires': { emoji: '⚛️', shortTitle: 'Fission, Fusion & Oklo' },
+  'physTc-cinetique-chimique': { emoji: '⏱️', shortTitle: 'Cinétique & t₁/₂' },
+  'physTc-acides-bases-ph': { emoji: '⚗️', shortTitle: 'pH, pK_a & Titrage' },
+  'physTc-alcools-carbonyles': { emoji: '🧪', shortTitle: 'Alcools & Carbonylés' },
+  'physTc-esterification-saponification': { emoji: '🧼', shortTitle: 'Esters & Saponification' },
 };
 
 export const PhysicsVisualizers: React.FC = () => {
-  const activeChapters = PHYSICS_3EME_CHAPTERS;
-  const activeDomains = PHYSICS_3EME_DOMAINS;
+  const activeChapters = PHYSICS_TC_CHAPTERS;
+  const activeDomains = PHYSICS_TC_DOMAINS;
 
   const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
   const [selectedId, setSelectedId] = useState<string>(activeChapters[0].id);
@@ -36,11 +38,11 @@ export const PhysicsVisualizers: React.FC = () => {
   );
   const currentChapter =
     activeChapters.find((c) => c.id === selectedId) || activeChapters[0];
-  const currentMeta = PHYSICS_3EME_CHAPTER_META[currentChapter.id] || {
+  const currentMeta = PHYSICS_TC_CHAPTER_META[currentChapter.id] || {
     emoji: '⚗️',
     shortTitle: currentChapter.title,
   };
-  const currentExpInfo = PHYSICS_3EME_EXPERIENCE_META[currentChapter.id];
+  const currentExpInfo = PHYSICS_TC_EXPERIENCE_META[currentChapter.id];
 
   const handleDomainSelect = (domId: DomainId | 'all') => {
     setSelectedDomain(domId);
@@ -51,11 +53,12 @@ export const PhysicsVisualizers: React.FC = () => {
     if (list.length > 0 && !list.some((c) => c.id === selectedId)) {
       setSelectedId(list[0].id);
     }
+    scrollToSectionById('labo-stage', 50);
   };
 
   return (
     <div className="space-y-5 pb-20 animate-fade-in">
-      {/* Header + Sélecteur des 13 chapitres de 3ème BEPC */}
+      {/* Header + Sélecteur des 14 chapitres de Terminale C BAC */}
       <div className="rounded-3xl bg-slate-900 border border-sky-500/35 p-5 shadow-xl space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -64,13 +67,13 @@ export const PhysicsVisualizers: React.FC = () => {
             </div>
             <div>
               <div className="text-xs font-bold text-amber-300">
-                Physique-Chimie 3ème BEPC Gabon · {activeChapters.length} Chapitres × 3 Expériences (39 schémas interactifs)
+                Physique-Chimie Terminale C · {activeChapters.length} Chapitres × 10 Expériences ({activeChapters.length * 10} schémas interactifs)
               </div>
               <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
                 Labo Visuel &amp; Expériences Interactives ({activeChapters.length} Chapitres)
               </h2>
               <p className="text-xs text-slate-300">
-                Chaque chapitre propose 3 expériences différentes avec schémas illustratifs interactifs et formules debout.
+                Chaque chapitre propose 10 expériences différentes avec schémas illustratifs interactifs et formules debout.
               </p>
             </div>
           </div>
@@ -117,7 +120,7 @@ export const PhysicsVisualizers: React.FC = () => {
         {/* Grille complète des chapitres */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 max-h-60 overflow-y-auto pr-1">
           {visibleChapters.map((chap) => {
-            const meta = PHYSICS_3EME_CHAPTER_META[chap.id] || {
+            const meta = PHYSICS_TC_CHAPTER_META[chap.id] || {
               emoji: '⚗️',
               shortTitle: chap.title,
             };
@@ -126,7 +129,10 @@ export const PhysicsVisualizers: React.FC = () => {
               <button
                 key={chap.id}
                 type="button"
-                onClick={() => setSelectedId(chap.id)}
+                onClick={() => {
+                  setSelectedId(chap.id);
+                  scrollToSectionById('labo-stage', 50);
+                }}
                 className={`p-2.5 rounded-2xl text-left transition cursor-pointer border flex flex-col justify-between ${
                   active
                     ? 'bg-sky-500/15 border-sky-400 text-white shadow-md ring-1 ring-sky-400/40'
@@ -141,7 +147,7 @@ export const PhysicsVisualizers: React.FC = () => {
                   {meta.shortTitle}
                 </div>
                 <div className="text-[10px] text-sky-300/80 mt-0.5 truncate">
-                  3 expériences SVG
+                  10 expériences SVG
                 </div>
               </button>
             );
@@ -150,13 +156,13 @@ export const PhysicsVisualizers: React.FC = () => {
       </div>
 
       {/* Panneau du chapitre actif */}
-      <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
+      <div id="labo-stage" className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl">{currentMeta.emoji}</span>
             <div>
               <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-                {currentChapter.badge} · 3 Expériences &amp; Schémas Interactifs
+                {currentChapter.badge} · 10 Expériences &amp; Schémas Interactifs
               </div>
               <h3 className="text-sm sm:text-base font-black text-white">{currentChapter.title}</h3>
             </div>
@@ -164,7 +170,7 @@ export const PhysicsVisualizers: React.FC = () => {
           <span className="text-[11px] font-bold text-sky-300 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>
-              {currentExpInfo ? currentExpInfo.shortTitles.join(' · ') : '3 expériences'}
+              {currentExpInfo ? `${currentExpInfo.shortTitles.slice(0, 3).join(' · ')}… (+${Math.max(0, currentExpInfo.shortTitles.length - 3)})` : '10 expériences'}
             </span>
           </span>
         </div>

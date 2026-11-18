@@ -49,6 +49,8 @@ import {
   ExerciseVisualFigure,
   FormulaVisualSchema,
 } from './illustrations/PedagogicalFigures';
+import { MultiQuestionRunner } from './MultiQuestionRunner';
+import { playUiClickSound, scrollToSectionById } from '../utils/uiFeedback';
 
 interface LessonChapterViewProps {
   chapter: Chapter;
@@ -77,81 +79,46 @@ function getDemonstrationTemplate(chapter: Chapter): {
   conclusion: string;
 } {
   if (chapter.subject === 'physique') {
-    if (chapter.gradeLevel === '3eme') {
-      return {
-        hypothesis: `1) Données & Conversions SI : Je relève les grandeurs de l’énoncé (« ${chapter.title.split(':')[0].trim()} ») et je convertis en unités légales (N, m, s, W, J, kWh, Ω, V, A, f, mol/L).`,
-        property: '2) Formule littérale & 3) Calcul debout : J’écris d’abord la relation du cours (P = m×g, W = F×d, U = R×I, P = U×I, E = P×t, C = 1/f), puis j’isole l’inconnue et je pose le calcul en colonne.',
-        conclusion: '4) Conclusion rédigée : Je formule une phrase réponse claire avec l’unité officielle exacte (ou le montant SEEG en F CFA).',
-      };
-    }
     return {
-      hypothesis: `1) Données & Conversions : Je relève les valeurs de l’énoncé du chapitre « ${chapter.title.split(':')[0].trim()} » et je les convertis dans les unités légales (V, A, Ω, kW, h, kg, m, L, g).`,
-      property: '2) Formule littérale & 3) Calcul debout : J’écris la formule du cours avec les lettres (ex: U = R×I, P = m×g, ρ = m/V, Cm = m/V), puis je remplace en posant les étapes en colonne.',
-      conclusion: '4) Conclusion avec unité : Je rédige une phrase réponse claire et j’encadre la valeur suivie de son unité exacte (ou du montant en F CFA pour la facture SEEG).',
+      hypothesis: `1) Référentiel, Système & Conversions SI : Je précise le système étudié et le référentiel (galiléen ou repère de Frenet) pour « ${chapter.title.split(':')[0].trim()} », puis je convertis toutes les grandeurs dans le Système International (kg, m, s, C, T, V, A, Ω, H, F, Bq, mol/L).`,
+      property: '2) Loi physique / Équation différentielle : J’énonce la loi du cours (2ème loi de Newton, Lorentz, Kepler, mailles RC/RL/RLC, Soddy, Guldberg-Waage/pK_a) et je projette ou établis la relation littérale avant tout calcul numérique.',
+      conclusion: '3) Application numérique & Unité : Je pose l’expression littérale isolée, j’effectue le calcul et je conclus par une phrase rigoureuse avec l’unité et les chiffres significatifs.',
     };
   }
 
-  if (chapter.id === 'math3-thales-3eme' || chapter.id === 'theoreme-thales') {
+  if (chapter.id.includes('arithmetique')) {
     return {
-      hypothesis: 'On sait que dans le triangle ABC, M ∈ (AB), N ∈ (AC) et que les droites (MN) et (BC) sont parallèles.',
-      property: 'Or, d’après le théorème de Thalès, les longueurs des côtés des triangles AMN et ABC sont proportionnelles : AM/AB = AN/AC = MN/BC.',
-      conclusion: 'Donc par produit en croix, on calcule la longueur manquante avec précision.',
+      hypothesis: 'On identifie les entiers relatifs, les congruences modulo n et le PGCD d = a ∧ b (algorithme d’Euclide).',
+      property: 'Or, par le théorème de Bézout, le théorème de Gauss ou le petit théorème de Fermat, on caractérise les diviseurs ou les restes modulo p.',
+      conclusion: 'Donc on obtient la famille complète de solutions (x_k ; y_k) avec k ∈ ℤ et on vérifie la réciproque.',
     };
   }
-  if (chapter.id === 'math3-trigonometrie-3eme' || chapter.id === 'trigonometrie-triangle-rectangle') {
+  if (chapter.id.includes('complexes')) {
     return {
-      hypothesis: 'On sait que le triangle ABC est rectangle en A, avec un angle aigu connu et la longueur d’un côté.',
-      property: 'Or, dans un triangle rectangle (SOH CAH TOA), sin = Opp/Hyp, cos = Adj/Hyp et tan = Opp/Adj (et cos²α + sin²α = 1).',
-      conclusion: 'Donc on isole la longueur ou l’angle recherché et on arrondit au dixième ou au degré près.',
+      hypothesis: 'On écrit les affixes sous la forme adaptée au problème : algébrique (a + ib) pour les sommes/équations, ou exponentielle (r e^{iθ}) pour les produits, puissances et transformations.',
+      property: 'Or, le module mesure une distance |z_B - z_A| = AB et l’argument mesure un angle orienté (u⃗, AB⃗) = arg(z_B - z_A) [2π].',
+      conclusion: 'Donc on identifie l’écriture complexe z’ = az + b (ou l’ensemble des points M) avec précision.',
     };
   }
-  if (chapter.id === 'math3-systemes-equations') {
+  if (chapter.id.includes('limites') || chapter.id.includes('derivation') || chapter.id.includes('ln-exp') || chapter.id.includes('suites') || chapter.id.includes('integral')) {
     return {
-      hypothesis: 'On pose les deux inconnues x et y (par exemple les prix en F CFA) et on traduit l’énoncé en un système de deux équations à deux inconnues.',
-      property: 'Or, par substitution ou par combinaison linéaire, on élimine une inconnue pour trouver d’abord la valeur de l’autre en alignant les signes =.',
-      conclusion: 'Donc on remplace dans une équation pour trouver la seconde inconnue et on vérifie le couple solution (x ; y).',
+      hypothesis: 'On précise le domaine de définition et de dérivabilité (ou les conditions initiales d’une suite/équation différentielle), puis on lève les éventuelles formes indéterminées.',
+      property: 'Or, on applique les théorèmes d’analyse de Terminale C (TVI, théorème de la bijection, IAF, croissances comparées, intégration par parties ou récurrence).',
+      conclusion: 'Donc on dresse le tableau de variations complet et on justifie l’existence, l’unicité ou la convergence de la solution.',
     };
   }
-  if (chapter.id === 'math3-racines-carrees') {
+  if (chapter.id.includes('espace') || chapter.id.includes('isometries') || chapter.id.includes('coniques')) {
     return {
-      hypothesis: 'On repère les radicaux √a et on cherche à décomposer chaque nombre sous la forme k² × b avec k² le plus grand carré parfait possible.',
-      property: 'Or, pour tous nombres positifs, √(a × b) = √a × √b et √(k²) = k (et on réduit les termes contenant le même √b).',
-      conclusion: 'Donc on obtient la forme simplifiée a√b exacte.',
-    };
-  }
-  if (chapter.domainId === 'geometrie' || chapter.id === 'cercle-proprietes-avancees') {
-    if (chapter.id === 'theoreme-pythagore') {
-      return {
-        hypothesis: 'On sait que le triangle ABC est rectangle en A, avec AB = 6 cm et AC = 8 cm.',
-        property: 'Or, d’après le théorème de Pythagore, dans un triangle rectangle le carré de l’hypoténuse est égal à la somme des carrés des deux autres côtés : BC² = AB² + AC².',
-        conclusion: 'Donc BC² = 6² + 8² = 36 + 64 = 100, d’où BC = √100 = 10 cm.',
-      };
-    }
-    if (chapter.id === 'triangles-agrandissement-reduction') {
-      return {
-        hypothesis: 'On sait que dans le triangle ABC, I est le milieu de [AB] et J est le milieu de [AC].',
-        property: 'Or, d’après le théorème de la droite des milieux, la droite passant par les milieux de deux côtés est parallèle au troisième côté et mesure sa moitié.',
-        conclusion: 'Donc (IJ) // (BC) et IJ = BC ÷ 2.',
-      };
-    }
-    if (chapter.id === 'cercle-proprietes-avancees' || chapter.id === 'math3-angles-polygones') {
-      return {
-        hypothesis: 'On sait que l’angle inscrit AMB et l’angle au centre AÔB interceptent le même arc AB sur le cercle de centre O.',
-        property: 'Or, dans un cercle, la mesure de l’angle au centre est égale au double de la mesure de l’angle inscrit qui intercepte le même arc.',
-        conclusion: 'Donc AÔB = 2 × AMB.',
-      };
-    }
-    return {
-      hypothesis: `On sait que les hypothèses de la figure vérifient les conditions du chapitre « ${chapter.title.split(':')[0].trim()} ».`,
-      property: 'Or, d’après la propriété caractéristique étudiée dans cette leçon (conservation des longueurs, des angles, vecteurs ou rapport k),',
-      conclusion: 'Donc on en déduit rigoureusement la mesure ou la position de l’image demandée.',
+      hypothesis: 'On caractérise les vecteurs normaux, directeurs, éléments invariants ou paramètres géométriques (foyer F, directrice D, excentricité e).',
+      property: 'Or, on utilise le produit scalaire u⃗·v⃗, le produit vectoriel u⃗∧v⃗, la décomposition d’une isométrie ou l’équation réduite de la conique.',
+      conclusion: 'Donc on obtient l’équation cartésienne, paramétrique ou la nature exacte de la transformation/courbe.',
     };
   }
 
   return {
-    hypothesis: `On identifie d’abord les données de l’énoncé et les priorités opératoires du chapitre « ${chapter.title.split(':')[0].trim()} ».`,
-    property: 'Or, on applique la propriété du cours (règle des signes, distributivité, transposition ou produit en croix) en alignant les signes = en colonne verticale.',
-    conclusion: 'Donc on obtient le résultat exact simplifié (avec l’unité en F CFA, cm, h ou % si c’est un problème).',
+    hypothesis: `On pose clairement les données et hypothèses du chapitre « ${chapter.title.split(':')[0].trim()} ».`,
+    property: 'Or, on applique la propriété ou le théorème exact du programme de Terminale C en alignant les équivalences et égalités en colonne.',
+    conclusion: 'Donc on obtient le résultat exact simplifié et interprété dans le contexte du sujet de Bac C.',
   };
 }
 
@@ -192,11 +159,12 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
   const switchTab = (tab: 'cours' | 'memo' | 'exercices') => {
     setActiveTab(tab);
     if (onTabChange) onTabChange(tab);
+    scrollToSectionById(tab === 'exercices' ? 'lesson-exercise-section' : 'lesson-workspace', 55);
   };
 
   const isPhysics = chapter.subject === 'physique';
-  const gradeLevel = chapter.gradeLevel || '3eme';
-  const gradeLabel = '3ème BEPC';
+  const gradeLevel = chapter.gradeLevel || 'Terminale C';
+  const gradeLabel = 'Terminale C · BAC';
 
   const appExercises = useMemo(() => getChapterApplicationExercises(chapter), [chapter]);
   const courseByLevel = useMemo(() => getChapterCourseExercisesByLevel(chapter), [chapter]);
@@ -283,6 +251,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
     const cleanCorrect = exo.correctAnswer.replace(/\s+/g, '').replace(',', '.').toLowerCase();
 
     const isMatch = cleanUser === cleanCorrect;
+    playUiClickSound(isMatch ? 'success' : 'error');
     onRecordAttempt(exo.id, isMatch);
 
     if (isMatch) {
@@ -299,12 +268,14 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
   const goToNextExercise = () => {
     if (activeExerciseIndex < displayedExercises.length - 1) {
       setActiveExerciseIndex((prev) => prev + 1);
+      scrollToSectionById('chapter-exercise-card', 45);
     }
   };
 
   const goToPrevExercise = () => {
     if (activeExerciseIndex > 0) {
       setActiveExerciseIndex((prev) => prev - 1);
+      scrollToSectionById('chapter-exercise-card', 45);
     }
   };
 
@@ -316,7 +287,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
   };
 
   return (
-    <div className="space-y-5 pb-20">
+    <div id="lesson-workspace" className="space-y-5 pb-20">
       {/* Chapter Title & Hero Card */}
       <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl relative overflow-hidden">
         <div
@@ -327,7 +298,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
           <span>
             {isPhysics
               ? `Physique-Chimie ${gradeLabel} Gabon`
-              : `Mathématiques ${gradeLabel} CIAM Gabon`}
+              : `Mathématiques ${gradeLabel} Gabon`}
           </span>
           <span>›</span>
           <span className="text-amber-300 font-bold">{chapter.badge}</span>
@@ -550,10 +521,21 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 {formatSectionHeading(sec.title, secIdx)}
               </h3>
 
+              {/* Dessin & note illustrative de la section */}
+              {sec.illustrationNote && (
+                <div className="p-3.5 rounded-2xl bg-sky-950/35 border border-sky-500/30 space-y-2">
+                  <div className="text-[11px] font-black uppercase tracking-wider text-sky-300 flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Dessin &amp; Schéma Illustratif de la Section</span>
+                  </div>
+                  <p className="text-xs text-slate-200 leading-relaxed">{sec.illustrationNote}</p>
+                </div>
+              )}
+
               {/* Bloc Définition (sans border-l-4) */}
               <div className="p-4 rounded-2xl bg-slate-950/80 border border-emerald-500/30 space-y-2 text-xs text-slate-200 leading-relaxed">
                 <div className="text-[11px] font-black uppercase tracking-wider text-emerald-400">
-                  Définition & Notions Clés :
+                  Définition &amp; Notions Clés :
                 </div>
                 {sec.explanation.map((line, lIdx) => (
                   <p key={lIdx}>{line}</p>
@@ -747,7 +729,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
       {/* TAB 3 : QUIZ & EXERCICES CORRIGÉS ÉTAPE PAR ÉTAPE         */}
       {/* ========================================================= */}
       {activeTab === 'exercices' && (
-        <div className="space-y-4 animate-fade-in">
+        <div id="lesson-exercise-section" className="space-y-4 animate-fade-in">
           <div
             className={`rounded-2xl p-3.5 border flex flex-wrap items-center justify-between gap-2 ${
               bossDefeated
@@ -795,6 +777,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 onClick={() => {
                   setExerciseCategory('application');
                   setActiveExerciseIndex(0);
+                  scrollToSectionById('chapter-exercise-card', 45);
                 }}
                 className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
                   exerciseCategory === 'application'
@@ -805,7 +788,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 <div>
                   <div className="text-xs font-black">🎯 Application (10)</div>
                   <div className="text-[11px] text-slate-400">
-                    Pratique directe des formules
+                    10 questions · Très difficile · 10 étapes
                   </div>
                 </div>
                 <span className="text-xs font-mono font-extrabold tabular-nums text-emerald-300 shrink-0">
@@ -818,6 +801,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 onClick={() => {
                   setExerciseCategory('cours');
                   setActiveExerciseIndex(0);
+                  scrollToSectionById('chapter-exercise-card', 45);
                 }}
                 className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
                   exerciseCategory === 'cours'
@@ -831,7 +815,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                     <span>Exercices du Cours (80)</span>
                   </div>
                   <div className="text-[11px] text-slate-400">
-                    20 par niveau (Niv. 1 ➔ Niv. 4)
+                    10 questions / ex. · Très difficile
                   </div>
                 </div>
                 <span className="text-xs font-mono font-extrabold tabular-nums text-amber-300 shrink-0">
@@ -844,6 +828,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 onClick={() => {
                   setExerciseCategory('bepc');
                   setActiveExerciseIndex(0);
+                  scrollToSectionById('chapter-exercise-card', 45);
                 }}
                 className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
                   exerciseCategory === 'bepc'
@@ -854,10 +839,10 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 <div>
                   <div className="text-xs font-black flex items-center gap-1.5">
                     <Award className="w-3.5 h-3.5 text-rose-400" />
-                    <span>Type BEPC (10)</span>
+                    <span>Type BAC C (10)</span>
                   </div>
                   <div className="text-[11px] text-slate-400">
-                    Gabon &amp; Monde (Niv. 1 ➔ 4)
+                    10 questions · Niveau BAC C avancé
                   </div>
                 </div>
                 <span className="text-xs font-mono font-extrabold tabular-nums text-rose-300 shrink-0">
@@ -870,6 +855,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 onClick={() => {
                   setExerciseCategory('custom');
                   setActiveExerciseIndex(0);
+                  scrollToSectionById('chapter-exercise-card', 45);
                 }}
                 className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
                   exerciseCategory === 'custom'
@@ -905,6 +891,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                       onClick={() => {
                         setCourseLevel(lvl);
                         setActiveExerciseIndex(0);
+                        scrollToSectionById('chapter-exercise-card', 45);
                       }}
                       className={`px-3 py-2 rounded-xl text-xs font-bold border transition cursor-pointer flex items-center justify-between gap-1 ${
                         isActive
@@ -938,7 +925,10 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                   return (
                     <button
                       key={exo.id}
-                      onClick={() => setActiveExerciseIndex(idx)}
+                      onClick={() => {
+                        setActiveExerciseIndex(idx);
+                        scrollToSectionById('chapter-exercise-card', 45);
+                      }}
                       className={`min-w-[44px] h-11 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer shrink-0 border tabular-nums ${
                         isCurrent
                           ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-1 ring-amber-300'
@@ -957,7 +947,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
               </div>
 
               {/* ACTIVE EXERCISE CARD */}
-              <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
+              <div id="chapter-exercise-card" className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs tabular-nums">
                   <div className="flex flex-wrap items-center gap-2">
                     {currentExercise.visualBadge && (
@@ -969,7 +959,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                         : exerciseCategory === 'cours'
                         ? `Cours Niv. ${courseLevel} · Exercice ${activeExerciseIndex + 1} / 20`
                         : exerciseCategory === 'bepc'
-                        ? `Type BEPC ${activeExerciseIndex + 1} / ${displayedExercises.length}`
+                        ? `Type BAC C ${activeExerciseIndex + 1} / ${displayedExercises.length}`
                         : `Mon Exercice ${activeExerciseIndex + 1} / ${displayedExercises.length}`}{' '}
                       · {currentExercise.difficultyLabel}
                     </span>
@@ -1012,136 +1002,152 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
               </span>
             </div>
 
-            <div>
-              {!shownHints[currentExercise.id] ? (
-                <button
-                  onClick={() =>
-                    setShownHints((prev) => ({ ...prev, [currentExercise.id]: true }))
-                  }
-                  className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-medium cursor-pointer"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>💡 Le Coup de Pouce de Koko (Indice)</span>
-                </button>
-              ) : (
-                <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2 animate-fade-in">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="font-semibold text-amber-300">Indice :</strong>{' '}
-                    {currentExercise.hint}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2 pt-2 border-t border-slate-800">
-              <label className="text-xs text-slate-400 font-medium">À toi de jouer :</label>
-
-              {currentExercise.options && currentExercise.options.length > 0 ? (
-                <div className="grid sm:grid-cols-2 gap-2">
-                  {currentExercise.options.map((opt, optIdx) => {
-                    const isSelected = userAnswers[currentExercise.id] === opt;
-                    return (
-                      <button
-                        key={optIdx}
-                        onClick={() => handleSelectAnswer(currentExercise, opt)}
-                        className={`p-3 rounded-xl text-xs font-semibold text-left transition cursor-pointer border ${
-                          isSelected
-                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow'
-                            : 'bg-slate-950 text-slate-200 border-slate-800 hover:bg-slate-800'
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder={
-                      currentExercise.unit
-                        ? `Ex: 24 (en ${currentExercise.unit})`
-                        : 'Tape ta réponse ici...'
-                    }
-                    value={userAnswers[currentExercise.id] || ''}
-                    onChange={(e) =>
-                      setUserAnswers((prev) => ({
-                        ...prev,
-                        [currentExercise.id]: e.target.value,
-                      }))
-                    }
-                    onKeyDown={(e) => e.key === 'Enter' && handleCheckAnswer(currentExercise)}
-                    className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-amber-400 focus:outline-none"
-                  />
-                  <button
-                    onClick={() => handleCheckAnswer(currentExercise)}
-                    disabled={!userAnswers[currentExercise.id]?.trim()}
-                    className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 shrink-0"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Valider</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {checkedState[currentExercise.id]?.answered && (
-              <div className="pt-2 animate-fade-in">
-                {checkedState[currentExercise.id].correct ? (
-                  <KokoSuccessCelebration
-                    message="Akiba ! Réponse exacte !"
-                    subMessage={`Tu as réussi l’exercice ${activeExerciseIndex + 1} du programme gabonais ! Consulte la rédaction modèle ci-dessous pour maîtriser parfaitement la méthode.`}
-                  />
-                ) : (
-                  <KokoEncouragingFeedback
-                    title="Pas tout à fait, mais tu y es presque !"
-                    message="Une erreur ? Lis le point du cours ou clique sur le bouton ci-dessous pour découvrir la solution debout étape par étape !"
-                    onShowSolution={() =>
-                      setShownCorrections((prev) => ({
-                        ...prev,
-                        [currentExercise.id]: true,
-                      }))
-                    }
-                  />
-                )}
-              </div>
-            )}
-
-            {!shownCorrections[currentExercise.id] ? (
-              <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
-                <button
-                  onClick={() => switchTab('cours')}
-                  className="px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-bold text-xs cursor-pointer"
-                >
-                  📘 Relire le point du cours
-                </button>
-                <button
-                  onClick={() =>
-                    setShownCorrections((prev) => ({
-                      ...prev,
-                      [currentExercise.id]: true,
-                    }))
-                  }
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span>Afficher la Correction Détaillée Étape par Étape</span>
-                </button>
-              </div>
+            {currentExercise.subQuestions && currentExercise.subQuestions.length > 0 ? (
+              <MultiQuestionRunner
+                exercise={currentExercise}
+                exerciseId={currentExercise.id}
+                subject={chapter.subject}
+                chapterId={chapter.id}
+                illustrationKey={chapter.illustrationKey}
+                checkedState={checkedState}
+                onRecordAttempt={onRecordAttempt}
+              />
             ) : (
-              <div className="pt-2 animate-fade-in">
-                <StepByStepCorrection
-                  steps={currentExercise.steps}
-                  finalResult={currentExercise.explanationFinal}
-                  initialShowAll={false}
-                  chapterId={chapter.id}
-                  illustrationKey={chapter.illustrationKey}
-                  subject={chapter.subject}
-                  contextHint={`${currentExercise.title} ${currentExercise.prompt}`}
-                />
-              </div>
+              <>
+                <div>
+                  {!shownHints[currentExercise.id] ? (
+                    <button
+                      onClick={() =>
+                        setShownHints((prev) => ({ ...prev, [currentExercise.id]: true }))
+                      }
+                      className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-medium cursor-pointer"
+                    >
+                      <HelpCircle className="w-4 h-4" />
+                      <span>💡 Le Coup de Pouce de Koko (Indice)</span>
+                    </button>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2 animate-fade-in">
+                      <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-semibold text-amber-300">Indice :</strong>{' '}
+                        {currentExercise.hint}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-slate-800">
+                  <label className="text-xs text-slate-400 font-medium">À toi de jouer :</label>
+
+                  {currentExercise.options && currentExercise.options.length > 0 ? (
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {currentExercise.options.map((opt, optIdx) => {
+                        const isSelected = userAnswers[currentExercise.id] === opt;
+                        return (
+                          <button
+                            key={optIdx}
+                            data-sound="custom"
+                            onClick={() => handleSelectAnswer(currentExercise, opt)}
+                            className={`p-3 rounded-xl text-xs font-semibold text-left transition cursor-pointer border ${
+                              isSelected
+                                ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow'
+                                : 'bg-slate-950 text-slate-200 border-slate-800 hover:bg-slate-800'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder={
+                          currentExercise.unit
+                            ? `Ex: 24 (en ${currentExercise.unit})`
+                            : 'Tape ta réponse ici...'
+                        }
+                        value={userAnswers[currentExercise.id] || ''}
+                        onChange={(e) =>
+                          setUserAnswers((prev) => ({
+                            ...prev,
+                            [currentExercise.id]: e.target.value,
+                          }))
+                        }
+                        onKeyDown={(e) => e.key === 'Enter' && handleCheckAnswer(currentExercise)}
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-amber-400 focus:outline-none"
+                      />
+                      <button
+                        data-sound="custom"
+                        onClick={() => handleCheckAnswer(currentExercise)}
+                        disabled={!userAnswers[currentExercise.id]?.trim()}
+                        className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 shrink-0"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Valider</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {checkedState[currentExercise.id]?.answered && (
+                  <div className="pt-2 animate-fade-in">
+                    {checkedState[currentExercise.id].correct ? (
+                      <KokoSuccessCelebration
+                        message="Akiba ! Réponse exacte !"
+                        subMessage={`Tu as réussi l’exercice ${activeExerciseIndex + 1} du programme gabonais ! Consulte la rédaction modèle ci-dessous pour maîtriser parfaitement la méthode.`}
+                      />
+                    ) : (
+                      <KokoEncouragingFeedback
+                        title="Pas tout à fait, mais tu y es presque !"
+                        message="Une erreur ? Lis le point du cours ou clique sur le bouton ci-dessous pour découvrir la solution debout étape par étape !"
+                        onShowSolution={() =>
+                          setShownCorrections((prev) => ({
+                            ...prev,
+                            [currentExercise.id]: true,
+                          }))
+                        }
+                      />
+                    )}
+                  </div>
+                )}
+
+                {!shownCorrections[currentExercise.id] ? (
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
+                    <button
+                      onClick={() => switchTab('cours')}
+                      className="px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-bold text-xs cursor-pointer"
+                    >
+                      📘 Relire le point du cours
+                    </button>
+                    <button
+                      onClick={() =>
+                        setShownCorrections((prev) => ({
+                          ...prev,
+                          [currentExercise.id]: true,
+                        }))
+                      }
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      <span>Afficher la Correction Détaillée Étape par Étape</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="pt-2 animate-fade-in">
+                    <StepByStepCorrection
+                      steps={currentExercise.steps}
+                      finalResult={currentExercise.explanationFinal}
+                      initialShowAll={false}
+                      chapterId={chapter.id}
+                      illustrationKey={chapter.illustrationKey}
+                      subject={chapter.subject}
+                      contextHint={`${currentExercise.title} ${currentExercise.prompt}`}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
             <div className="flex items-center justify-between pt-3 border-t border-slate-800">

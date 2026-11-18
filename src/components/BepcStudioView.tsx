@@ -9,11 +9,13 @@ import {
   ChevronRight,
   Clock,
   FileSpreadsheet,
+  FileText,
   FolderArchive,
   Globe2,
   GraduationCap,
   HelpCircle,
   Layers,
+  Printer,
   ScrollText,
   Trophy,
 } from 'lucide-react';
@@ -26,24 +28,28 @@ import {
   ExerciseDifficulty,
   SubjectId,
 } from '../types/math';
-import { MATH_3EME_CHAPTERS, MATH_3EME_DOMAINS } from '../data/math3emeCurriculum';
-import { PHYSICS_3EME_CHAPTERS, PHYSICS_3EME_DOMAINS } from '../data/physics3emeCurriculum';
+import { MATH_TC_CHAPTERS, MATH_TC_DOMAINS } from '../data/mathTcCurriculum';
+import { PHYSICS_TC_CHAPTERS, PHYSICS_TC_DOMAINS } from '../data/physicsTcCurriculum';
 import {
   BEPC_COUNTRY_META,
   getBepcArchivePapers,
   getBepcExercisesForChapter,
   getBepcExamProblems,
 } from '../data/bepc';
+import { BEPC_COUNTRY_CONTEXTS } from '../data/bepc/bepcArchiveHelpers';
 import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
 import { StepByStepCorrection } from './StepByStepCorrection';
+import { MultiQuestionRunner } from './MultiQuestionRunner';
 import { ExerciseVisualFigure } from './illustrations/PedagogicalFigures';
 import {
   KokoEncouragingFeedback,
   KokoSuccessCelebration,
 } from './illustrations/FunFeedbackIllustrations';
+import { playUiClickSound, scrollToSectionById } from '../utils/uiFeedback';
 
 export type BepcStudioMode = 'chapitre' | 'examen' | 'epreuves';
 type ArchiveDecade = 'all' | '2020s' | '2010s' | '2000s' | '1990s';
+type ArchiveScopeFilter = 'all' | 'official' | 'training';
 
 interface BepcStudioViewProps {
   subject: SubjectId;
@@ -57,7 +63,7 @@ const DIFF_LABELS: Record<ExerciseDifficulty, string> = {
   1: '🟢 Niv. 1 · Fondamental',
   2: '🟡 Niv. 2 · Entraînement',
   3: '🟠 Niv. 3 · Approfondissement',
-  4: '🟣 Niv. 4 · Synthèse BEPC',
+  4: '🟣 Niv. 4 · Synthèse BAC C',
 };
 
 const DIFF_SHORT: Record<ExerciseDifficulty, string> = {
@@ -78,11 +84,11 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
   const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
 
   const chapters: Chapter[] = useMemo(
-    () => (subject === 'physique' ? PHYSICS_3EME_CHAPTERS : MATH_3EME_CHAPTERS),
+    () => (subject === 'physique' ? PHYSICS_TC_CHAPTERS : MATH_TC_CHAPTERS),
     [subject]
   );
   const domains = useMemo(
-    () => (subject === 'physique' ? PHYSICS_3EME_DOMAINS : MATH_3EME_DOMAINS),
+    () => (subject === 'physique' ? PHYSICS_TC_DOMAINS : MATH_TC_DOMAINS),
     [subject]
   );
 
@@ -95,15 +101,30 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
   const [examIndex, setExamIndex] = useState<number>(0);
 
   const [archiveCountryFilter, setArchiveCountryFilter] = useState<BepcCountryId | 'all'>('all');
+  const [archiveScopeFilter, setArchiveScopeFilter] = useState<ArchiveScopeFilter>('all');
   const [archiveDecadeFilter, setArchiveDecadeFilter] = useState<ArchiveDecade>('all');
   const [archiveYearFilter, setArchiveYearFilter] = useState<number | 'all'>('all');
   const [archiveSortDesc, setArchiveSortDesc] = useState<boolean>(true);
   const [archivePaperIndex, setArchivePaperIndex] = useState<number>(0);
   const [archivePartIndex, setArchivePartIndex] = useState<number>(0);
+  const [archiveFullSheetView, setArchiveFullSheetView] = useState<boolean>(true);
+  const [showFullSheetCorrection, setShowFullSheetCorrection] = useState<boolean>(false);
 
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [shownHints, setShownHints] = useState<Record<string, boolean>>({});
   const [shownCorrections, setShownCorrections] = useState<Record<string, boolean>>({});
+
+  const handlePrintPaper = () => {
+    try {
+      if (typeof window !== 'undefined' && window.AndroidBridge?.printPage) {
+        window.AndroidBridge.printPage();
+        return;
+      }
+      if (typeof window !== 'undefined' && typeof window.print === 'function') {
+        window.print();
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     setMode(initialMode);
@@ -152,8 +173,20 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
 
   const allArchivePapers = useMemo(() => getBepcArchivePapers(subject), [subject]);
 
+  const officialArchiveCount = useMemo(
+    () => allArchivePapers.filter((p) => p.isOfficial).length,
+    [allArchivePapers]
+  );
+  const trainingArchiveCount = allArchivePapers.length - officialArchiveCount;
+
   const filteredArchivePapers = useMemo(() => {
     const filtered = allArchivePapers.filter((paper) => {
+      if (archiveScopeFilter === 'official' && !paper.isOfficial) {
+        return false;
+      }
+      if (archiveScopeFilter === 'training' && paper.isOfficial) {
+        return false;
+      }
       if (archiveCountryFilter !== 'all' && paper.countryId !== archiveCountryFilter) {
         return false;
       }
@@ -167,7 +200,14 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
       return true;
     });
     return [...filtered].sort((a, b) => (archiveSortDesc ? b.year - a.year : a.year - b.year));
-  }, [allArchivePapers, archiveCountryFilter, archiveYearFilter, archiveDecadeFilter, archiveSortDesc]);
+  }, [
+    allArchivePapers,
+    archiveScopeFilter,
+    archiveCountryFilter,
+    archiveYearFilter,
+    archiveDecadeFilter,
+    archiveSortDesc,
+  ]);
 
   const safeArchivePaperIndex = Math.min(
     archivePaperIndex,
@@ -219,6 +259,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
     const cleanCorrect = exo.correctAnswer.replace(/\s+/g, '').replace(',', '.').toLowerCase();
 
     const isMatch = cleanUser === cleanCorrect;
+    playUiClickSound(isMatch ? 'success' : 'error');
     onRecordAttempt(exo.id, isMatch);
 
     if (isMatch) {
@@ -242,19 +283,19 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
       <section className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-1.5 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/40 text-amber-300 text-[11px] font-black uppercase tracking-wider">
-              <GraduationCap className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 text-amber-300 text-[11px] font-black uppercase tracking-wider">
+              <GraduationCap className="w-4 h-4" />
               <span>
-                Préparation Officielle BEPC 3ème ·{' '}
+                Préparation Officielle BAC Série C · Terminale ·{' '}
                 {subject === 'physique' ? 'Physique-Chimie' : 'Mathématiques'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              Annales &amp; Sujets Type BEPC Gabon et International
+              Annales &amp; Sujets Type BAC C Gabon et International
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Entraîne-toi sur les sujets officiels et les{' '}
-              <strong className="text-emerald-300">épreuves BEPC de 1990 à 2026</strong> (🇬🇦 Gabon,
+              Entraîne-toi sur les sujets d’entraînement au format officiel et les{' '}
+              <strong className="text-emerald-300">épreuves BAC C de 1990 à 2026</strong> (🇬🇦 Gabon,
               🇫🇷 France, 🇸🇳 Sénégal, 🇨🇲 Cameroun, 🇧🇯 Bénin, 🇹🇬 Togo) avec difficulté progressive et
               correction détaillée étape par étape.
             </p>
@@ -271,7 +312,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
             </div>
             <div className="px-3 py-2 rounded-2xl bg-slate-950 border border-slate-800">
               <div className="text-[10px] text-slate-400 font-bold uppercase">
-                Examen BEPC (Problèmes)
+                Examen BAC C (Problèmes)
               </div>
               <div className="text-sm font-black text-amber-300">
                 {solvedExamCount} / {allExamProblems.length} réussis
@@ -292,7 +333,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
         <div className="grid sm:grid-cols-3 gap-2.5 pt-1">
           <button
             type="button"
-            onClick={() => setMode('chapitre')}
+            onClick={() => {
+              setMode('chapitre');
+              scrollToSectionById('bepc-mode-stage', 50);
+            }}
             className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${
               mode === 'chapitre'
                 ? 'bg-sky-500/15 border-sky-400 text-white ring-1 ring-sky-400/50 shadow'
@@ -311,10 +355,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
               </div>
               <div className="min-w-0">
                 <div className="text-xs sm:text-sm font-black truncate">
-                  Type BEPC par Chapitre
+                  Type BAC C par Chapitre
                 </div>
                 <div className="text-[11px] text-slate-400 line-clamp-2">
-                  10 sujets / ch. · Progression Niv. 1 ➔ 4
+                  10 sujets × 10 questions · Très difficile
                 </div>
               </div>
             </div>
@@ -325,7 +369,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
 
           <button
             type="button"
-            onClick={() => setMode('examen')}
+            onClick={() => {
+              setMode('examen');
+              scrollToSectionById('bepc-mode-stage', 50);
+            }}
             className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${
               mode === 'examen'
                 ? 'bg-amber-400/15 border-amber-400 text-white ring-1 ring-amber-400/50 shadow'
@@ -344,7 +391,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
               </div>
               <div className="min-w-0">
                 <div className="text-xs sm:text-sm font-black truncate">
-                  Examen BEPC (Problèmes)
+                  Examen BAC C (Problèmes)
                 </div>
                 <div className="text-[11px] text-slate-400 line-clamp-2">
                   20 grands problèmes d’examen corrigés
@@ -358,7 +405,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
 
           <button
             type="button"
-            onClick={() => setMode('epreuves')}
+            onClick={() => {
+              setMode('epreuves');
+              scrollToSectionById('bepc-mode-stage', 50);
+            }}
             className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${
               mode === 'epreuves'
                 ? 'bg-emerald-500/15 border-emerald-400 text-white ring-1 ring-emerald-400/50 shadow'
@@ -377,10 +427,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
               </div>
               <div className="min-w-0">
                 <div className="text-xs sm:text-sm font-black truncate">
-                  Épreuves BEPC 1990–2026
+                  Épreuves BAC C 1990–2026
                 </div>
                 <div className="text-[11px] text-slate-400 line-clamp-2">
-                  6 pays × 37 années · 4 exercices complets / sujet
+                  6 pays × 37 années · Épreuves officielles intégrales &amp; entraînements
                 </div>
               </div>
             </div>
@@ -395,11 +445,11 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
       {/* SELECTORS SECTION                                         */}
       {/* ========================================================= */}
       {mode === 'chapitre' ? (
-        <section className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3 shadow-lg">
+        <section id="bepc-mode-stage" className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3 shadow-lg">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-xs font-black text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
               <FileSpreadsheet className="w-4 h-4 text-sky-400" />
-              <span>Choisis ton chapitre ({chapters.length} chapitres × 10 sujets BEPC)</span>
+              <span>Choisis ton chapitre ({chapters.length} chapitres × 10 sujets BAC C)</span>
             </div>
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
               <button
@@ -424,6 +474,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       setSelectedChapterId(firstInDom.id);
                       setChapterExIndex(0);
                     }
+                    scrollToSectionById('bepc-active-stage', 50);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
                     selectedDomain === dom.id
@@ -449,6 +500,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   onClick={() => {
                     setSelectedChapterId(ch.id);
                     setChapterExIndex(0);
+                    scrollToSectionById('bepc-active-stage', 50);
                   }}
                   className={`p-3 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
                     isSelected
@@ -475,12 +527,12 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
           </div>
         </section>
       ) : mode === 'examen' ? (
-        <section className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3 shadow-lg">
+        <section id="bepc-mode-stage" className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3 shadow-lg">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
               <Globe2 className="w-4 h-4" />
               <span>
-                20 Problèmes Complets Type Examen BEPC (
+                20 Problèmes Complets Type Examen BAC C (
                 {subject === 'physique' ? 'Physique-Chimie' : 'Mathématiques'})
               </span>
             </div>
@@ -488,7 +540,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
               {[
                 { id: 'all', label: `Tous (${allExamProblems.length})` },
-                { id: 'gabon', label: '🇬🇦 BEPC Gabon' },
+                { id: 'gabon', label: '🇬🇦 BAC C Gabon' },
                 { id: 'international', label: '🌍 Autres pays' },
               ].map((f) => (
                 <button
@@ -497,6 +549,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   onClick={() => {
                     setOriginFilter(f.id as 'all' | 'gabon' | 'international');
                     setExamIndex(0);
+                    scrollToSectionById('bepc-active-stage', 50);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
                     originFilter === f.id
@@ -518,7 +571,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 <button
                   key={prob.id}
                   type="button"
-                  onClick={() => setExamIndex(idx)}
+                  onClick={() => {
+                    setExamIndex(idx);
+                    scrollToSectionById('bepc-active-stage', 50);
+                  }}
                   className={`p-2.5 rounded-xl border text-left transition cursor-pointer space-y-1 ${
                     isSelected
                       ? 'bg-amber-400/15 border-amber-400 text-white ring-1 ring-amber-400/50'
@@ -544,7 +600,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
           </div>
         </section>
       ) : (
-        <section className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3.5 shadow-lg">
+        <section id="bepc-mode-stage" className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3.5 shadow-lg">
           {/* Archive Header & Decade/Year/Sort controls */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-xs font-black text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -619,11 +675,82 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
             </div>
           </div>
 
-          <div className="px-3 py-2 rounded-xl bg-slate-950/90 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
-            <strong className="text-emerald-300">Format complet d’entraînement :</strong> chaque
-            paire (pays × année) de 1990 à 2026 propose une épreuve structurée complète de 4
-            exercices / 20 pts reconstituée selon le programme officiel (non copie littérale d’archive
-            ministérielle).
+          {/* Scope Filter Bar: Official Complete Papers vs Full Grid */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setArchiveScopeFilter('all');
+                setArchivePaperIndex(0);
+                setArchivePartIndex(0);
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+                archiveScopeFilter === 'all'
+                  ? 'bg-emerald-400 text-slate-950 shadow'
+                  : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
+              }`}
+            >
+              🌍 Grille complète ({allArchivePapers.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setArchiveScopeFilter('official');
+                setArchiveDecadeFilter('all');
+                setArchiveYearFilter('all');
+                setArchivePaperIndex(0);
+                setArchivePartIndex(0);
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+                archiveScopeFilter === 'official'
+                  ? 'bg-emerald-500 text-slate-950 shadow ring-1 ring-emerald-300'
+                  : 'bg-emerald-950/50 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/50'
+              }`}
+            >
+              🏛️ Épreuves officielles intégrales ({officialArchiveCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setArchiveScopeFilter('training');
+                setArchivePaperIndex(0);
+                setArchivePartIndex(0);
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+                archiveScopeFilter === 'training'
+                  ? 'bg-amber-400 text-slate-950 shadow'
+                  : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
+              }`}
+            >
+              📚 Sujets d’entraînement ({trainingArchiveCount})
+            </button>
+          </div>
+
+          <div className="px-3.5 py-2.5 rounded-xl bg-slate-950/90 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+            {archiveScopeFilter === 'official' ? (
+              <>
+                <strong className="text-emerald-300">
+                  Épreuves officielles intégrales des 6 pays (sans aucun exercice retiré) :
+                </strong>{' '}
+                chaque sujet officiel restitue l’intégralité des exercices posés lors de la session officielle
+                (3, 4 ou 5 exercices complets : Obligatoire + Spécialité, Partie A + Partie B, Chimie &amp; Physique).
+              </>
+            ) : (
+              <>
+                <strong className="text-emerald-300">
+                  Grille complète 1990–2026 (6 pays × 37 années) :
+                </strong>{' '}
+                inclut les{' '}
+                <span className="text-emerald-300 font-bold">
+                  {officialArchiveCount} épreuves officielles intégrales (tous exercices conservés sans suppression)
+                </span>{' '}
+                repérées par le badge <span className="text-emerald-300 font-bold">🏛️ OFFICIEL</span>, ainsi que les{' '}
+                <span className="text-amber-300 font-semibold">
+                  sujets type BAC d’entraînement au format officiel ({trainingArchiveCount} sessions)
+                </span>
+                .
+              </>
+            )}
           </div>
 
           {/* Country Filter Bar */}
@@ -685,6 +812,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                     onClick={() => {
                       setArchivePaperIndex(idx);
                       setArchivePartIndex(0);
+                      scrollToSectionById(
+                        archiveFullSheetView ? 'bepc-archive-sheet' : 'bepc-active-stage',
+                        50
+                      );
                     }}
                     className={`p-2.5 rounded-xl border text-left transition cursor-pointer space-y-1 ${
                       isSelected
@@ -694,21 +825,26 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                         : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-1 text-[10px] font-bold tabular-nums">
+                    <div className="flex items-center justify-between gap-1 text-[11px] font-bold tabular-nums">
                       <span className="text-emerald-300 truncate">{paper.countryLabel}</span>
-                      <span className="px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 border border-slate-800 shrink-0">
-                        {paper.year}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {paper.isOfficial && (
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-black uppercase">
+                            🏛️ Officiel
+                          </span>
+                        )}
+                        <span className="text-amber-300 font-mono">{paper.year}</span>
+                      </div>
                     </div>
                     <div className="text-xs font-extrabold truncate">{paper.examTitle}</div>
-                    <div className="flex items-center justify-between gap-1 text-[10px] text-slate-400 tabular-nums">
+                    <div className="flex items-center justify-between gap-1 text-[11px] text-slate-400 tabular-nums">
                       <span className="truncate">{paper.themeSummary}</span>
                       <span
                         className={`font-mono font-bold shrink-0 ${
                           allDone ? 'text-emerald-400' : 'text-slate-300'
                         }`}
                       >
-                        {solvedParts}/{paper.parts.length}
+                        {solvedParts}/{paper.parts.length} ex.
                       </span>
                     </div>
                   </button>
@@ -717,38 +853,58 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
             </div>
           )}
 
-          {/* Selected Exam Paper Official Header & 4-Part Switcher */}
+          {/* Selected Exam Paper Official Header, View Switcher & 4-Part Switcher */}
           {currentArchivePaper && (
-            <div className="rounded-2xl bg-slate-950 border border-emerald-500/35 p-4 space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="space-y-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="px-2.5 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/35 font-black text-emerald-300">
+            <div id="bepc-archive-sheet" className="rounded-2xl bg-slate-950 border border-emerald-500/35 p-4 space-y-3.5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 tabular-nums">
+                    <span className="font-black text-emerald-300">
                       {currentArchivePaper.countryLabel}
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-lg bg-amber-400/15 border border-amber-400/35 font-black text-amber-300 tabular-nums">
+                    <span aria-hidden="true" className="text-slate-600">·</span>
+                    <span className="font-black text-amber-300">
                       Session {currentArchivePaper.year}
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-semibold flex items-center gap-1 tabular-nums">
-                      <Clock className="w-3 h-3 text-sky-400" />
-                      {currentArchivePaper.duration}
+                    <span aria-hidden="true" className="text-slate-600">·</span>
+                    <span className="inline-flex items-center gap-1 font-semibold">
+                      <Clock className="w-3.5 h-3.5 text-sky-400" />
+                      Durée {currentArchivePaper.duration}
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-emerald-300 font-black tabular-nums">
-                      Total : {currentArchivePaper.totalPoints} pts ({currentArchivePaper.parts.length} parties)
+                    <span aria-hidden="true" className="text-slate-600">·</span>
+                    <span className="font-black text-emerald-300">
+                      Barème : {currentArchivePaper.totalPoints} pts ({currentArchivePaper.parts.length} exercices)
                     </span>
                   </div>
-                  <h3 className="text-sm sm:text-base font-black text-white">
-                    {currentArchivePaper.examTitle} — Épreuve complète
+                  <h3 className="text-sm sm:text-base font-black text-white flex flex-wrap items-center gap-2">
+                    <span>{currentArchivePaper.examTitle} — Épreuve complète</span>
+                    {currentArchivePaper.isOfficial && (
+                      <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase tracking-wide">
+                        🏛️ Épreuve officielle intégrale
+                      </span>
+                    )}
                   </h3>
-                  <p className="text-xs text-slate-400">{currentArchivePaper.themeSummary}</p>
+                  <p className="text-xs text-slate-400">
+                    {BEPC_COUNTRY_CONTEXTS[currentArchivePaper.countryId].seriesName} ·{' '}
+                    {currentArchivePaper.themeSummary}
+                  </p>
+                  {currentArchivePaper.officialReference && (
+                    <p className="text-xs text-emerald-300 font-bold">
+                      Source officielle : {currentArchivePaper.officialReference}
+                    </p>
+                  )}
                   {currentArchivePaper.sourceNotice && (
-                    <p className="text-[11px] text-amber-300/90 font-medium">
-                      ℹ️ {currentArchivePaper.sourceNotice}
+                    <p
+                      className={`text-xs font-medium ${
+                        currentArchivePaper.isOfficial ? 'text-emerald-300/90' : 'text-amber-300/90'
+                      }`}
+                    >
+                      {currentArchivePaper.sourceNotice}
                     </p>
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -756,7 +912,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       setArchivePartIndex(0);
                     }}
                     disabled={safeArchivePaperIndex === 0}
-                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 border border-slate-800 flex items-center gap-1 transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 border border-slate-800 flex items-center gap-1 transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>Session préc.</span>
@@ -770,7 +926,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       setArchivePartIndex(0);
                     }}
                     disabled={safeArchivePaperIndex >= filteredArchivePapers.length - 1}
-                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 flex items-center gap-1 transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 flex items-center gap-1 transition cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <span>Session suiv.</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -778,34 +934,190 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                {currentArchivePaper.parts.map((part, pIdx) => {
-                  const isCurrentPart = pIdx === activeIdx;
-                  const isPartSolved = checkedState[part.id]?.correct;
-                  return (
+              {/* Format switcher: Part-by-part interactive vs Complete 4-exercise exam sheet */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+                <div className="flex items-center gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setArchiveFullSheetView(false);
+                      scrollToSectionById('bepc-active-stage', 50);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
+                      !archiveFullSheetView
+                        ? 'bg-amber-400 text-slate-950 shadow'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    Mode interactif (partie par partie)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setArchiveFullSheetView(true)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                      archiveFullSheetView
+                        ? 'bg-emerald-400 text-slate-950 shadow'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Sujet complet ({currentArchivePaper.parts.length} exercices)</span>
+                  </button>
+                </div>
+
+                {archiveFullSheetView && (
+                  <div className="flex items-center gap-2">
                     <button
-                      key={part.id}
                       type="button"
-                      onClick={() => setArchivePartIndex(pIdx)}
-                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
-                        isCurrentPart
-                          ? 'bg-amber-400/15 border-amber-400 text-white ring-1 ring-amber-400/50'
-                          : isPartSolved
-                          ? 'bg-emerald-950/35 border-emerald-500/40 text-emerald-200'
-                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
-                      }`}
+                      onClick={() => setShowFullSheetCorrection((prev) => !prev)}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/35 transition cursor-pointer whitespace-nowrap shrink-0"
                     >
-                      <div className="min-w-0">
-                        <div className="text-[10px] font-black text-amber-300 uppercase">
-                          Partie {pIdx + 1} · {part.bepcPoints}
-                        </div>
-                        <div className="text-xs font-extrabold truncate">{part.title}</div>
-                      </div>
-                      {isPartSolved && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+                      {showFullSheetCorrection ? 'Masquer les corrigés' : 'Afficher tous les corrigés'}
                     </button>
-                  );
-                })}
+                    <button
+                      type="button"
+                      onClick={handlePrintPaper}
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap shrink-0"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>Imprimer / PDF</span>
+                    </button>
+                  </div>
+                )}
               </div>
+
+              {!archiveFullSheetView ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                  {currentArchivePaper.parts.map((part, pIdx) => {
+                    const isCurrentPart = pIdx === activeIdx;
+                    const isPartSolved = checkedState[part.id]?.correct;
+                    return (
+                      <button
+                        key={part.id}
+                        type="button"
+                        onClick={() => {
+                          setArchivePartIndex(pIdx);
+                          scrollToSectionById('bepc-active-stage', 50);
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2 ${
+                          isCurrentPart
+                            ? 'bg-amber-400/15 border-amber-400 text-white ring-1 ring-amber-400/50'
+                            : isPartSolved
+                            ? 'bg-emerald-950/35 border-emerald-500/40 text-emerald-200'
+                            : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800'
+                        }`}
+                      >
+                        <div className="min-w-0">
+                          <div className="text-[10px] font-black text-amber-300 uppercase tabular-nums">
+                            Partie {pIdx + 1} · {part.bepcPoints}
+                          </div>
+                          <div className="text-xs font-extrabold truncate">{part.title}</div>
+                        </div>
+                        {isPartSolved && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* COMPLETE 4-EXERCISE EXAM BOOKLET VIEW */
+                <div className="space-y-4 pt-2 print:text-black">
+                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
+                      <span className="font-bold text-emerald-300">
+                        {BEPC_COUNTRY_CONTEXTS[currentArchivePaper.countryId].examOffice}
+                      </span>
+                      <span className="font-mono font-bold text-amber-300 tabular-nums">
+                        Session {currentArchivePaper.year} · Coefficient {subject === 'maths' ? '5 / 6' : '5'} · Durée {currentArchivePaper.duration}
+                      </span>
+                    </div>
+                    <h4 className="text-base sm:text-lg font-black text-white">
+                      Épreuve de {subject === 'physique' ? 'Physique-Chimie' : 'Mathématiques'} — {BEPC_COUNTRY_CONTEXTS[currentArchivePaper.countryId].seriesName}
+                    </h4>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Consignes : La clarté, la rigueur des démonstrations, le respect des unités SI et l’encadrement des résultats numériques seront pris en compte dans l’appréciation de la copie. Total sur {currentArchivePaper.totalPoints} points ({currentArchivePaper.parts.length} exercices complets).{' '}
+                      {currentArchivePaper.isOfficial ? (
+                        <span className="text-emerald-300 font-semibold">
+                          Épreuve officielle intégrale — tous les exercices officiels de la session sont affichés sans suppression.
+                        </span>
+                      ) : (
+                        <span className="text-amber-300 font-semibold">
+                          Sujet type BAC d’entraînement au format officiel (non copie officielle mot pour mot).
+                        </span>
+                      )}
+                    </p>
+                  </div>
+
+                  {currentArchivePaper.parts.map((part, pIdx) => {
+                    const partChapter =
+                      chapters.find((c) => c.id === part.chapterId) || currentChapter;
+                    const isOpenCorr = showFullSheetCorrection || shownCorrections[part.id];
+                    return (
+                      <article
+                        key={part.id}
+                        className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800">
+                          <div>
+                            <div className="text-xs font-black text-amber-300 tabular-nums">
+                              Partie {pIdx + 1} sur {currentArchivePaper.parts.length} · Barème : {part.bepcPoints}
+                            </div>
+                            <h5 className="text-sm sm:text-base font-black text-white">
+                              {part.title}
+                            </h5>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setArchivePartIndex(pIdx);
+                              setArchiveFullSheetView(false);
+                              scrollToSectionById('bepc-active-stage', 50);
+                            }}
+                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-800 text-sky-300 border border-slate-700 transition cursor-pointer whitespace-nowrap shrink-0"
+                          >
+                            Répondre en mode interactif
+                          </button>
+                        </div>
+
+                        <div className="text-sm text-slate-100 whitespace-pre-line leading-relaxed">
+                          {part.prompt}
+                        </div>
+
+                        <ExerciseVisualFigure
+                          chapterId={partChapter.id}
+                          illustrationKey={partChapter.illustrationKey}
+                          subject={partChapter.subject}
+                          title={part.title}
+                          prompt={part.prompt}
+                        />
+
+                        {!isOpenCorr ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShownCorrections((prev) => ({ ...prev, [part.id]: true }))
+                            }
+                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition cursor-pointer"
+                          >
+                            Voir la correction détaillée de cette partie ({part.steps.length} étapes)
+                          </button>
+                        ) : (
+                          <div className="pt-2 border-t border-slate-800">
+                            <StepByStepCorrection
+                              steps={part.steps}
+                              finalResult={part.explanationFinal}
+                              initialShowAll={true}
+                              chapterId={partChapter.id}
+                              illustrationKey={partChapter.illustrationKey}
+                              subject={partChapter.subject}
+                              contextHint={`${part.title} ${part.prompt}`}
+                            />
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -814,8 +1126,8 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
       {/* ========================================================= */}
       {/* ACTIVE BEPC EXERCISE / EXAM PROBLEM SOLVER                */}
       {/* ========================================================= */}
-      {currentExercise && (
-        <section className="space-y-4">
+      {currentExercise && !(mode === 'epreuves' && archiveFullSheetView) && (
+        <section id="bepc-active-stage" className="space-y-4">
           {/* Numbered Progression Bar */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             {activeList.map((exo, idx) => {
@@ -825,7 +1137,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 <button
                   key={exo.id}
                   type="button"
-                  onClick={() => setActiveIdx(idx)}
+                  onClick={() => {
+                    setActiveIdx(idx);
+                    scrollToSectionById('bepc-active-stage', 50);
+                  }}
                   className={`min-w-[68px] px-2.5 h-11 rounded-xl text-xs font-bold transition flex flex-col items-center justify-center cursor-pointer shrink-0 border tabular-nums ${
                     isCurrent
                       ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-1 ring-amber-300'
@@ -854,21 +1169,26 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
           <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
             {/* Metadata Header */}
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 font-extrabold text-amber-300">
-                  {currentExercise.originCountry || '🇬🇦 BEPC Gabon'}
+              <div className="flex flex-wrap items-center gap-2 text-slate-300 tabular-nums">
+                <span className="font-extrabold text-amber-300">
+                  {currentExercise.originCountry || '🇬🇦 BAC C Gabon'}
                 </span>
                 {currentExercise.originYear && (
-                  <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 font-semibold text-sky-300">
-                    {currentExercise.originYear}
-                  </span>
+                  <>
+                    <span aria-hidden="true" className="text-slate-600">·</span>
+                    <span className="font-semibold text-sky-300">{currentExercise.originYear}</span>
+                  </>
                 )}
                 {currentExercise.bepcPoints && (
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/35 font-black text-emerald-300">
-                    Barème : {currentExercise.bepcPoints}
-                  </span>
+                  <>
+                    <span aria-hidden="true" className="text-slate-600">·</span>
+                    <span className="font-black text-emerald-300">
+                      Barème : {currentExercise.bepcPoints}
+                    </span>
+                  </>
                 )}
-                <span className="px-2.5 py-1 rounded-lg bg-slate-800 font-bold text-slate-200">
+                <span aria-hidden="true" className="text-slate-600">·</span>
+                <span className="font-bold text-slate-200">
                   {DIFF_LABELS[currentExercise.difficulty]}
                 </span>
               </div>
@@ -879,7 +1199,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
             </div>
 
             <div>
-              <div className="text-[11px] font-bold text-sky-400 mb-0.5">
+              <div className="text-xs font-bold text-sky-400 mb-0.5">
                 {activeChapterForFigure.title}
               </div>
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
@@ -887,15 +1207,8 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 <span>{currentExercise.title}</span>
               </h3>
               {currentExercise.themeTags && currentExercise.themeTags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {currentExercise.themeTags.map((tag, tIdx) => (
-                    <span
-                      key={tIdx}
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-950 border border-slate-800 text-slate-300"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+                <div className="text-xs text-slate-400 mt-1">
+                  {currentExercise.themeTags.join(' · ')}
                 </div>
               )}
             </div>
@@ -914,145 +1227,165 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
               prompt={currentExercise.prompt}
             />
 
-            {/* Hint */}
-            <div>
-              {!shownHints[currentExercise.id] ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShownHints((prev) => ({ ...prev, [currentExercise.id]: true }))
-                  }
-                  className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-medium cursor-pointer"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>💡 Méthode / Coup de Pouce d’Examen</span>
-                </button>
-              ) : (
-                <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2">
-                  <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="font-semibold text-amber-300">Indice :</strong>{' '}
-                    {currentExercise.hint}
-                  </div>
+            {/* Multi-question (10 questions très difficiles) OU saisie unique (examens/épreuves) */}
+            {currentExercise.subQuestions && currentExercise.subQuestions.length > 0 ? (
+              <MultiQuestionRunner
+                exercise={currentExercise}
+                exerciseId={currentExercise.id}
+                subject={activeChapterForFigure.subject}
+                chapterId={activeChapterForFigure.id}
+                illustrationKey={activeChapterForFigure.illustrationKey}
+                checkedState={checkedState}
+                onRecordAttempt={onRecordAttempt}
+              />
+            ) : (
+              <>
+                {/* Hint */}
+                <div>
+                  {!shownHints[currentExercise.id] ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShownHints((prev) => ({ ...prev, [currentExercise.id]: true }))
+                      }
+                      className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 font-medium cursor-pointer"
+                    >
+                      <HelpCircle className="w-4 h-4" />
+                      <span>💡 Méthode / Coup de Pouce d’Examen</span>
+                    </button>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2">
+                      <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-semibold text-amber-300">Indice :</strong>{' '}
+                        {currentExercise.hint}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Interactive Answer */}
-            <div className="space-y-2 pt-2 border-t border-slate-800">
-              <label className="text-xs text-slate-400 font-medium">
-                {mode === 'examen'
-                  ? 'Réponse finale de contrôle (puis déroule toute la rédaction étape par étape) :'
-                  : 'À toi de jouer :'}
-              </label>
+                {/* Interactive Answer */}
+                <div className="space-y-2 pt-2 border-t border-slate-800">
+                  <label className="text-xs text-slate-400 font-medium">
+                    {mode === 'examen'
+                      ? 'Réponse finale de contrôle (puis déroule toute la rédaction étape par étape) :'
+                      : 'À toi de jouer :'}
+                  </label>
 
-              {currentExercise.options && currentExercise.options.length > 0 ? (
-                <div className="grid sm:grid-cols-2 gap-2">
-                  {currentExercise.options.map((opt, optIdx) => {
-                    const isSelected = userAnswers[currentExercise.id] === opt;
-                    return (
+                  {currentExercise.options && currentExercise.options.length > 0 ? (
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {currentExercise.options.map((opt, optIdx) => {
+                        const isSelected = userAnswers[currentExercise.id] === opt;
+                        return (
+                          <button
+                            key={optIdx}
+                            type="button"
+                            data-sound="custom"
+                            onClick={() => handleSelectQcm(currentExercise, opt)}
+                            className={`p-3 rounded-xl text-xs font-semibold text-left transition cursor-pointer border ${
+                              isSelected
+                                ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow'
+                                : 'bg-slate-950 text-slate-200 border-slate-800 hover:bg-slate-800'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder={
+                          currentExercise.unit
+                            ? `Ex: valeur numérique (en ${currentExercise.unit})`
+                            : 'Tape la réponse finale exacte...'
+                        }
+                        value={userAnswers[currentExercise.id] || ''}
+                        onChange={(e) =>
+                          setUserAnswers((prev) => ({
+                            ...prev,
+                            [currentExercise.id]: e.target.value,
+                          }))
+                        }
+                        onKeyDown={(e) => e.key === 'Enter' && handleCheckAnswer(currentExercise)}
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-amber-400 focus:outline-none"
+                      />
                       <button
-                        key={optIdx}
                         type="button"
-                        onClick={() => handleSelectQcm(currentExercise, opt)}
-                        className={`p-3 rounded-xl text-xs font-semibold text-left transition cursor-pointer border ${
-                          isSelected
-                            ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow'
-                            : 'bg-slate-950 text-slate-200 border-slate-800 hover:bg-slate-800'
-                        }`}
+                        data-sound="custom"
+                        onClick={() => handleCheckAnswer(currentExercise)}
+                        disabled={!userAnswers[currentExercise.id]?.trim()}
+                        className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 shrink-0"
                       >
-                        {opt}
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Valider</span>
                       </button>
-                    );
-                  })}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder={
-                      currentExercise.unit
-                        ? `Ex: valeur numérique (en ${currentExercise.unit})`
-                        : 'Tape la réponse finale exacte...'
-                    }
-                    value={userAnswers[currentExercise.id] || ''}
-                    onChange={(e) =>
-                      setUserAnswers((prev) => ({
-                        ...prev,
-                        [currentExercise.id]: e.target.value,
-                      }))
-                    }
-                    onKeyDown={(e) => e.key === 'Enter' && handleCheckAnswer(currentExercise)}
-                    className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-amber-400 focus:outline-none"
-                  />
+
+                {checkedState[currentExercise.id]?.answered && (
+                  <div className="pt-2">
+                    {checkedState[currentExercise.id].correct ? (
+                      <KokoSuccessCelebration
+                        message="Akiba ! Niveau BAC C validé !"
+                        subMessage="Excellente réponse ! Vérifie bien chaque étape de rédaction modèle ci-dessous pour décrocher la totalité des points le jour de l’épreuve."
+                      />
+                    ) : (
+                      <KokoEncouragingFeedback
+                        title="Vérifie les hypothèses, signes ou unités !"
+                        message="Clique sur le bouton ci-dessous pour suivre la correction détaillée étape par étape façon copie officielle du Baccalauréat C."
+                        onShowSolution={() =>
+                          setShownCorrections((prev) => ({
+                            ...prev,
+                            [currentExercise.id]: true,
+                          }))
+                        }
+                      />
+                    )}
+                  </div>
+                )}
+
+                {!shownCorrections[currentExercise.id] ? (
                   <button
                     type="button"
-                    onClick={() => handleCheckAnswer(currentExercise)}
-                    disabled={!userAnswers[currentExercise.id]?.trim()}
-                    className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow active:scale-95 shrink-0"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Valider</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {checkedState[currentExercise.id]?.answered && (
-              <div className="pt-2">
-                {checkedState[currentExercise.id].correct ? (
-                  <KokoSuccessCelebration
-                    message="Akiba ! Niveau BEPC validé !"
-                    subMessage="Excellente réponse ! Vérifie bien chaque étape de rédaction modèle ci-dessous pour décrocher la totalité des points le jour de l’examen."
-                  />
-                ) : (
-                  <KokoEncouragingFeedback
-                    title="Vérifie les conversions ou l’unité !"
-                    message="Clique sur le bouton ci-dessous pour suivre la correction détaillée étape par étape façon copie officielle BEPC."
-                    onShowSolution={() =>
+                    onClick={() =>
                       setShownCorrections((prev) => ({
                         ...prev,
                         [currentExercise.id]: true,
                       }))
                     }
-                  />
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>Afficher la Correction Détaillée Étape par Étape (Copie BAC C)</span>
+                  </button>
+                ) : (
+                  <div className="pt-2">
+                    <StepByStepCorrection
+                      steps={currentExercise.steps}
+                      finalResult={currentExercise.explanationFinal}
+                      initialShowAll={false}
+                      chapterId={activeChapterForFigure.id}
+                      illustrationKey={activeChapterForFigure.illustrationKey}
+                      subject={activeChapterForFigure.subject}
+                      contextHint={`${currentExercise.title} ${currentExercise.prompt}`}
+                    />
+                  </div>
                 )}
-              </div>
-            )}
-
-            {!shownCorrections[currentExercise.id] ? (
-              <button
-                type="button"
-                onClick={() =>
-                  setShownCorrections((prev) => ({
-                    ...prev,
-                    [currentExercise.id]: true,
-                  }))
-                }
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow"
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Afficher la Correction Détaillée Étape par Étape (Copie BEPC)</span>
-              </button>
-            ) : (
-              <div className="pt-2">
-                <StepByStepCorrection
-                  steps={currentExercise.steps}
-                  finalResult={currentExercise.explanationFinal}
-                  initialShowAll={false}
-                  chapterId={activeChapterForFigure.id}
-                  illustrationKey={activeChapterForFigure.illustrationKey}
-                  subject={activeChapterForFigure.subject}
-                  contextHint={`${currentExercise.title} ${currentExercise.prompt}`}
-                />
-              </div>
+              </>
             )}
 
             {/* Prev / Next Navigation */}
             <div className="flex items-center justify-between pt-3 border-t border-slate-800">
               <button
                 type="button"
-                onClick={() => setActiveIdx((prev) => Math.max(0, prev - 1))}
+                onClick={() => {
+                  setActiveIdx((prev) => Math.max(0, prev - 1));
+                  scrollToSectionById('bepc-active-stage', 50);
+                }}
                 disabled={activeIdx === 0}
                 className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 flex items-center gap-1 transition cursor-pointer"
               >
@@ -1075,7 +1408,10 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
 
               <button
                 type="button"
-                onClick={() => setActiveIdx((prev) => Math.min(activeList.length - 1, prev + 1))}
+                onClick={() => {
+                  setActiveIdx((prev) => Math.min(activeList.length - 1, prev + 1));
+                  scrollToSectionById('bepc-active-stage', 50);
+                }}
                 disabled={activeIdx >= activeList.length - 1}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 flex items-center gap-1 transition cursor-pointer shadow"
               >

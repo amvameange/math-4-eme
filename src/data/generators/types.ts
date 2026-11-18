@@ -1,4 +1,4 @@
-import { CorrectionStep, ExerciseDifficulty } from '../../types/math';
+import { CorrectionStep, ExerciseDifficulty, SubQuestion } from '../../types/math';
 
 export interface GeneratedExercise {
   chapterId: string;
@@ -14,6 +14,7 @@ export interface GeneratedExercise {
   unit?: string;
   steps: CorrectionStep[];
   explanationFinal: string;
+  subQuestions?: SubQuestion[];
 }
 
 export const DIFFICULTY_META: Record<

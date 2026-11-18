@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
 import { Compass, FileText, Sparkles } from 'lucide-react';
-import { MATH_3EME_CHAPTERS, MATH_3EME_DOMAINS } from '../data/math3emeCurriculum';
+import { MATH_TC_CHAPTERS, MATH_TC_DOMAINS } from '../data/mathTcCurriculum';
 import { DomainId } from '../types/math';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { DemonstrationMethodFigure } from './illustrations/PedagogicalFigures';
 import { ChapterThreeExperiencesPanel } from './ChapterThreeExperiencesPanel';
-import { MATH_3EME_EXPERIENCE_META } from './Math3emeExperiences';
+import { MATH_TC_EXPERIENCE_META } from './MathTcExperiences';
+import { scrollToSectionById } from '../utils/uiFeedback';
 
-const MATH_3EME_CHAPTER_META: Record<string, { emoji: string; shortTitle: string }> = {
-  'math3-racines-carrees': { emoji: '√', shortTitle: 'Racines & Conjugué' },
-  'math3-calcul-litteral-equations': { emoji: '📦', shortTitle: 'Identités & Éq. Produits' },
-  'math3-inequations-intervalles': { emoji: '↕️', shortTitle: 'Intervalles & Inéq.' },
-  'math3-systemes-equations': { emoji: '🧩', shortTitle: 'Systèmes (x ; y)' },
-  'math3-applications-affines': { emoji: '📈', shortTitle: 'Fonctions Affines' },
-  'math3-statistiques-3eme': { emoji: '📊', shortTitle: 'Stats en Classes & ECC' },
-  'math3-probabilites-3eme': { emoji: '🎲', shortTitle: 'Probas 2 Épreuves' },
-  'math3-thales-3eme': { emoji: '🦋', shortTitle: 'Thalès Papillon' },
-  'math3-trigonometrie-3eme': { emoji: '🧭', shortTitle: 'Trigo cos²+sin²=1' },
-  'math3-vecteurs-translations': { emoji: '➡️', shortTitle: 'Vecteurs & Chasles' },
-  'math3-angles-polygones': { emoji: '⭕', shortTitle: 'Angles & Polygones' },
-  'math3-reperage-droites': { emoji: '📍', shortTitle: 'Vecteurs & Droites' },
-  'math3-pyramides-cones': { emoji: '🍦', shortTitle: 'Pyramides & Cônes' },
-  'math3-sections-agrandissement': { emoji: '🔺', shortTitle: 'Sections k³ & Tronc' },
+const MATH_TC_CHAPTER_META: Record<string, { emoji: string; shortTitle: string }> = {
+  'mathTc-arithmetique': { emoji: '🔢', shortTitle: 'Arithmétique, Bézout & Gauss' },
+  'mathTc-complexes-algebre': { emoji: 'ℂ', shortTitle: 'Complexes : Algèbre & Moivre' },
+  'mathTc-complexes-geometrie': { emoji: '📐', shortTitle: 'Complexes & Similitudes' },
+  'mathTc-barycentre-matrices': { emoji: '⚖️', shortTitle: 'Barycentre, u⃗∧v⃗ & Gauss' },
+  'mathTc-limites-continuite': { emoji: '📈', shortTitle: 'Limites, TVI & Bijection' },
+  'mathTc-derivation-primitives': { emoji: '📉', shortTitle: 'Dérivation, IAF & Primitives' },
+  'mathTc-ln-exp-equadiff': { emoji: '🌿', shortTitle: 'ln, exp & Équations Diff.' },
+  'mathTc-suites-recurrence': { emoji: '🔁', shortTitle: 'Suites, Récurrence & Adj.' },
+  'mathTc-calcul-integral': { emoji: '∫', shortTitle: 'Intégrales, IPP & Volumes' },
+  'mathTc-denombrement-probas': { emoji: '🎲', shortTitle: 'Dénombrement & Probas Cond.' },
+  'mathTc-lois-probas-stats': { emoji: '📊', shortTitle: 'Binomiale & Stats 2D' },
+  'mathTc-geometrie-espace': { emoji: '🧊', shortTitle: 'Géométrie 3D & Sphères' },
+  'mathTc-isometries-similitudes': { emoji: '🔄', shortTitle: 'Isométries & Similitudes' },
+  'mathTc-coniques': { emoji: '🪐', shortTitle: 'Coniques : Parabole/Ellipse' },
 };
 
 export const MathVisualizers: React.FC = () => {
-  const activeChapters = MATH_3EME_CHAPTERS;
-  const activeDomains = MATH_3EME_DOMAINS;
+  const activeChapters = MATH_TC_CHAPTERS;
+  const activeDomains = MATH_TC_DOMAINS;
 
   const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
   const [selectedId, setSelectedId] = useState<string>(activeChapters[0].id);
@@ -36,11 +37,11 @@ export const MathVisualizers: React.FC = () => {
     (ch) => selectedDomain === 'all' || ch.domainId === selectedDomain
   );
   const currentChapter = activeChapters.find((c) => c.id === selectedId) || activeChapters[0];
-  const currentMeta = MATH_3EME_CHAPTER_META[currentChapter.id] || {
+  const currentMeta = MATH_TC_CHAPTER_META[currentChapter.id] || {
     emoji: '📐',
     shortTitle: currentChapter.title,
   };
-  const currentExpInfo = MATH_3EME_EXPERIENCE_META[currentChapter.id];
+  const currentExpInfo = MATH_TC_EXPERIENCE_META[currentChapter.id];
 
   const handleDomainSelect = (domId: DomainId | 'all') => {
     setSelectedDomain(domId);
@@ -49,11 +50,12 @@ export const MathVisualizers: React.FC = () => {
     if (list.length > 0 && !list.some((c) => c.id === selectedId)) {
       setSelectedId(list[0].id);
     }
+    scrollToSectionById('labo-stage', 50);
   };
 
   return (
     <div className="space-y-5 pb-20 animate-fade-in">
-      {/* Header + Grille des 14 chapitres 3ème BEPC */}
+      {/* Header + Grille des 14 chapitres Terminale C */}
       <div className="rounded-3xl bg-slate-900 border border-amber-500/35 p-5 shadow-xl space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -62,13 +64,13 @@ export const MathVisualizers: React.FC = () => {
             </div>
             <div>
               <div className="text-xs font-bold text-amber-300">
-                Mathématiques 3ème BEPC CIAM Gabon · {activeChapters.length} Chapitres × 3 Expériences (42 schémas interactifs)
+                Mathématiques Terminale C · {activeChapters.length} Chapitres × 10 Expériences ({activeChapters.length * 10} schémas interactifs)
               </div>
               <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
                 Laboratoire Visuel de Mathématiques ({activeChapters.length} Chapitres)
               </h2>
               <p className="text-xs text-slate-300">
-                Explore chacun des {activeChapters.length} chapitres avec 3 expériences distinctes, figures géométriques interactives et formules debout.
+                Explore chacun des {activeChapters.length} chapitres avec 10 expériences distinctes, figures géométriques interactives et formules debout.
               </p>
             </div>
           </div>
@@ -115,7 +117,7 @@ export const MathVisualizers: React.FC = () => {
         {/* Grille des chapitres */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 max-h-60 overflow-y-auto pr-1">
           {visibleChapters.map((chap) => {
-            const meta = MATH_3EME_CHAPTER_META[chap.id] || {
+            const meta = MATH_TC_CHAPTER_META[chap.id] || {
               emoji: '📐',
               shortTitle: chap.title,
             };
@@ -124,7 +126,10 @@ export const MathVisualizers: React.FC = () => {
               <button
                 key={chap.id}
                 type="button"
-                onClick={() => setSelectedId(chap.id)}
+                onClick={() => {
+                  setSelectedId(chap.id);
+                  scrollToSectionById('labo-stage', 50);
+                }}
                 className={`p-2.5 rounded-2xl text-left transition cursor-pointer border flex flex-col justify-between ${
                   active
                     ? 'bg-amber-500/15 border-amber-400 text-white shadow-md ring-1 ring-amber-400/40'
@@ -139,7 +144,7 @@ export const MathVisualizers: React.FC = () => {
                   {meta.shortTitle}
                 </div>
                 <div className="text-[10px] text-amber-300/80 mt-0.5 truncate">
-                  3 expériences SVG
+                  10 expériences SVG
                 </div>
               </button>
             );
@@ -148,13 +153,13 @@ export const MathVisualizers: React.FC = () => {
       </div>
 
       {/* En-tête du chapitre sélectionné */}
-      <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
+      <div id="labo-stage" className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl">{currentMeta.emoji}</span>
             <div>
               <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-                {currentChapter.badge} · 3 Expériences &amp; Schémas Interactifs
+                {currentChapter.badge} · 10 Expériences &amp; Schémas Interactifs
               </div>
               <h3 className="text-sm sm:text-base font-black text-white">{currentChapter.title}</h3>
             </div>
@@ -162,7 +167,7 @@ export const MathVisualizers: React.FC = () => {
           <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>
-              {currentExpInfo ? currentExpInfo.shortTitles.join(' · ') : '3 expériences'}
+              {currentExpInfo ? `${currentExpInfo.shortTitles.slice(0, 3).join(' · ')}… (+${Math.max(0, currentExpInfo.shortTitles.length - 3)})` : '10 expériences'}
             </span>
           </span>
         </div>

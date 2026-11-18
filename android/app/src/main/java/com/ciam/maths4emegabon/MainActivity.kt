@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.print.PrintAttributes
 import android.print.PrintManager
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -22,6 +24,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -33,6 +36,7 @@ import androidx.webkit.WebViewAssetLoader
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
+    private var isWebViewDestroyed = false
     private var fileUploadCallback: ValueCallback<Array<Uri>>? = null
 
     private val fileChooserLauncher = registerForActivityResult(
@@ -72,11 +76,11 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun printPage() {
             runOnUiThread {
-                if (!::webView.isInitialized) return@runOnUiThread
+                if (!::webView.isInitialized || isWebViewDestroyed) return@runOnUiThread
                 try {
                     val printManager = getSystemService(Context.PRINT_SERVICE) as? PrintManager
                         ?: return@runOnUiThread
-                    val jobName = "Fiche_Memo_3eme_BEPC"
+                    val jobName = "Physique_Maths_Tle_C_Gabon"
                     val adapter = webView.createPrintDocumentAdapter(jobName)
                     printManager.print(jobName, adapter, PrintAttributes.Builder().build())
                 } catch (_: Exception) {
@@ -133,7 +137,31 @@ class MainActivity : AppCompatActivity() {
                 request: WebResourceRequest?
             ): WebResourceResponse? {
                 val url = request?.url ?: return null
-                return assetLoader.shouldInterceptRequest(url)
+                val response = assetLoader.shouldInterceptRequest(url) ?: return null
+                val path = url.path?.lowercase().orEmpty()
+                val enforcedMime = when {
+                    path.endsWith(".js") || path.endsWith(".mjs") -> "text/javascript"
+                    path.endsWith(".css") -> "text/css"
+                    path.endsWith(".svg") -> "image/svg+xml"
+                    path.endsWith(".json") -> "application/json"
+                    path.endsWith(".webmanifest") -> "application/manifest+json"
+                    path.endsWith(".html") -> "text/html"
+                    path.endsWith(".jpg") || path.endsWith(".jpeg") -> "image/jpeg"
+                    path.endsWith(".png") -> "image/png"
+                    path.endsWith(".webp") -> "image/webp"
+                    path.endsWith(".woff2") -> "font/woff2"
+                    path.endsWith(".woff") -> "font/woff"
+                    path.endsWith(".ttf") -> "font/ttf"
+                    path.endsWith(".otf") -> "font/otf"
+                    path.endsWith(".mp3") -> "audio/mpeg"
+                    path.endsWith(".wav") -> "audio/wav"
+                    path.endsWith(".wasm") -> "application/wasm"
+                    else -> null
+                }
+                if (enforcedMime != null && response.mimeType != enforcedMime) {
+                    response.mimeType = enforcedMime
+                }
+                return response
             }
 
             override fun shouldOverrideUrlLoading(
@@ -155,6 +183,22 @@ class MainActivity : AppCompatActivity() {
                 } catch (_: Exception) {
                     false
                 }
+            }
+
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onRenderProcessGone(
+                view: WebView?,
+                detail: RenderProcessGoneDetail?
+            ): Boolean {
+                if (view != null) {
+                    isWebViewDestroyed = true
+                    (view.parent as? ViewGroup)?.removeView(view)
+                    view.destroy()
+                }
+                if (!isFinishing && !isDestroyed) {
+                    runOnUiThread { recreate() }
+                }
+                return true
             }
         }
 
@@ -212,9 +256,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (savedInstanceState != null) {
-            webView.restoreState(savedInstanceState)
-        } else {
+        val restored = savedInstanceState != null && webView.restoreState(savedInstanceState) != null
+        if (!restored) {
             // Load local compiled assets via WebViewAssetLoader HTTPS origin
             webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
         }
@@ -236,7 +279,6 @@ class MainActivity : AppCompatActivity() {
     private fun configureWebViewSettings(settings: WebSettings) {
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
-        settings.databaseEnabled = true
         settings.allowFileAccess = false
         settings.allowContentAccess = true
         @Suppress("DEPRECATION")
@@ -259,20 +301,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (::webView.isInitialized) {
+        if (::webView.isInitialized && !isWebViewDestroyed) {
             webView.saveState(outState)
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (::webView.isInitialized) {
+        if (::webView.isInitialized && !isWebViewDestroyed) {
             webView.onResume()
         }
     }
 
     override fun onPause() {
-        if (::webView.isInitialized) {
+        if (::webView.isInitialized && !isWebViewDestroyed) {
             webView.onPause()
         }
         super.onPause()
@@ -281,7 +323,8 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         fileUploadCallback?.onReceiveValue(null)
         fileUploadCallback = null
-        if (::webView.isInitialized) {
+        if (::webView.isInitialized && !isWebViewDestroyed) {
+            isWebViewDestroyed = true
             (webView.parent as? ViewGroup)?.removeView(webView)
             webView.stopLoading()
             webView.destroy()

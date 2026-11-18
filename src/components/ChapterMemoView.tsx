@@ -37,14 +37,14 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
             <div>
               <div className="text-xs font-extrabold text-amber-300">
                 {chapter.badge} · 🇬🇦{' '}
-                {isPhysics ? 'Programme Physique-Chimie 3ème BEPC' : 'Programme CIAM 3ème BEPC'}
+                {isPhysics ? 'Programme Physique-Chimie Terminale C BAC' : 'Programme Mathématiques Terminale C BAC'}
               </div>
               <h3 className="text-lg sm:text-xl font-black text-white mt-0.5">
-                Fiche Mémo DS : {chapter.title}
+                Fiche Mémo BAC C : {chapter.title}
               </h3>
               <p className="text-xs text-slate-300">
                 {memo?.slogan ||
-                  'Toutes les formules du cours écrites en colonne verticale et 3 expériences illustratives !'}
+                  'Toutes les formules du cours écrites en colonne verticale et 10 expériences illustratives !'}
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
         <div className="p-5 rounded-3xl bg-amber-950/25 border border-amber-500/35 shadow-xl space-y-2">
           <div className="flex items-center gap-2 text-xs font-black text-amber-300 uppercase tracking-wider">
             <span className="text-lg">🐆</span>
-            <span>Le Super Conseil de Koko pour le Devoir (DS)</span>
+            <span>Le Super Conseil de Koko pour le Baccalauréat C</span>
           </div>
           <p className="text-xs text-slate-200 leading-relaxed font-medium">
             {memo?.kokoTip ||
