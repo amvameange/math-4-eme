@@ -10,6 +10,7 @@ import {
   MathTcExperiences,
 } from './MathTcExperiences';
 import { scrollToSectionById } from '../utils/uiFeedback';
+import { FormattedMathText } from './FormattedMathText';
 
 interface ChapterThreeExperiencesPanelProps {
   chapterId: string;
@@ -118,7 +119,7 @@ export const ChapterThreeExperiencesPanel: React.FC<ChapterThreeExperiencesPanel
                     Exp. {idx + 1} / {count}
                   </div>
                   <div className="text-xs font-bold mt-0.5 truncate">
-                    {meta.shortTitles[idx]}
+                    <FormattedMathText text={meta.shortTitles[idx]} />
                   </div>
                 </button>
               );
@@ -131,7 +132,7 @@ export const ChapterThreeExperiencesPanel: React.FC<ChapterThreeExperiencesPanel
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
               <div className="text-xs sm:text-sm font-black text-sky-300">
-                {meta.titles[safeIdx]}
+                <FormattedMathText text={meta.titles[safeIdx]} />
               </div>
               <div className="flex items-center gap-1.5">
                 <button
@@ -171,7 +172,7 @@ export const ChapterThreeExperiencesPanel: React.FC<ChapterThreeExperiencesPanel
               className="rounded-2xl bg-slate-950/60 border border-slate-800 p-4 space-y-3"
             >
               <div className="text-xs sm:text-sm font-black text-amber-300 border-b border-slate-800 pb-2">
-                {meta.titles[idx]}
+                <FormattedMathText text={meta.titles[idx]} />
               </div>
               {renderExperience(idx)}
             </div>

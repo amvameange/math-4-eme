@@ -2,6 +2,7 @@ import React from 'react';
 import { ChapterIllustrationKey, GradeLevel, PhysicsIllustrationKey } from '../../types/math';
 import { PhysicsChapterIllustration } from './GabonPhysicsIllustrations';
 import { TerminaleCMathDrawing } from './TerminaleCMathDrawings';
+import { FormattedMathText, SvgMathTspans } from '../FormattedMathText';
 
 /**
  * Illustrations pédagogiques vivantes, colorées et culturelles pour Terminale C Gabon
@@ -55,12 +56,12 @@ const PHYSICS_KEYS: Set<string> = new Set<PhysicsIllustrationKey>([
   'tc-esterification-saponification',
 ]);
 
-// Mascotte : Koko le Matheux (Version Expert 4ème / 3ème BEPC avec compas & équerre)
+// Mascotte : Koko le Matheux (Version Expert Terminale Série C · Bac)
 export const MascotKoko: React.FC<{
   expression?: 'happy' | 'thinking' | 'victory';
   speech?: string;
   gradeLevel?: GradeLevel;
-}> = ({ speech, gradeLevel = '4eme' }) => {
+}> = ({ speech, gradeLevel = 'Terminale C' }) => {
   return (
     <div className="flex items-start gap-3.5 p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-sky-500/15 border border-amber-500/30 shadow-lg">
       <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-300 p-1 flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
@@ -100,12 +101,16 @@ export const MascotKoko: React.FC<{
           </span>
         </div>
         <p className="text-slate-200 mt-1 leading-relaxed font-medium">
-          {speech ||
-            (gradeLevel === 'Terminale C'
-              ? 'Mbolo futur bachelier Série C ! Observe toujours les schémas illustratifs (Frenet, Argand, TVI, IAF, Coniques) avant de lancer tes démonstrations et rédige chaque étape avec rigueur !'
-              : gradeLevel === '3eme'
-              ? 'Mbolo futur bachelier ! En 3ème BEPC, observe mes figures avant chaque théorème (Thalès, Trigo, Chasles, Sections k³) et pose toujours tes calculs en colonne !'
-              : 'Mbolo champion ! En 4ème, chaque chapitre est séparé pour que tu maîtrises 100% du programme sans tout mélanger. Observe mes dessins pour tout retenir !')}
+          <FormattedMathText
+            text={
+              speech ||
+              (gradeLevel === 'Terminale C'
+                ? 'Mbolo futur bachelier Série C ! Observe toujours les schémas illustratifs (Frenet, Argand, TVI, IAF, Coniques) avant de lancer tes démonstrations et rédige chaque étape avec rigueur !'
+                : gradeLevel === '3eme'
+                ? 'Mbolo futur bachelier ! Observe mes figures avant chaque théorème (Thalès, Trigo, Chasles, Sections k³) et pose toujours tes calculs en colonne !'
+                : 'Mbolo champion ! En 4ème, chaque chapitre est séparé pour que tu maîtrises 100% du programme sans tout mélanger. Observe mes dessins pour tout retenir !')
+            }
+          />
         </p>
       </div>
     </div>
@@ -117,7 +122,7 @@ export const Gabon4eRelatifsPuissancesIllustration: React.FC = () => (
   <div className="rounded-3xl bg-slate-900 border-2 border-indigo-500/40 p-4 sm:p-5 shadow-xl space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-indigo-300">
       <span>⚡ Le Radar des Signes & La Fusée des Puissances (aⁿ)</span>
-      <span className="text-[11px] text-amber-300 font-bold">Programme 4ème Gabon</span>
+      <span className="text-[11px] text-amber-300 font-bold">Programme Gabon</span>
     </div>
     <div className="grid md:grid-cols-2 gap-4 items-center">
       <div className="bg-slate-950/90 rounded-2xl border border-slate-800 p-3 flex flex-col items-center">
@@ -129,7 +134,7 @@ export const Gabon4eRelatifsPuissancesIllustration: React.FC = () => (
           <circle cx="118" cy="49" r="10" fill="#10b981" /><text x="118" y="53" textAnchor="middle" className="text-xs font-black fill-slate-950">+</text>
           <text x="150" y="53" textAnchor="middle" className="text-xs font-black fill-amber-300">=</text>
           <circle cx="182" cy="49" r="10" fill="#10b981" /><text x="182" y="53" textAnchor="middle" className="text-xs font-black fill-slate-950">+</text>
-          <text x="245" y="53" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Même signe ➔ +</text>
+          <text x="245" y="53" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Même signe → +</text>
 
           <rect x="20" y="72" width="280" height="30" rx="8" fill="#064e3b" fillOpacity="0.45" stroke="#10b981" strokeWidth="1.5" />
           <circle cx="52" cy="87" r="10" fill="#f43f5e" /><text x="52" y="91" textAnchor="middle" className="text-xs font-black fill-white">-</text>
@@ -137,7 +142,7 @@ export const Gabon4eRelatifsPuissancesIllustration: React.FC = () => (
           <circle cx="118" cy="87" r="10" fill="#f43f5e" /><text x="118" y="91" textAnchor="middle" className="text-xs font-black fill-white">-</text>
           <text x="150" y="91" textAnchor="middle" className="text-xs font-black fill-amber-300">=</text>
           <circle cx="182" cy="87" r="10" fill="#10b981" /><text x="182" y="91" textAnchor="middle" className="text-xs font-black fill-slate-950">+</text>
-          <text x="245" y="91" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">2 moins ➔ + !</text>
+          <text x="245" y="91" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">2 moins → + !</text>
 
           <rect x="20" y="110" width="280" height="30" rx="8" fill="#881337" fillOpacity="0.35" stroke="#f43f5e" strokeWidth="1.5" />
           <circle cx="52" cy="125" r="10" fill="#10b981" /><text x="52" y="129" textAnchor="middle" className="text-xs font-black fill-slate-950">+</text>
@@ -145,10 +150,10 @@ export const Gabon4eRelatifsPuissancesIllustration: React.FC = () => (
           <circle cx="118" cy="125" r="10" fill="#f43f5e" /><text x="118" y="129" textAnchor="middle" className="text-xs font-black fill-white">-</text>
           <text x="150" y="129" textAnchor="middle" className="text-xs font-black fill-amber-300">=</text>
           <circle cx="182" cy="125" r="10" fill="#f43f5e" /><text x="182" y="129" textAnchor="middle" className="text-xs font-black fill-white">-</text>
-          <text x="245" y="129" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Opposés ➔ -</text>
+          <text x="245" y="129" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Opposés → -</text>
 
           <text x="160" y="166" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">
-            Astuce : Nombre PAIR de (−) ➔ (+) | Nombre IMPAIR de (−) ➔ (−)
+            Astuce : Nombre PAIR de (−) → (+) | Nombre IMPAIR de (−) → (−)
           </text>
         </svg>
       </div>
@@ -181,7 +186,7 @@ export const Gabon4eRelatifsPuissancesIllustration: React.FC = () => (
 export const Gabon4eFractionsIllustration: React.FC = () => (
   <div className="rounded-3xl bg-slate-900 border-2 border-cyan-500/40 p-4 sm:p-5 shadow-xl space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-cyan-300">
-      <span>🍕 Fractions : Addition (Même Base) vs Division (Inverser la 2ème !)</span>
+      <span>🍕 Fractions : Addition (Même Base) vs Division (Inverser la 2e !)</span>
       <span className="text-[11px] text-amber-300 font-bold">Chapitre dédié Fractions</span>
     </div>
     <div className="flex justify-center">
@@ -306,7 +311,7 @@ export const Gabon4eEquationBalanceIllustration: React.FC<{ isIneq?: boolean }> 
               Ce qu’on enlève à gauche, on l’enlève aussi à droite !
             </text>
             <text x="215" y="185" textAnchor="middle" className="text-[10px] font-bold fill-amber-300 font-mono">
-              2x = 2 000 F ➔ x = 1 000 F CFA
+              2x = 2 000 F → x = 1 000 F CFA
             </text>
           </>
         ) : (
@@ -316,7 +321,7 @@ export const Gabon4eEquationBalanceIllustration: React.FC<{ isIneq?: boolean }> 
               PIÈGE N°1 : Multiplier ou Diviser par (−) INVERSE le signe !
             </text>
             <text x="215" y="64" textAnchor="middle" className="text-xs font-black fill-white font-mono">
-              −2x ≤ 6   ➔   x ≥ 6 ÷ (−2)   ➔   x ≥ −3
+              −2x ≤ 6   →   x ≥ 6 ÷ (−2)   →   x ≥ −3
             </text>
 
             {/* Droite graduée avec crochet et zone verte */}
@@ -348,7 +353,7 @@ export const Gabon4ePythagoreIllustration: React.FC<{ isRoot?: boolean }> = ({ i
           : '📐 Pythagore : Les 3 Carrés du Charpentier'}
       </span>
       <span className="text-[11px] text-emerald-300 font-bold">
-        {isRoot ? 'Carrés Parfaits 4ème' : 'Triangle Rectangle (90°)'}
+        {isRoot ? 'Carrés Parfaits' : 'Triangle Rectangle (90°)'}
       </span>
     </div>
     <div className="flex justify-center">
@@ -474,7 +479,7 @@ export const Gabon4eStatsVitesseVolumesIllustration: React.FC<{ topic: 'volumes'
         {topic === 'probas' && '🎲 Probabilités : 0 ≤ P(A) ≤ 1 et Événement Contraire'}
         {topic === 'proportionnalite' && '🛍️ Proportionnalité : Droite par (0;0) & Remises F CFA'}
       </span>
-      <span className="text-[11px] text-amber-300 font-bold">Programme 4ème Gabon</span>
+      <span className="text-[11px] text-amber-300 font-bold">Programme Gabon</span>
     </div>
     <div className="flex justify-center">
       <svg viewBox="0 0 420 170" className="w-full max-w-lg h-auto select-none">
@@ -531,7 +536,7 @@ export const Gabon4eStatsVitesseVolumesIllustration: React.FC<{ topic: 'volumes'
             <circle cx="365" cy="85" r="10" fill="#10b981" />
             <text x="365" y="115" textAnchor="middle" className="text-xs font-black fill-emerald-300">P = 1 (Certain)</text>
             <text x="210" y="45" textAnchor="middle" className="text-xs font-black fill-sky-300 font-mono">
-              P(A) + P(non A) = 1   ➔   P(Ā) = 1 − P(A)
+              P(A) + P(non A) = 1   →   P(Ā) = 1 − P(A)
             </text>
           </>
         )}
@@ -579,7 +584,7 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{
         {topic === 'fonctions' && '📈 Machine à Fonction : Courbe, Image f(x) et Antécédent x'}
         {topic === 'arithmetique' && '🔢 Nombres Premiers (2, 3, 5, 7, 11…) & Arbre de Facteurs'}
       </span>
-      <span className="text-[11px] text-amber-300 font-bold">CIAM 4ème</span>
+      <span className="text-[11px] text-amber-300 font-bold">Programme Gabon</span>
     </div>
     <div className="flex justify-center">
       <svg viewBox="0 0 430 175" className="w-full max-w-lg h-auto select-none">
@@ -598,7 +603,7 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{
             <rect x="235" y="34" width="175" height="104" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
             <text x="322" y="64" textAnchor="middle" className="text-xs font-black fill-amber-300">AÔB = 2 × AMB</text>
             <text x="322" y="92" textAnchor="middle" className="text-xs font-black fill-emerald-300">Tangente ⊥ Rayon</text>
-            <text x="322" y="118" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Demi-cercle ➔ 90°</text>
+            <text x="322" y="118" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Demi-cercle → 90°</text>
           </>
         )}
 
@@ -668,8 +673,8 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{
             <text x="218" y="158" textAnchor="middle" className="text-[10px] font-bold fill-purple-300">Zoom × k</text>
             <rect x="275" y="34" width="140" height="106" rx="12" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
             <text x="345" y="60" textAnchor="middle" className="text-[10px] font-black fill-amber-300">RAPPORT k :</text>
-            <text x="345" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">|k| &gt; 1 ➔ Agrandit</text>
-            <text x="345" y="104" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">|k| &lt; 1 ➔ Réduit</text>
+            <text x="345" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">|k| &gt; 1 → Agrandit</text>
+            <text x="345" y="104" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">|k| &lt; 1 → Réduit</text>
             <text x="345" y="126" textAnchor="middle" className="text-[10px] font-bold fill-amber-200">Aires × k² !</text>
           </>
         )}
@@ -706,10 +711,10 @@ export const Gabon4eGeoFunctionsIllustration: React.FC<{
             <rect x="120" y="132" width="10" height="10" fill="none" stroke="#10b981" strokeWidth="1.5" />
             <rect x="225" y="24" width="192" height="128" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
             <text x="321" y="48" textAnchor="middle" className="text-[10px] font-black fill-amber-300">LES 4 POINTS DE CONCOURS</text>
-            <text x="238" y="72" className="text-[10px] font-bold fill-sky-300">• Médiatrices ➔ Cercle Circonscrit</text>
-            <text x="238" y="92" className="text-[10px] font-bold fill-emerald-300">• Bissectrices ➔ Cercle Inscrit</text>
-            <text x="238" y="112" className="text-[10px] font-bold fill-amber-300">• Médianes ➔ Gravité G (aux 2/3)</text>
-            <text x="238" y="132" className="text-[10px] font-bold fill-rose-300">• Hauteurs ➔ Orthocentre H</text>
+            <text x="238" y="72" className="text-[10px] font-bold fill-sky-300">• Médiatrices → Cercle Circonscrit</text>
+            <text x="238" y="92" className="text-[10px] font-bold fill-emerald-300">• Bissectrices → Cercle Inscrit</text>
+            <text x="238" y="112" className="text-[10px] font-bold fill-amber-300">• Médianes → Gravité G (aux 2/3)</text>
+            <text x="238" y="132" className="text-[10px] font-bold fill-rose-300">• Hauteurs → Orthocentre H</text>
           </>
         )}
 
@@ -767,7 +772,7 @@ export const Gabon3eExtrasIllustration: React.FC<{
         {topic === 'angles-polygones' && '⭕ Angles Inscrits, Quadrilatères Inscriptibles & Polygones Réguliers'}
         {topic === 'sections-solides' && '🔺 Sections Planes, Facteurs (k, k², k³) & Tronc de Cône/Pyramide'}
       </span>
-      <span className="text-[11px] text-amber-300 font-bold">CIAM 3ème BEPC</span>
+      <span className="text-[11px] text-amber-300 font-bold">Programme Gabon</span>
     </div>
     <div className="flex justify-center bg-slate-950/85 rounded-2xl border border-slate-800 p-3">
       <svg viewBox="0 0 430 175" className="w-full max-w-lg h-auto select-none">
@@ -780,7 +785,7 @@ export const Gabon3eExtrasIllustration: React.FC<{
             <circle cx="128" cy="82" r="6" fill="#fbbf24" />
             <text x="140" y="78" className="text-xs font-black fill-amber-300">Solution (x₀ ; y₀)</text>
             <rect x="235" y="28" width="180" height="118" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-            <text x="325" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">2 MÉTHODES BEPC</text>
+            <text x="325" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">2 MÉTHODES D’EXPERT</text>
             <text x="325" y="82" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">1. Substitution (isoler x ou y)</text>
             <text x="325" y="106" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">2. Combinaison (éliminer)</text>
             <text x="325" y="130" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Couple S = &#123;(x ; y)&#125;</text>
@@ -794,19 +799,19 @@ export const Gabon3eExtrasIllustration: React.FC<{
             <circle cx="215" cy="135" r="4" fill="#10b981" />
             <line x1="55" y1="135" x2="140" y2="50" stroke="#38bdf8" strokeWidth="3" />
             <polygon points="145,45 132,50 140,58" fill="#38bdf8" />
-            <text x="86" y="80" className="text-xs font-black fill-sky-300">AB⃗</text>
+            <text x="86" y="80" className="text-xs font-black fill-sky-300"><SvgMathTspans text="AB⃗" baseFontSize={12} /></text>
             <line x1="145" y1="45" x2="210" y2="129" stroke="#fbbf24" strokeWidth="3" />
             <polygon points="215,135 212,121 203,128" fill="#fbbf24" />
-            <text x="190" y="80" className="text-xs font-black fill-amber-300">BC⃗</text>
+            <text x="190" y="80" className="text-xs font-black fill-amber-300"><SvgMathTspans text="BC⃗" baseFontSize={12} /></text>
             <line x1="55" y1="135" x2="207" y2="135" stroke="#10b981" strokeWidth="3.5" strokeDasharray="5 3" />
             <polygon points="215,135 203,129 203,141" fill="#10b981" />
-            <text x="135" y="156" textAnchor="middle" className="text-xs font-black fill-emerald-300">AC⃗ = AB⃗ + BC⃗</text>
+            <text x="135" y="156" textAnchor="middle" className="text-xs font-black fill-emerald-300"><SvgMathTspans text="AC⃗ = AB⃗ + BC⃗" baseFontSize={12} /></text>
 
             <rect x="240" y="28" width="175" height="118" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
             <text x="327" y="54" textAnchor="middle" className="text-[11px] font-black fill-amber-300">LOIS VECTORIELLES</text>
-            <text x="327" y="80" textAnchor="middle" className="text-xs font-mono font-bold fill-white">AB⃗ + BC⃗ = AC⃗</text>
-            <text x="327" y="104" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">AB⃗ = DC⃗ ⇔ ABCD paral.</text>
-            <text x="327" y="128" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">I milieu [AB] ⇔ IA⃗+IB⃗=0⃗</text>
+            <text x="327" y="80" textAnchor="middle" className="text-xs font-mono font-bold fill-white"><SvgMathTspans text="AB⃗ + BC⃗ = AC⃗" baseFontSize={12} /></text>
+            <text x="327" y="104" textAnchor="middle" className="text-[10px] font-bold fill-sky-300"><SvgMathTspans text="AB⃗ = DC⃗ ⇔ ABCD paral." baseFontSize={10} /></text>
+            <text x="327" y="128" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300"><SvgMathTspans text="I milieu [AB] ⇔ IA⃗+IB⃗=0⃗" baseFontSize={10} /></text>
           </>
         )}
 
@@ -841,7 +846,7 @@ export const Gabon3eExtrasIllustration: React.FC<{
             <text x="320" y="78" textAnchor="middle" className="text-[10px] font-bold fill-white">Longueurs × k</text>
             <text x="320" y="100" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Aires (sections) × k²</text>
             <text x="320" y="122" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">Volumes × k³</text>
-            <text x="320" y="142" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">k = 1/2 ➔ Volume ÷ 8 !</text>
+            <text x="320" y="142" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">k = 1/2 → Volume ÷ 8 !</text>
           </>
         )}
       </svg>

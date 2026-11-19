@@ -7,6 +7,7 @@ import { DemonstrationMethodFigure } from './illustrations/PedagogicalFigures';
 import { ChapterThreeExperiencesPanel } from './ChapterThreeExperiencesPanel';
 import { PHYSICS_TC_EXPERIENCE_META } from './PhysicsTcExperiences';
 import { scrollToSectionById } from '../utils/uiFeedback';
+import { FormattedMathText } from './FormattedMathText';
 
 const PHYSICS_TC_CHAPTER_META: Record<string, { emoji: string; shortTitle: string }> = {
   'physTc-cinematique': { emoji: '🚀', shortTitle: 'Cinématique & Frenet' },
@@ -144,7 +145,7 @@ export const PhysicsVisualizers: React.FC = () => {
                   <span className="text-base">{meta.emoji}</span>
                 </div>
                 <div className="text-xs font-bold truncate mt-1 text-slate-100">
-                  {meta.shortTitle}
+                  <FormattedMathText text={meta.shortTitle} />
                 </div>
                 <div className="text-[10px] text-sky-300/80 mt-0.5 truncate">
                   10 expériences SVG
@@ -164,13 +165,13 @@ export const PhysicsVisualizers: React.FC = () => {
               <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
                 {currentChapter.badge} · 10 Expériences &amp; Schémas Interactifs
               </div>
-              <h3 className="text-sm sm:text-base font-black text-white">{currentChapter.title}</h3>
+              <h3 className="text-sm sm:text-base font-black text-white"><FormattedMathText text={currentChapter.title} /></h3>
             </div>
           </div>
           <span className="text-[11px] font-bold text-sky-300 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>
-              {currentExpInfo ? `${currentExpInfo.shortTitles.slice(0, 3).join(' · ')}… (+${Math.max(0, currentExpInfo.shortTitles.length - 3)})` : '10 expériences'}
+              {currentExpInfo ? <FormattedMathText text={`${currentExpInfo.shortTitles.slice(0, 3).join(' · ')}… (+${Math.max(0, currentExpInfo.shortTitles.length - 3)})`} /> : '10 expériences'}
             </span>
           </span>
         </div>
@@ -197,12 +198,12 @@ export const PhysicsVisualizers: React.FC = () => {
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-amber-400" />
               <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
-                Fiche Mémo Rapide : {currentChapter.title}
+                Fiche Mémo Rapide : <FormattedMathText text={currentChapter.title} />
               </h3>
             </div>
             <span className="text-[11px] font-mono text-emerald-400 font-bold">Formules Debout</span>
           </div>
-          <p className="text-xs text-slate-300 font-medium">💡 {currentChapter.memoSheet.slogan}</p>
+          <p className="text-xs text-slate-300 font-medium">💡 <FormattedMathText text={currentChapter.memoSheet.slogan} /></p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {currentChapter.memoSheet.verticalFormulas.slice(0, 3).map((vf, i) => (
               <StandingMathRenderer

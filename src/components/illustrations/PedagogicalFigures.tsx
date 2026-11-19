@@ -2,6 +2,7 @@ import React from 'react';
 import { Chapter, ChapterIllustrationKey, PhysicsIllustrationKey, SubjectId } from '../../types/math';
 import { TerminaleCPhysicsDrawing } from './TerminaleCPhysicsDrawings';
 import { TerminaleCMathDrawing } from './TerminaleCMathDrawings';
+import { FormattedMathText, SvgMathTspans } from '../FormattedMathText';
 
 interface DemonstrationMethodFigureProps {
   chapterId?: string;
@@ -363,7 +364,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="195" y="16" width="174" height="94" rx="10" fill="#0f172a" stroke="#f43f5e" strokeWidth="1.5" />
           <text x="282" y="38" textAnchor="middle" className="text-[10px] font-black fill-rose-300">PIÈGE DU SIGNE NÉGATIF</text>
           <text x="282" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">−2x ≤ 8  (÷ −2 &lt; 0)</text>
-          <text x="282" y="80" textAnchor="middle" className="text-[11px] font-mono font-black fill-amber-300">➔ x ≥ −4 (SENS INVERSÉ !)</text>
+          <text x="282" y="80" textAnchor="middle" className="text-[11px] font-mono font-black fill-amber-300">→ x ≥ −4 (SENS INVERSÉ !)</text>
           <text x="282" y="99" textAnchor="middle" className="text-[9px] font-bold fill-slate-300">Hachurer la partie gardée sur la droite</text>
         </svg>
       );
@@ -467,7 +468,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <text x="72" y="94" textAnchor="end" className="text-xs font-mono font-bold fill-slate-300">5</text>
           <text x="98" y="94" className="text-xs font-mono font-black fill-emerald-300">5</text>
           <rect x="160" y="18" width="208" height="86" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
-          <text x="264" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">FACTORS PREMIERS & PGCD</text>
+          <text x="264" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">FACTEURS PREMIERS &amp; PGCD</text>
           <text x="264" y="62" textAnchor="middle" className="text-xs font-mono font-black fill-white">60 = 2² × 3 × 5</text>
           <text x="264" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Diviser num. et dén. par le PGCD</text>
         </svg>
@@ -488,7 +489,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="190" y="18" width="178" height="84" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
           <text x="279" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">PRODUIT EN CROIX & %</text>
           <text x="279" y="62" textAnchor="middle" className="text-xs font-mono font-bold fill-white">x = (b × c) ÷ a</text>
-          <text x="279" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Remise p% ➔ Multiplier par (1 − p/100)</text>
+          <text x="279" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Remise p% → Multiplier par (1 − p/100)</text>
         </svg>
       );
 
@@ -504,7 +505,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="180" y="18" width="188" height="90" rx="10" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
           <text x="274" y="40" textAnchor="middle" className="text-[10px] font-black fill-sky-300">LES 3 FORMULES DE VITESSE</text>
           <text x="274" y="60" textAnchor="middle" className="text-[11px] font-mono fill-white">v = d ÷ t  |  d = v × t  |  t = d ÷ v</text>
-          <text x="274" y="82" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">Conversion : h min ➔ décimal (min÷60)</text>
+          <text x="274" y="82" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">Conversion : h min → décimal (min÷60)</text>
           <text x="274" y="98" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">1 m/s = 3,6 km/h</text>
         </svg>
       );
@@ -741,8 +742,8 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <text x="86" y="15" textAnchor="middle" className="text-[9px] font-black fill-emerald-300">V</text>
           <rect x="190" y="18" width="178" height="84" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
           <text x="279" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">LOI DES TENSIONS (Volt)</text>
-          <text x="279" y="62" textAnchor="middle" className="text-[10px] font-mono fill-white">Série : U_G = U₁ + U₂</text>
-          <text x="279" y="84" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Dériv. : U_G = U₁ = U₂</text>
+          <text x="279" y="62" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="Série : U_G = U₁ + U₂" baseFontSize={10} /></text>
+          <text x="279" y="84" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="Dériv. : U_G = U₁ = U₂" baseFontSize={10} /></text>
         </svg>
       );
 
@@ -758,7 +759,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="175" y="18" width="192" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
           <text x="271" y="40" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">LOI D’OHM (I EN AMPÈRES !)</text>
           <text x="271" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">U = R×I  |  R = U÷I  |  I = U÷R</text>
-          <text x="271" y="84" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">Si I en mA ➔ diviser par 1 000 !</text>
+          <text x="271" y="84" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">Si I en mA → diviser par 1 000 !</text>
         </svg>
       );
 
@@ -800,8 +801,8 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <circle cx="105" cy="60" r="16" fill="#0284c7" />
           <rect x="192" y="18" width="176" height="84" rx="10" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
           <text x="280" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ALIGNEMENT DES ASTRES</text>
-          <text x="280" y="62" textAnchor="middle" className="text-[10px] font-bold fill-white">S — L — T ➔ Éclipse de Soleil</text>
-          <text x="280" y="82" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">S — T — L ➔ Éclipse de Lune</text>
+          <text x="280" y="62" textAnchor="middle" className="text-[10px] font-bold fill-white">S — L — T → Éclipse de Soleil</text>
+          <text x="280" y="82" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">S — T — L → Éclipse de Lune</text>
         </svg>
       );
 
@@ -865,7 +866,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="175" y="18" width="192" height="84" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
           <text x="271" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">FLOTTER OU COULER (EAU = 1 g/cm³)</text>
           <text x="271" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">ρ = m ÷ V  |  m = ρ × V</text>
-          <text x="271" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Si ρ &lt; 1 g/cm³ ➔ FLOTTE (Okoumé !)</text>
+          <text x="271" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Si ρ &lt; 1 g/cm³ → FLOTTE (Okoumé !)</text>
         </svg>
       );
 
@@ -907,12 +908,12 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <line x1="90" y1="54" x2="90" y2="26" stroke="#10b981" strokeWidth="3" />
           <polygon points="90,20 85,29 95,29" fill="#10b981" />
           <line x1="90" y1="78" x2="90" y2="104" stroke="#f43f5e" strokeWidth="3" />
-          <text x="100" y="34" className="text-[10px] font-black fill-emerald-300">F_A ↑</text>
+          <text x="100" y="34" className="text-[10px] font-black fill-emerald-300"><SvgMathTspans text="F_A ↑" baseFontSize={10} /></text>
           <text x="100" y="96" className="text-[10px] font-black fill-rose-300">P ↓</text>
           <rect x="165" y="18" width="202" height="84" rx="10" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-          <text x="266" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">PRESSION & ARCHIMÈDE</text>
-          <text x="266" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">p = F ÷ S (Pa)  |  F_A = P − P’</text>
-          <text x="266" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">F_A = ρ_liquide × V_imm × g</text>
+          <text x="266" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">PRESSION &amp; ARCHIMÈDE</text>
+          <text x="266" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white"><SvgMathTspans text="p = F ÷ S (Pa)  |  F_A = P − P’" baseFontSize={11} /></text>
+          <text x="266" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300"><SvgMathTspans text="F_A = ρ_liquide × V_imm × g" baseFontSize={10} /></text>
         </svg>
       );
 
@@ -956,8 +957,8 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <text x="88" y="90" textAnchor="middle" className="text-[10px] font-black fill-amber-300">DU FEU</text>
           <rect x="160" y="18" width="208" height="84" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
           <text x="264" y="38" textAnchor="middle" className="text-[10px] font-black fill-sky-300">BLEUE (Complète) vs JAUNE (Incomplète)</text>
-          <text x="264" y="60" textAnchor="middle" className="text-[10px] font-bold fill-white">Complète (+O₂) ➔ CO₂ + H₂O</text>
-          <text x="264" y="82" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Incomplète (−O₂) ➔ Suie C + CO (mortel)</text>
+          <text x="264" y="60" textAnchor="middle" className="text-[10px] font-bold fill-white">Complète (+O₂) → CO₂ + H₂O</text>
+          <text x="264" y="82" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Incomplète (−O₂) → Suie C + CO (mortel)</text>
         </svg>
       );
 
@@ -966,7 +967,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
         <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
           <rect x="20" y="18" width="340" height="84" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
           <text x="190" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">LOI DE LAVOISIER : RIEN NE SE PERD, RIEN NE SE CRÉE</text>
-          <text x="190" y="64" textAnchor="middle" className="text-xs font-mono font-black fill-white">CH₄ + 2 O₂   ➔   CO₂ + 2 H₂O</text>
+          <text x="190" y="64" textAnchor="middle" className="text-xs font-mono font-black fill-white">CH₄ + 2 O₂   →   CO₂ + 2 H₂O</text>
           <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Même nombre d’atomes et même masse des 2 côtés !</text>
         </svg>
       );
@@ -986,7 +987,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <text x="190" y="54" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">7 Neutre</text>
           <text x="352" y="54" textAnchor="end" className="text-[10px] font-black fill-indigo-300">14 Basique (&gt;7)</text>
           <rect x="25" y="66" width="330" height="38" rx="8" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-          <text x="190" y="89" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">Cm = m_soluté ÷ V_solution (g/L) · Diluer rapproche de 7</text>
+          <text x="190" y="89" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white"><SvgMathTspans text="Cm = m_soluté ÷ V_solution (g/L) · Diluer rapproche de 7" baseFontSize={11} /></text>
         </svg>
       );
 
@@ -1001,7 +1002,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <text x="95" y="102" className="text-[10px] font-black fill-rose-300">P ↓</text>
           <rect x="165" y="16" width="195" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
           <text x="262" y="40" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ÉQUILIBRE &amp; ARCHIMÈDE</text>
-          <text x="262" y="62" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">P⃗ + T⃗ = 0⃗  ⇔  P = T</text>
+          <text x="262" y="62" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white"><SvgMathTspans text="P⃗ + T⃗ = 0⃗  ⇔  P = T" baseFontSize={10} /></text>
           <text x="262" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Pa = P − P’ = ρ·V·g</text>
         </svg>
       );
@@ -1013,10 +1014,10 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="35" y="54" width="38" height="32" rx="4" fill="#38bdf8" fillOpacity="0.35" stroke="#38bdf8" />
           <line x1="73" y1="70" x2="140" y2="70" stroke="#fbbf24" strokeWidth="3" />
           <polygon points="145,70 135,64 135,76" fill="#fbbf24" />
-          <text x="108" y="62" textAnchor="middle" className="text-[10px] font-black fill-amber-300">F⃗ sur d</text>
+          <text x="108" y="62" textAnchor="middle" className="text-[10px] font-black fill-amber-300"><SvgMathTspans text="F⃗ sur d" baseFontSize={10} /></text>
           <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
           <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">TRAVAIL &amp; PUISSANCE</text>
-          <text x="265" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">W = F × d (J) | W_p = m·g·h</text>
+          <text x="265" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white"><SvgMathTspans text="W = F × d (J) | W_p = m·g·h" baseFontSize={10} /></text>
           <text x="265" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">P = W ÷ t = F × v (W)</text>
         </svg>
       );
@@ -1058,7 +1059,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
           <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">TRANSFO · DIODE · NPN</text>
           <text x="265" y="60" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">Us / Up = Ns / Np (AC)</text>
-          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-purple-300">Diode A➔K · Ic = β × Ib</text>
+          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-purple-300">Diode A→K · Ic = β × Ib</text>
         </svg>
       );
 
@@ -1080,8 +1081,8 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
         <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
           <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
           <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">MÉTAUX (Fe, Cu, Al, Zn) &amp; OXYDATIONS</text>
-          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-rose-300">Rouille : 4 Fe + 3 O₂ ➔ 2 Fe₂O₃</text>
-          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Aluminothermie : Fe₂O₃ + 2 Al ➔ 2 Fe + Al₂O₃</text>
+          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-rose-300">Rouille : 4 Fe + 3 O₂ → 2 Fe₂O₃</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Aluminothermie : Fe₂O₃ + 2 Al → 2 Fe + Al₂O₃</text>
         </svg>
       );
 
@@ -1091,7 +1092,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
           <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">TESTS CARACTÉRISTIQUES DES IONS</text>
           <text x="190" y="62" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">NaOH : Cu²⁺ (Bleu) · Fe²⁺ (Vert) · Fe³⁺ (Rouille)</text>
-          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">AgNO₃ : Cl⁻ ➔ Précipité blanc noircissant</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">AgNO₃ : Cl⁻ → Précipité blanc noircissant</text>
         </svg>
       );
 
@@ -1100,8 +1101,8 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
         <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
           <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
           <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">ACIDES (pH &lt; 7) · BASES (pH &gt; 7) · DOSAGE</text>
-          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">H⁺ + OH⁻ ➔ H₂O  |  Ca·Va = Cb·Vb</text>
-          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Dilution rapproche toujours pH de 7 · Zn + 2H⁺ ➔ Zn²⁺ + H₂↑</text>
+          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">H⁺ + OH⁻ → H₂O  |  Ca·Va = Cb·Vb</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">Dilution rapproche toujours pH de 7 · Zn + 2H⁺ → Zn²⁺ + H₂↑</text>
         </svg>
       );
 
@@ -1110,8 +1111,8 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
         <svg viewBox="0 0 380 120" className="w-full h-auto max-h-32">
           <rect x="22" y="16" width="336" height="88" rx="10" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
           <text x="190" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">HYDROCARBURES (SOGARA) : ALCANES CₙH₂ₙ₊₂</text>
-          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">C₃H₈ + 5 O₂ ➔ 3 CO₂ + 4 H₂O (Flamme bleue)</text>
-          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Flamme jaune = Manque O₂ ➔ Monoxyde CO (toxique)</text>
+          <text x="190" y="62" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">C₃H₈ + 5 O₂ → 3 CO₂ + 4 H₂O (Flamme bleue)</text>
+          <text x="190" y="86" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Flamme jaune = Manque O₂ → Monoxyde CO (toxique)</text>
         </svg>
       );
 
@@ -1135,13 +1136,13 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <line x1="30" y1="92" x2="90" y2="30" stroke="#38bdf8" strokeWidth="2.5" />
           <line x1="90" y1="30" x2="145" y2="92" stroke="#fbbf24" strokeWidth="2.5" />
           <line x1="30" y1="92" x2="145" y2="92" stroke="#10b981" strokeWidth="3" strokeDasharray="4 3" />
-          <text x="50" y="54" className="text-[10px] font-black fill-sky-300">AB⃗</text>
-          <text x="122" y="54" className="text-[10px] font-black fill-amber-300">BC⃗</text>
-          <text x="88" y="108" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">AC⃗ = AB⃗ + BC⃗</text>
+          <text x="50" y="54" className="text-[10px] font-black fill-sky-300"><SvgMathTspans text="AB⃗" baseFontSize={10} /></text>
+          <text x="122" y="54" className="text-[10px] font-black fill-amber-300"><SvgMathTspans text="BC⃗" baseFontSize={10} /></text>
+          <text x="88" y="108" textAnchor="middle" className="text-[10px] font-black fill-emerald-300"><SvgMathTspans text="AC⃗ = AB⃗ + BC⃗" baseFontSize={10} /></text>
           <rect x="168" y="16" width="194" height="88" rx="10" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
           <text x="265" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">CHASLES &amp; PARALLÉLOGRAMME</text>
-          <text x="265" y="62" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white">AB⃗ + BC⃗ = AC⃗</text>
-          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">AB⃗ = DC⃗ ⇔ ABCD parallélogramme</text>
+          <text x="265" y="62" textAnchor="middle" className="text-[10px] font-mono font-bold fill-white"><SvgMathTspans text="AB⃗ + BC⃗ = AC⃗" baseFontSize={10} /></text>
+          <text x="265" y="84" textAnchor="middle" className="text-[10px] font-bold fill-sky-300"><SvgMathTspans text="AB⃗ = DC⃗ ⇔ ABCD parallélogramme" baseFontSize={10} /></text>
         </svg>
       );
 
@@ -1165,7 +1166,7 @@ const TopicSvgBody: React.FC<{ topic: FigureTopic; contextHint?: string }> = ({
           <rect x="155" y="16" width="208" height="88" rx="10" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
           <text x="259" y="38" textAnchor="middle" className="text-[10px] font-black fill-amber-300">SECTIONS &amp; TRONC (k, k², k³)</text>
           <text x="259" y="60" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Aire’ = k²·Aire | Volume’ = k³·Volume</text>
-          <text x="259" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300">V_tronc = V_grand − V_petit</text>
+          <text x="259" y="84" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300"><SvgMathTspans text="V_tronc = V_grand − V_petit" baseFontSize={10} /></text>
         </svg>
       );
   }
@@ -1258,7 +1259,7 @@ export const DemonstrationMethodFigure: React.FC<DemonstrationMethodFigureProps>
         <span className="text-sky-300 uppercase tracking-wider">
           Figure explicative de la démonstration & des formules
         </span>
-        <span className="text-slate-400 font-medium">{caption}</span>
+        <span className="text-slate-400 font-medium"><FormattedMathText text={caption} /></span>
       </div>
       <div className="flex justify-center">
         <TopicSvgBody topic={topic} contextHint={contextHint} />
@@ -1276,7 +1277,7 @@ export const FormulaVisualSchema: React.FC<{
     return (
       <div className="space-y-1.5">
         <div className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider">
-          Schéma explicatif du cours{ruleName ? ` · ${ruleName}` : ''}
+          Schéma explicatif du cours{ruleName ? <> · <FormattedMathText text={ruleName} /></> : ''}
         </div>
         {isTcPhysicsKey(tcKey) ? (
           <TerminaleCPhysicsDrawing illustrationKey={tcKey as PhysicsIllustrationKey} />
@@ -1291,7 +1292,7 @@ export const FormulaVisualSchema: React.FC<{
   return (
     <div className="rounded-2xl bg-slate-950/90 border border-slate-800 p-3 space-y-1.5">
       <div className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider">
-        Figure associée{ruleName ? ` · ${ruleName}` : ''}
+        Figure associée{ruleName ? <> · <FormattedMathText text={ruleName} /></> : ''}
       </div>
       <TopicSvgBody topic={topic} contextHint={ruleName} />
     </div>
@@ -1330,7 +1331,7 @@ export const ExerciseVisualFigure: React.FC<{
         <span className="font-extrabold text-sky-300 uppercase tracking-wider">
           📐 Schéma & Figure d’appui pour résoudre l’exercice
         </span>
-        <span className="text-slate-400 font-medium">{caption}</span>
+        <span className="text-slate-400 font-medium"><FormattedMathText text={caption} /></span>
       </div>
       <TopicSvgBody topic={topic} contextHint={`${title} ${prompt}`} />
     </div>

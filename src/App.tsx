@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Atom,
   Calculator,
@@ -10,6 +10,8 @@ import {
   Award,
   Calendar,
   ScrollText,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { MathHeader, MainViewTab } from './components/MathHeader';
 import { ChapterListSelector } from './components/ChapterListSelector';
@@ -26,10 +28,12 @@ import { DomainId, SubjectId } from './types/math';
 import { useLearningProgress } from './hooks/useLearningProgress';
 import { useCustomExercises } from './hooks/useCustomExercises';
 import {
+  getUiSoundVolume,
   isUiSoundEnabled,
   playUiClickSound,
   scrollToSectionById,
   setUiSoundEnabled,
+  setUiSoundVolume,
 } from './utils/uiFeedback';
 
 import heroPhysicsImg from './assets/images/hero_physique_tlec_gabon_1794934644736.jpg';
@@ -40,6 +44,7 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<MainViewTab>('cours');
   const [selectedDomain, setSelectedDomain] = useState<DomainId | 'all'>('all');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => isUiSoundEnabled());
+  const [soundVolume, setSoundVolume] = useState<number>(() => getUiSoundVolume());
 
   const [selectedChapterIds, setSelectedChapterIds] = useState<Record<SubjectId, string>>({
     physique: PHYSICS_TC_CHAPTERS[0].id,
@@ -57,10 +62,18 @@ export default function App() {
     physique: false,
     maths: false,
   });
+  const [zoomScale, setZoomScale] = useState<number>(1);
+  const touchStartRef = useRef<{ x: number; y: number; time: number; multi: boolean } | null>(null);
+  const lastTapRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const lastTouchZoomAtRef = useRef<number>(0);
 
   const { checkedState, totalXp, recordExerciseAttempt, resetProgress } = useLearningProgress();
   const {
     customExercises,
+    storageBackend,
+    lastShareImportCount,
+    dismissShareBanner,
+    buildShareUrl,
     addCustomExercise,
     updateCustomExercise,
     deleteCustomExercise,
@@ -111,7 +124,24 @@ export default function App() {
     const next = !soundEnabled;
     setSoundEnabled(next);
     setUiSoundEnabled(next);
+    if (next && soundVolume <= 0.01) {
+      const restoredVol = 0.35;
+      setSoundVolume(restoredVol);
+      setUiSoundVolume(restoredVol);
+    }
     if (next) {
+      playUiClickSound('step');
+    }
+  };
+
+  const handleChangeSoundVolume = (nextVolume: number) => {
+    const clamped = Math.max(0, Math.min(1, nextVolume));
+    setSoundVolume(clamped);
+    setUiSoundVolume(clamped);
+    const shouldEnable = clamped > 0.005;
+    setSoundEnabled(shouldEnable);
+    setUiSoundEnabled(shouldEnable);
+    if (shouldEnable) {
       playUiClickSound('step');
     }
   };
@@ -175,11 +205,99 @@ export default function App() {
 
   const currentHeroImg = activeSubject === 'physique' ? heroPhysicsImg : heroMathsImg;
 
+  const isZoomIgnoredTarget = (target: HTMLElement | null) => {
+    if (!target) return false;
+    return Boolean(
+      target.closest(
+        'button, a, input, textarea, select, option, label, [role="button"], [role="slider"], [contenteditable="true"], [data-no-dblzoom="true"]'
+      )
+    );
+  };
+
+  const applyZoomLevel = (nextZoom: number, focalX?: number, focalY?: number) => {
+    const clamped = Math.round(Math.max(1, Math.min(2.5, nextZoom)) * 100) / 100;
+    const prevZoom = zoomScale;
+    setZoomScale(clamped);
+
+    if (typeof window !== 'undefined' && focalX !== undefined && focalY !== undefined) {
+      const ratio = clamped / prevZoom;
+      const targetLeft = Math.max(0, (window.scrollX + focalX) * ratio - window.innerWidth / 2);
+      const targetTop = Math.max(0, (window.scrollY + focalY) * ratio - window.innerHeight / 2);
+      window.requestAnimationFrame(() => {
+        window.scrollTo({
+          left: clamped === 1 ? 0 : targetLeft,
+          top: targetTop,
+          behavior: 'smooth',
+        });
+      });
+    }
+  };
+
+  const toggleDoubleZoomAt = (clientX: number, clientY: number) => {
+    const nextZoom = zoomScale > 1.05 ? 1 : 1.75;
+    applyZoomLevel(nextZoom, clientX, clientY);
+  };
+
+  const handleSurfaceDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (Date.now() - lastTouchZoomAtRef.current < 500) return;
+    if (isZoomIgnoredTarget(e.target as HTMLElement | null)) return;
+    toggleDoubleZoomAt(e.clientX, e.clientY);
+  };
+
+  const handleSurfaceTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length !== 1) {
+      touchStartRef.current = { x: 0, y: 0, time: Date.now(), multi: true };
+      lastTapRef.current = null;
+      return;
+    }
+    const t = e.touches[0];
+    touchStartRef.current = { x: t.clientX, y: t.clientY, time: Date.now(), multi: false };
+  };
+
+  const handleSurfaceTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current;
+    if (!start || start.multi || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 16) {
+      touchStartRef.current = null;
+    }
+  };
+
+  const handleSurfaceTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start || start.multi || e.changedTouches.length !== 1) return;
+    const target = e.target as HTMLElement | null;
+    if (isZoomIgnoredTarget(target)) {
+      lastTapRef.current = null;
+      return;
+    }
+    const t = e.changedTouches[0];
+    if (Math.hypot(t.clientX - start.x, t.clientY - start.y) > 16) return;
+
+    const now = Date.now();
+    const prev = lastTapRef.current;
+    if (prev && now - prev.time <= 320 && Math.hypot(t.clientX - prev.x, t.clientY - prev.y) <= 34) {
+      lastTapRef.current = null;
+      lastTouchZoomAtRef.current = now;
+      toggleDoubleZoomAt(t.clientX, t.clientY);
+    } else {
+      lastTapRef.current = { x: t.clientX, y: t.clientY, time: now };
+    }
+  };
+
   return (
-    <div
-      onClickCapture={handleRootClickCapture}
-      className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased"
-    >
+    <div className="min-h-screen bg-slate-950 text-slate-100 antialiased">
+      <div
+        id="app-zoom-surface"
+        onClickCapture={handleRootClickCapture}
+        onDoubleClick={handleSurfaceDoubleClick}
+        onTouchStart={handleSurfaceTouchStart}
+        onTouchMove={handleSurfaceTouchMove}
+        onTouchEnd={handleSurfaceTouchEnd}
+        style={zoomScale !== 1 ? ({ zoom: zoomScale } as React.CSSProperties) : undefined}
+        className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased"
+      >
       <MathHeader
         currentTab={currentTab}
         onChangeTab={(tab) => {
@@ -193,11 +311,36 @@ export default function App() {
         activeSubject={activeSubject}
         customExercisesCount={customExercises.length}
         soundEnabled={soundEnabled}
+        soundVolume={soundVolume}
         onToggleSound={handleToggleSound}
+        onChangeSoundVolume={handleChangeSoundVolume}
       />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
-        {/* Workspace 3ème BEPC Subject Switcher + Progress Telemetry Bar */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5 sm:space-y-6">
+        {lastShareImportCount > 0 && currentTab !== 'custom' && (
+          <div className="rounded-2xl bg-sky-950/70 border border-sky-500/45 p-3.5 flex flex-wrap items-center justify-between gap-2 text-xs text-sky-100 shadow-lg">
+            <span>
+              🎉 <strong>{lastShareImportCount} exercice(s) partagé(s)</strong> ont été automatiquement sauvegardés dans « Mes Exercices » !
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleOpenCustomLibrary}
+                className="px-3 py-1.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-black cursor-pointer"
+              >
+                Ouvrir Mes Exercices
+              </button>
+              <button
+                type="button"
+                onClick={dismissShareBanner}
+                className="px-2.5 py-1.5 rounded-xl bg-slate-900 text-slate-300 hover:text-white cursor-pointer"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Workspace Terminale Série C Subject Switcher + Progress Telemetry Bar */}
         <section className="rounded-3xl bg-slate-900 border border-slate-800 p-4 sm:p-5 shadow-xl">
           <div className="grid lg:grid-cols-12 gap-5 items-center">
             <div className="lg:col-span-7 space-y-3">
@@ -417,6 +560,10 @@ export default function App() {
               onUpdateExercise={updateCustomExercise}
               onDeleteExercise={deleteCustomExercise}
               onImportExercises={importCustomExercises}
+              storageBackend={storageBackend}
+              buildShareUrl={buildShareUrl}
+              lastShareImportCount={lastShareImportCount}
+              onDismissShareBanner={dismissShareBanner}
               initialSubject={activeSubject}
               initialChapterId={customStudioChapterId}
               initialSubTab={customStudioMode}
@@ -434,6 +581,59 @@ export default function App() {
       <footer className="border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500 px-4">
         Physique-Chimie &amp; Mathématiques Terminale Série C · BAC Gabon · 28 Chapitres · 280 Sujets Type BAC C + 40 Problèmes + 444 Épreuves complètes 1990–2026 (6 pays × 37 ans) · 280 Expériences SVG
       </footer>
+      </div>
+
+      {/* Contrôle flottant du zoom (hors zone zoomée pour rester accessible) */}
+      <div
+        data-no-dblzoom="true"
+        className="fixed bottom-4 right-4 z-50 flex items-center gap-1 rounded-2xl bg-slate-900/95 border border-slate-700/90 px-2 py-1.5 shadow-2xl backdrop-blur-md"
+      >
+        <button
+          type="button"
+          data-no-dblzoom="true"
+          onClick={() => applyZoomLevel(zoomScale - 0.25)}
+          disabled={zoomScale <= 1}
+          title="Dézoomer"
+          aria-label="Dézoomer"
+          className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-slate-200 cursor-pointer disabled:cursor-not-allowed transition"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          data-no-dblzoom="true"
+          onClick={() => applyZoomLevel(zoomScale > 1.05 ? 1 : 1.75)}
+          title="Double-cliquez n’importe où ou cliquez ici pour zoomer/réinitialiser"
+          className="px-2 py-1 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono font-black text-amber-300 tabular-nums cursor-pointer hover:border-amber-400/50 transition min-w-[3.4rem] text-center"
+        >
+          {Math.round(zoomScale * 100)}%
+        </button>
+
+        <button
+          type="button"
+          data-no-dblzoom="true"
+          onClick={() => applyZoomLevel(zoomScale + 0.25)}
+          disabled={zoomScale >= 2.5}
+          title="Zoomer"
+          aria-label="Zoomer"
+          className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-35 text-slate-200 cursor-pointer disabled:cursor-not-allowed transition"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </button>
+
+        {zoomScale > 1 && (
+          <button
+            type="button"
+            data-no-dblzoom="true"
+            onClick={() => applyZoomLevel(1)}
+            title="Revenir à 100%"
+            className="px-2 py-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-black cursor-pointer transition"
+          >
+            1×
+          </button>
+        )}
+      </div>
     </div>
   );
 }

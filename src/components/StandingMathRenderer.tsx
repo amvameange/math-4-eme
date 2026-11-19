@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowDown, CheckCircle2, Sparkles, BookOpen } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
+import { FormattedMathText } from './FormattedMathText';
 
 interface StandingMathRendererProps {
   expression: string;
@@ -9,69 +10,87 @@ interface StandingMathRendererProps {
   showColumnOp?: boolean;
 }
 
+const UNIT_DENOM_REGEX = /^(s²?|h|min|mol|L|kg|g|m|cm|mm|m³|cm³|m²|cm²|rad|an|ans|j|kWh|V|A|W|N|J|K)$/i;
+const PROSE_WORD_REGEX = /\b(en|de|du|des|la|le|les|un|une|et|ou|par|pour|avec|sur|dans|est|sont|donc|car|soit|si|qui|que|pas|plus|fois|divisé)\b/i;
+
 /**
  * Helper to render vertical fractions (numérateur en haut, barre horizontale, dénominateur en bas)
- * when a string contains pattern like "X / Y" or "(A) / (B)"
+ * when a string contains genuine numeric/algebraic fractions like "15 / 20" or "(a + b) / (c + d)",
+ * while keeping physical units (m/s, mol/L, g/mol, km/h) and subscripted ratios (t_1/2) inline.
  */
 const renderWithVerticalFractions = (text: string): React.ReactNode => {
-  // If text has fraction pattern like "15 / 20" or "3/4" or "(15 ÷ 5) / (20 ÷ 5)"
-  // or "a/c + b/c"
-  const fractionRegex = /((?:\([^\)]+\)|[0-9a-zA-Z\s×\+\-÷\^\*]+?))\s*\/\s*((?:\([^\)]+\)|[0-9a-zA-Z\s×\+\-÷\^\*]+?))(?=[\s\+\-\=×÷\)]|$)/g;
-
-  // Check if there is a fraction
-  if (!text.includes('/') || text.includes('//')) {
-    return <span>{text}</span>;
+  if (!text.includes('/') || text.includes('//') || text.includes('http')) {
+    return <FormattedMathText text={text} />;
   }
 
-  const parts: React.ReactNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  // To avoid false positives on simple dates or text without digits
-  const hasDigitSlash = /\d+\s*\/\s*\d+/.test(text) || /\([^\)]+\)\s*\/\s*\d+/.test(text) || /\/\s*2/.test(text);
-  if (!hasDigitSlash) {
-    return <span>{text}</span>;
+  const hasFractionCandidate =
+    /\d+\s*\/\s*\d+/.test(text) || /\([^()\n]+\)\s*\/\s*(?:\([^()\n]+\)|[0-9a-zA-Zα-ωΑ-Ω₀-₉π]+)/.test(text);
+  if (!hasFractionCandidate) {
+    return <FormattedMathText text={text} />;
   }
 
   try {
-    const rx = /(\(?[\d\w\s×\+\-÷]+\)?)\s*\/\s*(\(?[\d\w\s×\+\-÷]+\)?)/g;
+    const rx =
+      /(\([^()\n]+\)|[0-9]+(?:[.,][0-9]+)?|[0-9a-zA-Zα-ωΑ-Ωπ]+(?:[\^_](?:\{[^}]+\}|\([^)]+\)|[A-Za-z0-9+-]+))?(?:\s*[×\*]\s*[0-9a-zA-Zα-ωΑ-Ωπ]+(?:[\^_](?:\{[^}]+\}|\([^)]+\)|[A-Za-z0-9+-]+))?)*)\s*\/\s*(\([^()\n]+\)|[0-9]+(?:[.,][0-9]+)?|[0-9a-zA-Zα-ωΑ-Ωπ]+(?:[\^_](?:\{[^}]+\}|\([^)]+\)|[A-Za-z0-9+-]+))?(?:\s*[×\*]\s*[0-9a-zA-Zα-ωΑ-Ωπ]+(?:[\^_](?:\{[^}]+\}|\([^)]+\)|[A-Za-z0-9+-]+))?)*)/g;
+
+    const parts: React.ReactNode[] = [];
     let m: RegExpExecArray | null;
     let curr = 0;
+    let matchedFraction = false;
+
     while ((m = rx.exec(text)) !== null) {
-      if (m.index > curr) {
-        parts.push(<span key={`txt-${curr}`}>{text.substring(curr, m.index)}</span>);
+      const charBefore = m.index > 0 ? text[m.index - 1] : '';
+      const rawNum = m[1].trim();
+      const rawDen = m[2].trim();
+      const num = rawNum.replace(/^\(|\)$/g, '').trim();
+      const den = rawDen.replace(/^\(|\)$/g, '').trim();
+
+      // Skip subscripted ratios (e.g. t_1/2), physical unit denominators (10 m/s, 2 g/mol), or prose words
+      const isSubscripted = charBefore === '_' || charBefore === '{';
+      const isUnitDenom = UNIT_DENOM_REGEX.test(den);
+      const hasProse = PROSE_WORD_REGEX.test(num) || PROSE_WORD_REGEX.test(den);
+      const isSimpleDateLike = /^\d{1,2}$/.test(num) && /^\d{4}$/.test(den) && Number(den) >= 1900;
+
+      if (isSubscripted || isUnitDenom || hasProse || isSimpleDateLike || !num || !den) {
+        continue;
       }
-      const num = m[1].trim().replace(/^\(|\)$/g, '');
-      const den = m[2].trim().replace(/^\(|\)$/g, '');
+
+      matchedFraction = true;
+      if (m.index > curr) {
+        parts.push(<FormattedMathText key={`txt-${curr}`} text={text.substring(curr, m.index)} />);
+      }
       parts.push(
         <span
           key={`frac-${m.index}`}
           className="inline-flex flex-col items-center justify-center align-middle mx-1 px-1.5 py-0.5 rounded bg-slate-900/90 border border-slate-700/80 shadow-xs"
         >
           <span className="text-[11px] sm:text-xs font-bold text-amber-300 border-b-2 border-amber-400/90 pb-0.5 px-1 text-center w-full">
-            {num}
+            <FormattedMathText text={num} />
           </span>
           <span className="text-[11px] sm:text-xs font-bold text-sky-300 pt-0.5 px-1 text-center w-full">
-            {den}
+            <FormattedMathText text={den} />
           </span>
         </span>
       );
       curr = rx.lastIndex;
     }
+
+    if (!matchedFraction) {
+      return <FormattedMathText text={text} />;
+    }
+
     if (curr < text.length) {
-      parts.push(<span key={`txt-end`}>{text.substring(curr)}</span>);
+      parts.push(<FormattedMathText key="txt-end" text={text.substring(curr)} />);
     }
     return <span className="inline-flex items-center flex-wrap gap-1">{parts}</span>;
   } catch {
-    return <span>{text}</span>;
+    return <FormattedMathText text={text} />;
   }
 };
 
 /**
  * Extracts operands for a vertical column operation (opération posée debout)
- * e.g. "1 400 + 1 800 = 3 200" -> { op1: "1 400", op2: "1 800", sign: "+", res: "3 200" }
- * e.g. "600 × 3 = 1 800"
- * e.g. "20 - 12 = 8"
+ * ONLY when the arithmetic expression is purely numeric (never symbolic calculus/algebra).
  */
 interface ColumnOp {
   num1: string;
@@ -81,21 +100,34 @@ interface ColumnOp {
 }
 
 const extractColumnOp = (expr: string, sub?: string): ColumnOp | null => {
-  const target = (sub && sub.includes('=')) ? sub : expr;
+  const target = sub && sub.includes('=') ? sub : expr;
 
-  // Skip chemical reaction lines (e.g. CH4 + 2 O2 -> CO2 + 2 H2O)
-  if (target.includes('➔') || target.includes('→')) return null;
+  // Skip symbolic, calculus, vector, chemical, or multi-line expressions
+  if (
+    /➔|→|⇌|\[|\]|\{|\}|∫|∑|∏|≡|∀|∃|∧|∨|∈|⃗|_|\^/.test(target) ||
+    /\b(ln|exp|lim|sin|cos|tan|log|arg|Cov|PGCD|PPCM|dx|dt|du|rad)\b/i.test(target)
+  ) {
+    return null;
+  }
 
-  // Clean string (Maths + Physique-Chimie units)
-  const clean = target
+  // Strip unit suffixes only when preceded by digit/space and at boundary
+  const withoutUnits = target
     .replace(
-      /F CFA|kWh|Wh|cm³|cm²|m³|m²|g\/cm³|kg\/m³|N\/kg|km\/h|m\/s|g\/L|mA|kΩ|kV|hPa|Pa|cm|km|Ω|δ|°|[VAWNgLm]/g,
+      /(?<=[\d\s])(F CFA|kWh|Wh|cm³|cm²|m³|m²|g\/cm³|kg\/m³|N\/kg|km\/h|m\/s|g\/L|mol\/L|g\/mol|mA|kΩ|kV|hPa|Pa|cm|km|Ω|δ|°|[VAWNgLm])(?=\s|[\+\-=×\*÷]|$)/g,
       ''
     )
     .trim();
 
-  // Pattern: "A + B = C" or "A - B = C" or "A × B = C" or "A * B = C" or "A ÷ B = C"
-  const opMatch = clean.match(/([\d\s,\.]+)\s*([\+\-×\*÷])\s*([\d\s,\.]+)(?:\s*=\s*([\d\s,\.\+\-]+))?/);
+  // Strip optional leading LHS identifier like "A = " or "Total = "
+  const rhsCandidate = withoutUnits.replace(/^[A-Za-zÀ-ÿ0-9'’\s]+\s*=\s*/, '').trim();
+  const checkStr = rhsCandidate && /[\+\-×\*÷]/.test(rhsCandidate) ? rhsCandidate : withoutUnits;
+
+  // Reject if any letters remain (algebraic variables or prose)
+  if (/[A-Za-zÀ-ÿα-ωΑ-Ω]/.test(checkStr)) return null;
+
+  const opMatch = checkStr.match(
+    /^([\d\s,\.]+)\s*([\+\-×\*÷])\s*([\d\s,\.]+)(?:\s*=\s*([\d\s,\.\+\-]+))?$/
+  );
   if (!opMatch) return null;
 
   const num1 = opMatch[1].trim();
@@ -103,7 +135,6 @@ const extractColumnOp = (expr: string, sub?: string): ColumnOp | null => {
   const num2 = opMatch[3].trim();
   const result = opMatch[4]?.trim();
 
-  // If numbers are too small or not digits
   if (!/\d/.test(num1) || !/\d/.test(num2)) return null;
 
   return { num1, num2, operator, result };
@@ -171,7 +202,7 @@ export const StandingMathRenderer: React.FC<StandingMathRendererProps> = ({
         <div className="flex items-center gap-1.5 text-amber-300">
           <span className="text-sm">📐</span>
           <span className="uppercase tracking-wider">
-            {title || 'Présentation Debout (En Colonne CIAM Gabon)'}
+            {title ? <FormattedMathText text={title} /> : 'Présentation Debout (En Colonne CIAM Gabon)'}
           </span>
         </div>
         <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
@@ -241,7 +272,7 @@ export const StandingMathRenderer: React.FC<StandingMathRendererProps> = ({
           <div className="md:col-span-4 rounded-xl bg-slate-900 border-2 border-amber-500/30 p-3 flex flex-col justify-between shadow-inner">
             <div className="text-[10px] uppercase font-bold text-amber-300 border-b border-slate-800 pb-1 flex items-center justify-between">
               <span>Opération Posée Debout :</span>
-              <span className="text-slate-400">Cahier 4ème</span>
+              <span className="text-slate-400">Cahier Tle C</span>
             </div>
 
             {/* Notebook grid style box (Style cahier quadrillé Seyès) */}

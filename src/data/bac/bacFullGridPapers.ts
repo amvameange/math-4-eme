@@ -873,6 +873,17 @@ function buildPartsForPaper(
         : generateMathTcExercise(chId, diff, year + countryIdx + pIdx)
     );
 
+    const subQList =
+      gen.subQuestions && gen.subQuestions.length > 0
+        ? [
+            '',
+            'Questions détaillées de l’exercice (toutes les questions obligatoires) :',
+            ...gen.subQuestions.map(
+              (sq) => `  Q${sq.questionNumber}) ${sq.questionPrompt}${sq.options && sq.options.length > 0 ? `\n      Choix : ${sq.options.join(' | ')}` : ''}`
+            ),
+          ]
+        : [];
+
     const bp = CHAPTER_BLUEPRINTS[chId];
     const structuredPrompt = bp
       ? [
@@ -882,8 +893,9 @@ function buildPartsForPaper(
           ...bp.introQuestions,
           `${bp.applicationLead} ${gen.title} :`,
           gen.prompt,
+          ...subQList,
         ].join('\n')
-      : `${ctx.seriesName} — ${city} (${year})\n${gen.prompt}`;
+      : [`${ctx.seriesName} — ${city} (${year})`, gen.prompt, ...subQList].join('\n');
 
     const fullSteps = bp
       ? [
@@ -919,6 +931,7 @@ function buildPartsForPaper(
       explanationFinal: gen.explanationFinal,
       themeTags: mod.themes,
       steps: fullSteps,
+      subQuestions: gen.subQuestions,
     };
   });
 }

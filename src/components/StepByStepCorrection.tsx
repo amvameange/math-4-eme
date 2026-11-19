@@ -13,6 +13,7 @@ import { ChapterIllustrationKey, CorrectionStep, SubjectId } from '../types/math
 import { KokoStepDetective, GabonBadgeStamp } from './illustrations/FunFeedbackIllustrations';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { DemonstrationMethodFigure } from './illustrations/PedagogicalFigures';
+import { FormattedMathText } from './FormattedMathText';
 
 interface StepByStepCorrectionProps {
   steps: CorrectionStep[];
@@ -125,7 +126,8 @@ export const StepByStepCorrection: React.FC<StepByStepCorrectionProps> = ({
             <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs flex items-start gap-2">
               <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <strong className="font-bold text-amber-300">Règle appliquée :</strong> {currentStep.ruleApplied}
+                <strong className="font-bold text-amber-300">Règle appliquée :</strong>{' '}
+                <FormattedMathText text={currentStep.ruleApplied} />
               </div>
             </div>
           )}
@@ -139,7 +141,7 @@ export const StepByStepCorrection: React.FC<StepByStepCorrectionProps> = ({
 
           {/* Detailed explanation */}
           <p className="text-xs sm:text-sm text-slate-200 leading-relaxed pt-1 font-medium">
-            {currentStep.explanation}
+            <FormattedMathText text={currentStep.explanation} />
           </p>
 
           {/* If on final step, show the official Gabon stamp */}
@@ -194,16 +196,16 @@ export const StepByStepCorrection: React.FC<StepByStepCorrectionProps> = ({
               key={st.stepNumber}
               className="rounded-2xl bg-slate-950/80 border border-slate-800 p-4 space-y-2.5 shadow-sm"
             >
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                 <span className="font-bold text-sky-400 flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-mono text-[10px] font-black">
                     {st.stepNumber}
                   </span>
-                  <span>{st.title}</span>
+                  <span><FormattedMathText text={st.title} /></span>
                 </span>
                 {st.subResult && (
                   <span className="font-mono text-[11px] text-cyan-300 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                    {st.subResult}
+                    <FormattedMathText text={st.subResult} />
                   </span>
                 )}
               </div>
@@ -215,7 +217,7 @@ export const StepByStepCorrection: React.FC<StepByStepCorrectionProps> = ({
               />
 
               <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                {st.explanation}
+                <FormattedMathText text={st.explanation} />
               </p>
             </div>
           ))}
@@ -223,10 +225,10 @@ export const StepByStepCorrection: React.FC<StepByStepCorrectionProps> = ({
           {/* Stamp and Final Result Card */}
           <GabonBadgeStamp />
 
-          <div className="p-4 rounded-2xl bg-emerald-950/50 border border-emerald-500/50 text-emerald-200 text-xs font-semibold flex items-center justify-between shadow-lg">
+          <div className="p-4 rounded-2xl bg-emerald-950/50 border border-emerald-500/50 text-emerald-200 text-xs font-semibold flex flex-wrap items-center justify-between gap-2 shadow-lg">
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span className="text-sm font-bold text-white">{finalResult}</span>
+              <span className="text-sm font-bold text-white"><FormattedMathText text={finalResult} /></span>
             </div>
             <span className="font-black uppercase text-[10px] tracking-wider bg-emerald-500 text-slate-950 px-2.5 py-1 rounded-full shadow">
               Résultat Validé

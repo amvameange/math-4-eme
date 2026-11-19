@@ -14,6 +14,8 @@ import {
   X,
   Save,
   FolderOpen,
+  Share2,
+  Infinity as InfinityIcon,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -26,10 +28,12 @@ import { PHYSICS_TC_CHAPTERS } from '../data/physicsTcCurriculum';
 import { MATH_TC_CHAPTERS } from '../data/mathTcCurriculum';
 import { StepByStepCorrection } from './StepByStepCorrection';
 import { StandingMathRenderer } from './StandingMathRenderer';
+import { FormattedMathText } from './FormattedMathText';
 import {
   KokoSuccessCelebration,
   KokoEncouragingFeedback,
 } from './illustrations/FunFeedbackIllustrations';
+import { playUiClickSound, scrollToSectionById } from '../utils/uiFeedback';
 
 interface CustomExercisesStudioProps {
   customExercises: CustomExercise[];
@@ -42,6 +46,10 @@ interface CustomExercisesStudioProps {
   ) => void;
   onDeleteExercise: (id: string) => void;
   onImportExercises: (items: CustomExercise[]) => number;
+  storageBackend?: 'indexeddb' | 'local';
+  buildShareUrl?: () => Promise<string>;
+  lastShareImportCount?: number;
+  onDismissShareBanner?: () => void;
   initialSubject?: SubjectId;
   initialChapterId?: string;
   initialSubTab?: 'ajouter' | 'consulter';
@@ -80,6 +88,10 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
   onUpdateExercise,
   onDeleteExercise,
   onImportExercises,
+  storageBackend = 'indexeddb',
+  buildShareUrl,
+  lastShareImportCount = 0,
+  onDismissShareBanner,
   initialSubject = 'physique',
   initialChapterId,
   initialSubTab = 'consulter',
@@ -244,14 +256,18 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
 
     if (editingId) {
       onUpdateExercise(editingId, payload);
-      setFormFeedback('Exercice mis à jour et sauvegardé dans l’application !');
+      playUiClickSound('success');
+      setFormFeedback('Exercice mis à jour et sauvegardé dans l’application (stockage illimité) !');
       resetForm();
       setSubTab('consulter');
+      scrollToSectionById('custom-studio-top', 50);
     } else {
       onAddExercise(payload);
-      setFormFeedback('Exercice + correction sauvegardés ! Tu peux le consulter à tout moment.');
+      playUiClickSound('success');
+      setFormFeedback('Exercice + correction sauvegardés ! Il reste conservé dans l’application et partageable avec d’autres utilisateurs.');
       resetForm();
       setSubTab('consulter');
+      scrollToSectionById('custom-studio-top', 50);
     }
   };
 
@@ -270,6 +286,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
     setFormError(null);
     setFormFeedback(null);
     setSubTab('ajouter');
+    scrollToSectionById('custom-studio-top', 50);
   };
 
   const handleCheckCustomAnswer = (ex: CustomExercise) => {
@@ -285,11 +302,56 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
         ok = Math.abs(uNum - cNum) <= 0.02;
       }
     }
+    playUiClickSound(ok ? 'success' : 'error');
     setAttempts((prev) => ({ ...prev, [ex.id]: { answered: true, correct: ok } }));
     if (ok) {
       try {
         confetti({ particleCount: 55, spread: 65, origin: { y: 0.65 } });
       } catch {}
+    }
+  };
+
+  const handleShareAppWithExercises = async () => {
+    if (customExercises.length === 0) {
+      setImportStatus('Ajoute d’abord au moins un exercice avant de partager.');
+      return;
+    }
+    try {
+      const shareUrl = buildShareUrl ? await buildShareUrl() : window.location.href;
+      const shareTitle = `Sciences & Maths Tle C · ${customExercises.length} exercice(s) sauvegardé(s)`;
+      const shareMessage = `Ouvre l’application avec mes ${customExercises.length} exercices et corrections enregistrés :\n${shareUrl}`;
+
+      if (typeof window !== 'undefined' && window.AndroidBridge?.shareText) {
+        window.AndroidBridge.shareText(shareTitle, shareMessage);
+        setImportStatus(
+          `Partage Android ouvert avec vos ${customExercises.length} exercices inclus ! Pense aussi au bouton "Exporter JSON" pour transférer un fichier vers un autre téléphone hors-ligne.`
+        );
+        return;
+      }
+
+      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        await navigator.share({
+          title: shareTitle,
+          text: `Voici l’application avec mes ${customExercises.length} exercices et corrections sauvegardés :`,
+          url: shareUrl,
+        });
+        setImportStatus(
+          `Lien de l’application partagé avec vos ${customExercises.length} exercices inclus !`
+        );
+        return;
+      }
+
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        setImportStatus(
+          `Lien de partage copié ! Toute personne ouvrant ce lien retrouvera automatiquement tes ${customExercises.length} exercices sauvegardés dans son application.`
+        );
+        return;
+      }
+
+      handleExportJson();
+    } catch {
+      handleExportJson();
     }
   };
 
@@ -380,32 +442,40 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
   ]);
 
   return (
-    <div className="space-y-5 pb-20 animate-fade-in">
+    <div id="custom-studio-top" className="space-y-5 pb-20 animate-fade-in">
       {/* Studio Header & Mode Switcher */}
-      <div className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-xl space-y-4">
+      <div className="rounded-3xl bg-slate-900 border border-slate-800 p-4 sm:p-5 shadow-xl space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
             <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-300 shrink-0">
               <FolderOpen className="w-5 h-5" />
             </div>
-            <div>
-              <div className="text-xs font-bold text-amber-300">
-                Programme Terminale Série C Gabon · Sauvegarde Locale Automatique
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-amber-300 flex flex-wrap items-center gap-1.5">
+                <span>Programme Terminale Série C Gabon</span>
+                <span className="text-slate-600">·</span>
+                <span className="inline-flex items-center gap-1 text-emerald-300">
+                  <InfinityIcon className="w-3.5 h-3.5" />
+                  Stockage illimité ({storageBackend === 'indexeddb' ? 'IndexedDB' : 'Local'})
+                </span>
               </div>
               <h2 className="text-lg sm:text-xl font-black text-white mt-0.5">
                 Mes Exercices &amp; Corrections Personnalisés
               </h2>
               <p className="text-xs text-slate-300">
-                Ajoute tes propres exercices avec leur correction détaillée et consulte-les à tout moment dans l’application.
+                Enregistre un nombre infini d’exercices avec leur correction détaillée : tout reste conservé hors-ligne et partageable via lien d’application ou fichier JSON.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 p-1 rounded-2xl bg-slate-950 border border-slate-800">
+          <div className="grid grid-cols-1 sm:flex items-center gap-1.5 p-1 rounded-2xl bg-slate-950 border border-slate-800 w-full sm:w-auto">
             <button
               type="button"
-              onClick={() => setSubTab('ajouter')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
+              onClick={() => {
+                setSubTab('ajouter');
+                scrollToSectionById('custom-studio-top', 40);
+              }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
                 subTab === 'ajouter'
                   ? 'bg-amber-400 text-slate-950 shadow'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
@@ -417,18 +487,38 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
 
             <button
               type="button"
-              onClick={() => setSubTab('consulter')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap tabular-nums ${
+              onClick={() => {
+                setSubTab('consulter');
+                scrollToSectionById('custom-studio-top', 40);
+              }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition cursor-pointer whitespace-nowrap tabular-nums ${
                 subTab === 'consulter'
                   ? 'bg-emerald-400 text-slate-950 shadow'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span>Consulter mes exercices ({customExercises.length})</span>
+              <span>Consulter mes exercices ({customExercises.length} / ∞)</span>
             </button>
           </div>
         </div>
+
+        {lastShareImportCount > 0 && (
+          <div className="p-3 rounded-2xl bg-sky-950/60 border border-sky-500/40 text-xs text-sky-200 font-bold flex items-center justify-between gap-2">
+            <span>
+              🎉 {lastShareImportCount} exercice(s) partagé(s) ont été ajoutés et sauvegardés automatiquement dans ton application !
+            </span>
+            {onDismissShareBanner && (
+              <button
+                type="button"
+                onClick={onDismissShareBanner}
+                className="text-sky-300 hover:text-white cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
 
         {formFeedback && (
           <div className="p-3 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 text-xs text-emerald-200 font-bold flex items-center justify-between gap-2">
@@ -772,7 +862,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-xs">
               <div className="text-slate-400 tabular-nums">
                 <strong className="text-white">{filteredExercises.length}</strong> exercice(s) affiché(s) sur{' '}
-                <strong className="text-emerald-300">{customExercises.length}</strong> sauvegardé(s)
+                <strong className="text-emerald-300">{customExercises.length}</strong> sauvegardé(s) (capacité ∞)
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
@@ -783,6 +873,17 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                   onChange={handleImportFile}
                   className="hidden"
                 />
+                {customExercises.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleShareAppWithExercises}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black flex items-center gap-1.5 cursor-pointer shadow"
+                    title="Générer un lien ou partager l’application avec tous tes exercices sauvegardés"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>Partager l’app + mes exercices</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -798,14 +899,14 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                     className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Exporter sauvegarde</span>
+                    <span>Exporter JSON</span>
                   </button>
                 )}
               </div>
             </div>
 
             {importStatus && (
-              <div className="text-xs text-sky-300 font-semibold">{importStatus}</div>
+              <div className="text-xs text-sky-300 font-semibold leading-relaxed">{importStatus}</div>
             )}
           </div>
 
@@ -854,7 +955,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                           <span className="text-slate-600">·</span>
                           <span className="text-emerald-300">Niveau {ex.difficulty}</span>
                         </div>
-                        <h3 className="text-base font-black text-white">{ex.title}</h3>
+                        <h3 className="text-base font-black text-white"><FormattedMathText text={ex.title} /></h3>
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -901,7 +1002,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                     </div>
 
                     <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-sm text-slate-100 whitespace-pre-line leading-relaxed">
-                      {ex.prompt}
+                      <FormattedMathText text={ex.prompt} />
                     </div>
 
                     {ex.hint && (
@@ -919,7 +1020,7 @@ export const CustomExercisesStudio: React.FC<CustomExercisesStudioProps> = ({
                           </button>
                         ) : (
                           <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200">
-                            <strong className="text-amber-300">Indice :</strong> {ex.hint}
+                            <strong className="text-amber-300">Indice :</strong> <FormattedMathText text={ex.hint} />
                           </div>
                         )}
                       </div>

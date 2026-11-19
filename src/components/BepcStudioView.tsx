@@ -39,6 +39,7 @@ import {
 import { BEPC_COUNTRY_CONTEXTS } from '../data/bepc/bepcArchiveHelpers';
 import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
 import { StepByStepCorrection } from './StepByStepCorrection';
+import { FormattedMathText } from './FormattedMathText';
 import { MultiQuestionRunner } from './MultiQuestionRunner';
 import { ExerciseVisualFigure } from './illustrations/PedagogicalFigures';
 import {
@@ -99,6 +100,8 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
 
   const [originFilter, setOriginFilter] = useState<'all' | 'gabon' | 'international'>('all');
   const [examIndex, setExamIndex] = useState<number>(0);
+  const [examFullSheetView, setExamFullSheetView] = useState<boolean>(false);
+  const [showFullExamCorrection, setShowFullExamCorrection] = useState<boolean>(false);
 
   const [archiveCountryFilter, setArchiveCountryFilter] = useState<BepcCountryId | 'all'>('all');
   const [archiveScopeFilter, setArchiveScopeFilter] = useState<ArchiveScopeFilter>('all');
@@ -510,7 +513,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 >
                   <div className="min-w-0">
                     <div className="text-[11px] font-bold text-amber-300 truncate">{ch.badge}</div>
-                    <div className="text-xs font-extrabold truncate">{ch.title}</div>
+                    <div className="text-xs font-extrabold truncate"><FormattedMathText text={ch.title} /></div>
                   </div>
                   <span
                     className={`text-[11px] font-mono font-black px-2 py-1 rounded-lg shrink-0 tabular-nums ${
@@ -529,15 +532,15 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
       ) : mode === 'examen' ? (
         <section id="bepc-mode-stage" className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3 shadow-lg">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Globe2 className="w-4 h-4" />
-              <span>
+            <div className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+              <Globe2 className="w-4 h-4 shrink-0" />
+              <span className="break-words">
                 20 Problèmes Complets Type Examen BAC C (
                 {subject === 'physique' ? 'Physique-Chimie' : 'Mathématiques'})
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+            <div className="flex flex-wrap items-center gap-1.5">
               {[
                 { id: 'all', label: `Tous (${allExamProblems.length})` },
                 { id: 'gabon', label: '🇬🇦 BAC C Gabon' },
@@ -549,9 +552,12 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   onClick={() => {
                     setOriginFilter(f.id as 'all' | 'gabon' | 'international');
                     setExamIndex(0);
-                    scrollToSectionById('bepc-active-stage', 50);
+                    scrollToSectionById(
+                      examFullSheetView ? 'bepc-exam-sheet' : 'bepc-active-stage',
+                      50
+                    );
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                     originFilter === f.id
                       ? 'bg-amber-400 text-slate-950 shadow'
                       : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
@@ -561,6 +567,60 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+            <div className="grid grid-cols-1 sm:inline-flex w-full sm:w-auto gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setExamFullSheetView(false);
+                  scrollToSectionById('bepc-active-stage', 50);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-center leading-tight ${
+                  !examFullSheetView
+                    ? 'bg-amber-400 text-slate-950 shadow'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                Mode interactif (problème par problème)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setExamFullSheetView(true);
+                  scrollToSectionById('bepc-exam-sheet', 50);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 text-center leading-tight ${
+                  examFullSheetView
+                    ? 'bg-emerald-400 text-slate-950 shadow'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 shrink-0" />
+                <span>Tous les problèmes au complet ({filteredExamProblems.length})</span>
+              </button>
+            </div>
+
+            {examFullSheetView && (
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setShowFullExamCorrection((prev) => !prev)}
+                  className="flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-800 text-amber-300 border border-amber-500/35 transition cursor-pointer text-center"
+                >
+                  {showFullExamCorrection ? 'Masquer les corrigés' : 'Afficher tous les corrigés'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePrintPaper}
+                  className="flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5 shrink-0" />
+                  <span>Imprimer / PDF</span>
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
@@ -573,7 +633,11 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   type="button"
                   onClick={() => {
                     setExamIndex(idx);
-                    scrollToSectionById('bepc-active-stage', 50);
+                    if (examFullSheetView) {
+                      scrollToSectionById(`exam-prob-article-${prob.id}`, 50);
+                    } else {
+                      scrollToSectionById('bepc-active-stage', 50);
+                    }
                   }}
                   className={`p-2.5 rounded-xl border text-left transition cursor-pointer space-y-1 ${
                     isSelected
@@ -593,11 +657,131 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       <span className="text-slate-400 shrink-0">{prob.bepcPoints}</span>
                     )}
                   </div>
-                  <div className="text-xs font-extrabold line-clamp-2">{prob.title}</div>
+                  <div className="text-xs font-extrabold line-clamp-2"><FormattedMathText text={prob.title} /></div>
                 </button>
               );
             })}
           </div>
+
+          {examFullSheetView && (
+            <div id="bepc-exam-sheet" className="space-y-4 pt-2 print:text-black">
+              <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/35 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
+                  <span className="font-bold text-amber-300">
+                    Recueil Complet Type BAC C · {subject === 'physique' ? 'Physique-Chimie' : 'Mathématiques'}
+                  </span>
+                  <span className="font-mono font-bold text-emerald-300 tabular-nums">
+                    {filteredExamProblems.length} problèmes intégraux · Toutes questions et parties affichées
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Chaque problème ci-dessous affiche l’énoncé intégral (toutes les parties et questions numérotées sans suppression) ainsi que la correction détaillée étape par étape.
+                </p>
+              </div>
+
+              {filteredExamProblems.map((prob, idx) => {
+                const probChapter = chapters.find((c) => c.id === prob.chapterId) || currentChapter;
+                const isOpenCorr = showFullExamCorrection || shownCorrections[prob.id];
+                return (
+                  <article
+                    key={prob.id}
+                    id={`exam-prob-article-${prob.id}`}
+                    className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center items-start justify-between gap-2 pb-2 border-b border-slate-800">
+                      <div className="min-w-0">
+                        <div className="text-xs font-black text-amber-300 tabular-nums break-words">
+                          Problème {idx + 1} / {filteredExamProblems.length} · {prob.originCountry || '🇬🇦 BAC C Gabon'} · {prob.originYear || ''} · {prob.bepcPoints || '20 pts'}
+                        </div>
+                        <h5 className="text-sm sm:text-base font-black text-white break-words">
+                          <FormattedMathText text={prob.title} />
+                        </h5>
+                        <div className="text-[11px] text-sky-400 font-semibold break-words">
+                          <FormattedMathText text={probChapter.title} />
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setExamIndex(idx);
+                          setExamFullSheetView(false);
+                          scrollToSectionById('bepc-active-stage', 50);
+                        }}
+                        className="w-full sm:w-auto text-center px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-sky-300 border border-slate-700 transition cursor-pointer"
+                      >
+                        Répondre en mode interactif
+                      </button>
+                    </div>
+
+                    <div className="text-sm text-slate-100 whitespace-pre-line leading-relaxed break-words">
+                      <FormattedMathText text={prob.prompt} />
+                    </div>
+
+                    {prob.subQuestions && prob.subQuestions.length > 0 && (
+                      <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-3 space-y-2">
+                        <div className="text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                          Questions de contrôle du problème ({prob.subQuestions.length} questions complètes)
+                        </div>
+                        <div className="space-y-2">
+                          {prob.subQuestions.map((sq) => (
+                            <div key={sq.questionNumber} className="text-xs text-slate-200 space-y-1 border-b border-slate-800/70 last:border-b-0 pb-2 last:pb-0">
+                              <div className="font-semibold break-words">
+                                <span className="text-amber-300 font-mono mr-1.5">Q{sq.questionNumber}.</span>
+                                <FormattedMathText text={sq.questionPrompt} />
+                              </div>
+                              {isOpenCorr && (
+                                <div className="pl-3 text-[11px] text-emerald-300 space-y-0.5 break-words">
+                                  <div>
+                                    <strong>Réponse :</strong> <FormattedMathText text={sq.correctAnswer} />
+                                  </div>
+                                  {sq.mathExpression && (
+                                    <div className="font-mono text-sky-300"><FormattedMathText text={sq.mathExpression} /></div>
+                                  )}
+                                  <div className="text-slate-300"><FormattedMathText text={sq.explanation} /></div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <ExerciseVisualFigure
+                      chapterId={probChapter.id}
+                      illustrationKey={probChapter.illustrationKey}
+                      subject={probChapter.subject}
+                      title={prob.title}
+                      prompt={prob.prompt}
+                    />
+
+                    {!isOpenCorr ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShownCorrections((prev) => ({ ...prev, [prob.id]: true }))
+                        }
+                        className="w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition cursor-pointer text-center"
+                      >
+                        Voir la correction détaillée ({prob.steps.length} étapes + {prob.subQuestions?.length || 0} questions)
+                      </button>
+                    ) : (
+                      <div className="pt-2 border-t border-slate-800">
+                        <StepByStepCorrection
+                          steps={prob.steps}
+                          finalResult={prob.explanationFinal}
+                          initialShowAll={true}
+                          chapterId={probChapter.id}
+                          illustrationKey={probChapter.illustrationKey}
+                          subject={probChapter.subject}
+                          contextHint={`${prob.title} ${prob.prompt}`}
+                        />
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </section>
       ) : (
         <section id="bepc-mode-stage" className="rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3.5 shadow-lg">
@@ -611,7 +795,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
               <select
                 aria-label="Filtrer par année"
                 value={archiveYearFilter}
@@ -622,7 +806,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   setArchivePaperIndex(0);
                   setArchivePartIndex(0);
                 }}
-                className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-950 text-emerald-300 border border-slate-700 focus:border-emerald-400 focus:outline-none cursor-pointer tabular-nums"
+                className="w-full sm:w-auto px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-950 text-emerald-300 border border-slate-700 focus:border-emerald-400 focus:outline-none cursor-pointer tabular-nums"
               >
                 <option value="all">Année : Toutes (1990–2026)</option>
                 {Array.from({ length: 37 }, (_, i) => 2026 - i).map((yr) => (
@@ -650,7 +834,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                     setArchivePaperIndex(0);
                     setArchivePartIndex(0);
                   }}
-                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition cursor-pointer tabular-nums ${
                     archiveDecadeFilter === dec.id && archiveYearFilter === 'all'
                       ? 'bg-emerald-400 text-slate-950 shadow'
                       : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
@@ -667,7 +851,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   setArchivePaperIndex(0);
                   setArchivePartIndex(0);
                 }}
-                className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-950 text-amber-300 border border-slate-800 hover:bg-slate-800 transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums"
+                className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-950 text-amber-300 border border-slate-800 hover:bg-slate-800 transition cursor-pointer tabular-nums"
                 title="Inverser l’ordre chronologique"
               >
                 {archiveSortDesc ? '2026 ➔ 1990' : '1990 ➔ 2026'}
@@ -684,7 +868,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 setArchivePaperIndex(0);
                 setArchivePartIndex(0);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer text-left sm:text-center tabular-nums ${
                 archiveScopeFilter === 'all'
                   ? 'bg-emerald-400 text-slate-950 shadow'
                   : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
@@ -701,7 +885,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 setArchivePaperIndex(0);
                 setArchivePartIndex(0);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer text-left sm:text-center tabular-nums ${
                 archiveScopeFilter === 'official'
                   ? 'bg-emerald-500 text-slate-950 shadow ring-1 ring-emerald-300'
                   : 'bg-emerald-950/50 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/50'
@@ -716,7 +900,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 setArchivePaperIndex(0);
                 setArchivePartIndex(0);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer text-left sm:text-center tabular-nums ${
                 archiveScopeFilter === 'training'
                   ? 'bg-amber-400 text-slate-950 shadow'
                   : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
@@ -754,7 +938,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
           </div>
 
           {/* Country Filter Bar */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex flex-wrap items-center gap-1.5">
             <button
               type="button"
               onClick={() => {
@@ -762,7 +946,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                 setArchivePaperIndex(0);
                 setArchivePartIndex(0);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer tabular-nums ${
                 archiveCountryFilter === 'all'
                   ? 'bg-sky-500 text-slate-950 shadow'
                   : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
@@ -782,7 +966,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                     setArchivePaperIndex(0);
                     setArchivePartIndex(0);
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 tabular-nums ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold transition cursor-pointer tabular-nums ${
                     archiveCountryFilter === cid
                       ? 'bg-sky-500 text-slate-950 shadow'
                       : 'bg-slate-950 text-slate-300 border border-slate-800 hover:bg-slate-800'
@@ -876,26 +1060,26 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       Barème : {currentArchivePaper.totalPoints} pts ({currentArchivePaper.parts.length} exercices)
                     </span>
                   </div>
-                  <h3 className="text-sm sm:text-base font-black text-white flex flex-wrap items-center gap-2">
-                    <span>{currentArchivePaper.examTitle} — Épreuve complète</span>
+                  <h3 className="text-sm sm:text-base font-black text-white flex flex-wrap items-center gap-2 break-words">
+                    <span className="break-words">{currentArchivePaper.examTitle} — Épreuve complète</span>
                     {currentArchivePaper.isOfficial && (
                       <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase tracking-wide">
                         🏛️ Épreuve officielle intégrale
                       </span>
                     )}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-400 break-words">
                     {BEPC_COUNTRY_CONTEXTS[currentArchivePaper.countryId].seriesName} ·{' '}
                     {currentArchivePaper.themeSummary}
                   </p>
                   {currentArchivePaper.officialReference && (
-                    <p className="text-xs text-emerald-300 font-bold">
+                    <p className="text-xs text-emerald-300 font-bold break-words">
                       Source officielle : {currentArchivePaper.officialReference}
                     </p>
                   )}
                   {currentArchivePaper.sourceNotice && (
                     <p
-                      className={`text-xs font-medium ${
+                      className={`text-xs font-medium break-words ${
                         currentArchivePaper.isOfficial ? 'text-emerald-300/90' : 'text-amber-300/90'
                       }`}
                     >
@@ -904,7 +1088,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto shrink-0">
                   <button
                     type="button"
                     onClick={() => {
@@ -912,9 +1096,9 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       setArchivePartIndex(0);
                     }}
                     disabled={safeArchivePaperIndex === 0}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 border border-slate-800 flex items-center gap-1 transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 border border-slate-800 flex items-center gap-1 transition cursor-pointer"
                   >
-                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <ChevronLeft className="w-3.5 h-3.5 shrink-0" />
                     <span>Session préc.</span>
                   </button>
                   <button
@@ -926,24 +1110,24 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       setArchivePartIndex(0);
                     }}
                     disabled={safeArchivePaperIndex >= filteredArchivePapers.length - 1}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 flex items-center gap-1 transition cursor-pointer whitespace-nowrap shrink-0"
+                    className="flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 flex items-center gap-1 transition cursor-pointer"
                   >
                     <span>Session suiv.</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                   </button>
                 </div>
               </div>
 
-              {/* Format switcher: Part-by-part interactive vs Complete 4-exercise exam sheet */}
+              {/* Format switcher: Part-by-part interactive vs Complete exam sheet */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
-                <div className="flex items-center gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800">
+                <div className="grid grid-cols-1 sm:inline-flex w-full sm:w-auto gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800">
                   <button
                     type="button"
                     onClick={() => {
                       setArchiveFullSheetView(false);
                       scrollToSectionById('bepc-active-stage', 50);
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-center leading-tight ${
                       !archiveFullSheetView
                         ? 'bg-amber-400 text-slate-950 shadow'
                         : 'text-slate-300 hover:text-white'
@@ -954,32 +1138,32 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setArchiveFullSheetView(true)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5 text-center leading-tight ${
                       archiveFullSheetView
                         ? 'bg-emerald-400 text-slate-950 shadow'
                         : 'text-slate-300 hover:text-white'
                     }`}
                   >
-                    <FileText className="w-3.5 h-3.5" />
+                    <FileText className="w-3.5 h-3.5 shrink-0" />
                     <span>Sujet complet ({currentArchivePaper.parts.length} exercices)</span>
                   </button>
                 </div>
 
                 {archiveFullSheetView && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <button
                       type="button"
                       onClick={() => setShowFullSheetCorrection((prev) => !prev)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/35 transition cursor-pointer whitespace-nowrap shrink-0"
+                      className="flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/35 transition cursor-pointer text-center"
                     >
                       {showFullSheetCorrection ? 'Masquer les corrigés' : 'Afficher tous les corrigés'}
                     </button>
                     <button
                       type="button"
                       onClick={handlePrintPaper}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap shrink-0"
+                      className="flex-1 sm:flex-initial justify-center px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer"
                     >
-                      <Printer className="w-3.5 h-3.5" />
+                      <Printer className="w-3.5 h-3.5 shrink-0" />
                       <span>Imprimer / PDF</span>
                     </button>
                   </div>
@@ -1011,7 +1195,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                           <div className="text-[10px] font-black text-amber-300 uppercase tabular-nums">
                             Partie {pIdx + 1} · {part.bepcPoints}
                           </div>
-                          <div className="text-xs font-extrabold truncate">{part.title}</div>
+                          <div className="text-xs font-extrabold truncate"><FormattedMathText text={part.title} /></div>
                         </div>
                         {isPartSolved && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
                       </button>
@@ -1054,15 +1238,15 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                     return (
                       <article
                         key={part.id}
-                        className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3"
+                        className="p-3.5 sm:p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3"
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800">
-                          <div>
-                            <div className="text-xs font-black text-amber-300 tabular-nums">
+                        <div className="flex flex-col sm:flex-row sm:items-center items-start justify-between gap-2 pb-2 border-b border-slate-800">
+                          <div className="min-w-0">
+                            <div className="text-xs font-black text-amber-300 tabular-nums break-words">
                               Partie {pIdx + 1} sur {currentArchivePaper.parts.length} · Barème : {part.bepcPoints}
                             </div>
-                            <h5 className="text-sm sm:text-base font-black text-white">
-                              {part.title}
+                            <h5 className="text-sm sm:text-base font-black text-white break-words">
+                              <FormattedMathText text={part.title} />
                             </h5>
                           </div>
                           <button
@@ -1072,15 +1256,44 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                               setArchiveFullSheetView(false);
                               scrollToSectionById('bepc-active-stage', 50);
                             }}
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-800 text-sky-300 border border-slate-700 transition cursor-pointer whitespace-nowrap shrink-0"
+                            className="w-full sm:w-auto text-center px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-800 text-sky-300 border border-slate-700 transition cursor-pointer"
                           >
                             Répondre en mode interactif
                           </button>
                         </div>
 
-                        <div className="text-sm text-slate-100 whitespace-pre-line leading-relaxed">
-                          {part.prompt}
+                        <div className="text-sm text-slate-100 whitespace-pre-line leading-relaxed break-words">
+                          <FormattedMathText text={part.prompt} />
                         </div>
+
+                        {part.subQuestions && part.subQuestions.length > 0 && (
+                          <div className="rounded-xl bg-slate-950/90 border border-slate-800 p-3 space-y-2">
+                            <div className="text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                              Questions détaillées de cette partie ({part.subQuestions.length} questions)
+                            </div>
+                            <div className="space-y-2">
+                              {part.subQuestions.map((sq) => (
+                                <div key={sq.questionNumber} className="text-xs text-slate-200 space-y-1 border-b border-slate-800/70 last:border-b-0 pb-2 last:pb-0">
+                                  <div className="font-semibold break-words">
+                                    <span className="text-amber-300 font-mono mr-1.5">Q{sq.questionNumber}.</span>
+                                    <FormattedMathText text={sq.questionPrompt} />
+                                  </div>
+                                  {isOpenCorr && (
+                                    <div className="pl-3 text-[11px] text-emerald-300 space-y-0.5 break-words">
+                                      <div>
+                                        <strong>Réponse :</strong> <FormattedMathText text={sq.correctAnswer} />
+                                      </div>
+                                      {sq.mathExpression && (
+                                        <div className="font-mono text-sky-300"><FormattedMathText text={sq.mathExpression} /></div>
+                                      )}
+                                      <div className="text-slate-300"><FormattedMathText text={sq.explanation} /></div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                         <ExerciseVisualFigure
                           chapterId={partChapter.id}
@@ -1096,7 +1309,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                             onClick={() =>
                               setShownCorrections((prev) => ({ ...prev, [part.id]: true }))
                             }
-                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition cursor-pointer"
+                            className="w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-950 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition cursor-pointer text-center"
                           >
                             Voir la correction détaillée de cette partie ({part.steps.length} étapes)
                           </button>
@@ -1126,7 +1339,9 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
       {/* ========================================================= */}
       {/* ACTIVE BEPC EXERCISE / EXAM PROBLEM SOLVER                */}
       {/* ========================================================= */}
-      {currentExercise && !(mode === 'epreuves' && archiveFullSheetView) && (
+      {currentExercise &&
+        !(mode === 'epreuves' && archiveFullSheetView) &&
+        !(mode === 'examen' && examFullSheetView) && (
         <section id="bepc-active-stage" className="space-y-4">
           {/* Numbered Progression Bar */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
@@ -1200,11 +1415,11 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
 
             <div>
               <div className="text-xs font-bold text-sky-400 mb-0.5">
-                {activeChapterForFigure.title}
+                <FormattedMathText text={activeChapterForFigure.title} />
               </div>
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400 shrink-0" />
-                <span>{currentExercise.title}</span>
+                <span><FormattedMathText text={currentExercise.title} /></span>
               </h3>
               {currentExercise.themeTags && currentExercise.themeTags.length > 0 && (
                 <div className="text-xs text-slate-400 mt-1">
@@ -1215,7 +1430,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
 
             {/* Énoncé officiel */}
             <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-sm font-medium text-slate-100 whitespace-pre-line leading-relaxed shadow-inner">
-              {currentExercise.prompt}
+              <FormattedMathText text={currentExercise.prompt} />
             </div>
 
             {/* Figure d’illustration */}
@@ -1258,7 +1473,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                       <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                       <div>
                         <strong className="font-semibold text-amber-300">Indice :</strong>{' '}
-                        {currentExercise.hint}
+                        <FormattedMathText text={currentExercise.hint} />
                       </div>
                     </div>
                   )}
@@ -1288,7 +1503,7 @@ export const BepcStudioView: React.FC<BepcStudioViewProps> = ({
                                 : 'bg-slate-950 text-slate-200 border-slate-800 hover:bg-slate-800'
                             }`}
                           >
-                            {opt}
+                            <FormattedMathText text={opt} />
                           </button>
                         );
                       })}

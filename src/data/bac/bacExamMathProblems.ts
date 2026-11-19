@@ -1,6 +1,6 @@
 import { Exercise } from '../../types/math';
 
-export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
+export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = [
   {
     id: 'bac-exam-math-1',
     chapterId: 'mathTc-arithmetique',
@@ -13,18 +13,85 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2025',
     bepcPoints: '5 pts',
     visualBadge: '🔐',
-    themeTags: ['Arithmétique', 'Bézout', 'Gauss'],
+    themeTags: ['Arithmétique', 'Bézout', 'Gauss', 'Petit théorème de Fermat'],
     prompt:
-      'Pour déchiffrer un code, on résout 17x - 40y = 1 dans ℤ² (clé publique e = 17, φ(n) = 40).\n' +
-      '1) Vérifie que (x₀, y₀) = (-7, -3) est solution particulière.\n' +
-      '2) Déduis-en la plus petite clé privée positive x ∈ {1, ..., 39} solution.',
-    hint: 'Par Gauss, x = -7 + 40k. Prends k = 1.',
+      'Dans un protocole RSA simplifié, on choisit p = 5, q = 11, d’où le module n = p × q = 55 et l’indicateur φ(n) = (p − 1)(q − 1) = 40. La clé publique de chiffrement est e = 17.\n\n' +
+      'Partie A — Résolution de l’équation diophantienne (E) : 17x − 40y = 1\n' +
+      '1. À l’aide de l’algorithme d’Euclide, justifier que 17 et 40 sont premiers entre eux.\n' +
+      '2. Vérifier que (x₀, y₀) = (−7, −3) est une solution particulière de (E).\n' +
+      '3. Résoudre l’équation (E) dans ℤ² à l’aide du théorème de Gauss.\n' +
+      '4. En déduire la clé privée unique x ∈ {1, 2, ..., 39} telle que 17x ≡ 1 [40].\n\n' +
+      'Partie B — Chiffrement et déchiffrement d’un message\n' +
+      '5. On chiffre le message m = 2 par c ≡ m^17 [55]. Vérifier que 2^5 ≡ 32 [55], 2^10 ≡ 34 [55] et calculer c = 2^17 mod 55.\n' +
+      '6. Vérifier le déchiffrement c^33 ≡ 2 [55] à l’aide de l’ordre multiplicatif modulo 55 (rappel : φ(55) = 40).',
+    hint: 'Par Gauss, 17(x + 7) = 40(y + 3) donne x = −7 + 40k. Pour k = 1, x = 33. Pour 2^17 mod 55 : 2^10 × 2^5 × 2^2 ≡ 34 × 32 × 4 ≡ 7 [55].',
     questionType: 'numeric',
     correctAnswer: '33',
-    explanationFinal: '17(-7) - 40(-3) = -119 + 120 = 1. Par Gauss, x = -7 + 40k. Pour k = 1, x = 33 ∈ {1..39}.',
+    explanationFinal: 'pgcd(17, 40) = 1 ; (x, y) = (−7 + 40k, −3 + 17k) ; clé privée x = 33 ; message chiffré c = 7 et déchiffré 7^33 ≡ 2 [55].',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Calculer le module n = p × q et l’indicateur d’Euler φ(n) = (p − 1)(q − 1) pour p = 5 et q = 11. Que vaut φ(n) ?',
+        questionType: 'numeric',
+        correctAnswer: '40',
+        hint: 'Multiplie (5 − 1) par (11 − 1).',
+        ruleApplied: 'Indicatrice d’Euler d’un produit de deux nombres premiers distincts',
+        mathExpression: 'n = 5 × 11 = 55   |   φ(55) = (5 − 1)(11 − 1) = 4 × 10 = 40',
+        explanation: 'Comme 5 et 11 sont premiers distincts, φ(55) = 4 × 10 = 40.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Vérifier 17(−7) − 40(−3) pour la solution particulière (−7, −3). Quelle valeur obtient-on ?',
+        questionType: 'numeric',
+        correctAnswer: '1',
+        hint: 'Calcule −119 + 120.',
+        ruleApplied: 'Identité de Bézout',
+        mathExpression: '17 × (−7) − 40 × (−3) = −119 + 120 = 1',
+        explanation: 'Le couple (−7, −3) vérifie bien l’équation 17x − 40y = 1.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Par le théorème de Gauss, quelle est l’expression générale des couples (x, y) solutions de 17x − 40y = 1 dans ℤ² ?',
+        questionType: 'qcm',
+        options: [
+          'x = −7 + 40k et y = −3 + 17k (k ∈ ℤ)',
+          'x = 7 + 40k et y = 3 + 17k (k ∈ ℤ)',
+          'x = −7 + 17k et y = −3 + 40k (k ∈ ℤ)',
+          'x = 33 + 17k et y = 14 + 40k (k ∈ ℤ)',
+        ],
+        correctAnswer: 'x = −7 + 40k et y = −3 + 17k (k ∈ ℤ)',
+        hint: '17(x + 7) = 40(y + 3) avec 17 ∧ 40 = 1 ⇒ 40 | (x + 7).',
+        ruleApplied: 'Théorème de Gauss',
+        mathExpression: '17(x + 7) = 40(y + 3) et pgcd(17, 40) = 1 ⇒ x + 7 = 40k ⇒ x = −7 + 40k, y = −3 + 17k',
+        explanation: '40 divise le produit 17(x + 7) tout en étant premier avec 17, donc 40 divise x + 7.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Quelle est l’unique clé privée x ∈ {1, ..., 39} telle que 17x ≡ 1 [40] ?',
+        questionType: 'numeric',
+        correctAnswer: '33',
+        hint: 'Prends k = 1 dans x = −7 + 40k.',
+        ruleApplied: 'Inverse modulaire dans ℤ/40ℤ',
+        mathExpression: 'k = 1 ⇒ x = −7 + 40 = 33 ∈ {1, ..., 39}   (y = 14)',
+        explanation: 'Pour k = 1, x = 33 et y = 14 ; on vérifie 17 × 33 = 561 = 14 × 40 + 1.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Chiffrer le message m = 2 par c ≡ 2^17 [55] (avec 0 ≤ c < 55). Quelle valeur de c obtient-on ?',
+        questionType: 'numeric',
+        correctAnswer: '7',
+        hint: 'Utilise 2^6 = 64 ≡ 9 [55], puis 2^12 ≡ 81 ≡ 26 [55], puis 2^17 ≡ 26 × 32 [55].',
+        ruleApplied: 'Exponentiation modulaire rapide',
+        mathExpression: '2^6 = 64 ≡ 9 [55] ⇒ 2^12 ≡ 81 ≡ 26 [55] ⇒ 2^17 = 2^12 × 2^5 ≡ 26 × 32 = 832 = 15×55 + 7 ≡ 7 [55]',
+        explanation: '2^10 ≡ 34 [55] et 2^7 = 128 ≡ 18 [55], donc 2^17 ≡ 34 × 18 = 612 = 11×55 + 7 ≡ 7 [55].',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Solution particulière', explanation: '-119 + 120 = 1.', mathExpression: '17(-7) - 40(-3) = 1' },
-      { stepNumber: 2, title: 'Théorème de Gauss', explanation: '17(x + 7) = 40(y + 3) et 17 ∧ 40 = 1.', mathExpression: 'x = -7 + 40k ⟹ pour k = 1 : x = 33' },
+      { stepNumber: 1, title: 'Algorithme d’Euclide et solution particulière', explanation: '40 = 2×17 + 6 ; 17 = 2×6 + 5 ; 6 = 1×5 + 1, donc pgcd(17, 40) = 1. On vérifie 17(−7) − 40(−3) = −119 + 120 = 1.', mathExpression: 'pgcd(17, 40) = 1   |   17(−7) − 40(−3) = 1' },
+      { stepNumber: 2, title: 'Résolution générale par Gauss', explanation: '17(x + 7) = 40(y + 3) et 17 ∧ 40 = 1 entraînent 40 | (x + 7).', mathExpression: 'x = −7 + 40k,  y = −3 + 17k  (k ∈ ℤ)' },
+      { stepNumber: 3, title: 'Clé privée positive', explanation: 'L’unique entier de {1, ..., 39} congru à −7 modulo 40 est x = 33 (pour k = 1).', mathExpression: 'x = 33  (17 × 33 = 561 ≡ 1 [40])' },
+      { stepNumber: 4, title: 'Chiffrement de m = 2', explanation: '2^6 = 64 ≡ 9 [55] ⇒ 2^12 ≡ 81 ≡ 26 [55] ⇒ 2^17 ≡ 26 × 32 = 832 ≡ 7 [55].', mathExpression: 'c = 2^17 mod 55 = 7' },
+      { stepNumber: 5, title: 'Vérification du déchiffrement', explanation: 'Par le théorème d’Euler (pgcd(2, 55) = 1), 2^40 ≡ 1 [55], donc c^33 ≡ 2^(17×33) = 2^(1 + 14×40) ≡ 2 × 1^14 = 2 [55].', mathExpression: '7^33 ≡ 2 [55]' },
     ],
   },
   {
@@ -39,17 +106,79 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2024',
     bepcPoints: '5 pts',
     visualBadge: '🧭',
-    themeTags: ['Complexes', 'Polynôme', 'Géométrie'],
+    themeTags: ['Complexes', 'Polynôme du 3ᵉ degré', 'Triangle équilatéral', 'Rotation'],
     prompt:
-      'Soit P(z) = z³ - 6z² + 12z - 16 = (z - 4)(z² - 2z + 4). Les trois solutions ont pour affixes A(4), B(1 + i√3) et C(1 - i√3).\n' +
-      'Calcule la longueur commune des côtés du triangle équilatéral ABC (arrondie à 0,01 près, avec 2√3 ≈ 3,46).',
-    hint: 'Calcule BC = |z_B - z_C| = |2i√3| = 2√3.',
+      'Dans ℂ, on considère le polynôme P(z) = z³ − 6z² + 12z − 16.\n\n' +
+      'Partie A — Résolution de l’équation P(z) = 0\n' +
+      '1. Calculer P(4) et déterminer les réels a, b tels que P(z) = (z − 4)(z² + az + b).\n' +
+      '2. Résoudre dans ℂ l’équation P(z) = 0. On note z_A = 4, z_B = 1 + i√3 et z_C = 1 − i√3 les trois racines, images des points A, B, C dans le plan complexe.\n' +
+      '3. Déterminer le module et un argument de z_B et z_C.\n\n' +
+      'Partie B — Configuration géométrique du triangle ABC\n' +
+      '4. Calculer les longueurs AB, AC et BC et en déduire la nature du triangle ABC.\n' +
+      '5. Calculer l’affixe z_G du centre de gravité G de ABC et le rapport (z_C − z_A)/(z_B − z_A) sous forme exponentielle.\n' +
+      '6. Déterminer la rotation r qui transforme B en C en laissant A invariant.',
+    hint: 'z_B = 1 + i√3 a pour module 2 et argument π/3 ; BC = |2i√3| = 2√3 ≈ 3,46.',
     questionType: 'numeric',
     correctAnswer: '3.46',
-    explanationFinal: 'BC = |2i√3| = 2√3 ≈ 3,46, et AB = |3 - i√3| = √(9 + 3) = √12 = 2√3.',
+    explanationFinal: 'z₁ = 4, z₂,₃ = 1 ± i√3 = 2 e^(±iπ/3) ; AB = AC = BC = 2√3 ≈ 3,46 : ABC est équilatéral de centre G(2 ; 0).',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'En factorisant P(z) = (z − 4)(z² + az + b), quel est le couple (a, b) ?',
+        questionType: 'qcm',
+        options: ['(a, b) = (−2, 4)', '(a, b) = (2, −4)', '(a, b) = (−2, −4)', '(a, b) = (−6, 12)'],
+        correctAnswer: '(a, b) = (−2, 4)',
+        hint: 'Développe (z − 4)(z² + az + b) = z³ + (a − 4)z² + (b − 4a)z − 4b et identifie à z³ − 6z² + 12z − 16.',
+        ruleApplied: 'Identification des coefficients polynomiaux',
+        mathExpression: 'a − 4 = −6 ⇒ a = −2   |   −4b = −16 ⇒ b = 4',
+        explanation: 'On vérifie b − 4a = 4 − 4(−2) = 12 : P(z) = (z − 4)(z² − 2z + 4).',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Quel est le discriminant Δ de z² − 2z + 4 = 0 ?',
+        questionType: 'numeric',
+        correctAnswer: '-12',
+        hint: 'Δ = (−2)² − 4(1)(4).',
+        ruleApplied: 'Discriminant du second degré',
+        mathExpression: 'Δ = 4 − 16 = −12 = (2i√3)²',
+        explanation: 'Les racines complexes conjuguées sont z_B = (2 + 2i√3)/2 = 1 + i√3 et z_C = 1 − i√3.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quel est le module |z_B| de z_B = 1 + i√3 ?',
+        questionType: 'numeric',
+        correctAnswer: '2',
+        hint: '|x + iy| = √(x² + y²).',
+        ruleApplied: 'Module d’un nombre complexe',
+        mathExpression: '|z_B| = √(1² + (√3)²) = √4 = 2  (et arg(z_B) = π/3)',
+        explanation: 'Ainsi z_B = 2 e^(iπ/3) et z_C = 2 e^(−iπ/3).',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer la longueur commune des côtés du triangle équilatéral ABC (arrondie à 0,01 près, avec 2√3 ≈ 3,46).',
+        questionType: 'numeric',
+        correctAnswer: '3.46',
+        hint: 'BC = |z_B − z_C| = |2i√3| = 2√3.',
+        ruleApplied: 'Distance entre deux points d’affixes données',
+        mathExpression: 'BC = |2i√3| = 2√3 ≈ 3,46   |   AB = |3 − i√3| = √(9 + 3) = 2√3',
+        explanation: 'AB = AC = BC = 2√3 ≈ 3,46 : ABC est un triangle équilatéral.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Quelle est l’affixe z_G du centre de gravité G du triangle ABC ?',
+        questionType: 'numeric',
+        correctAnswer: '2',
+        hint: 'z_G = (z_A + z_B + z_C) / 3.',
+        ruleApplied: 'Affixe de l’isobarycentre',
+        mathExpression: 'z_G = [4 + (1 + i√3) + (1 − i√3)] / 3 = 6 / 3 = 2',
+        explanation: 'La somme des trois racines vaut le coefficient de −z² soit 6, donc l’affixe de G est réelle et vaut 2.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Racines complexes', explanation: 'Δ = 4 - 16 = -12 = (2i√3)².', mathExpression: 'z₁ = 4 ; z₂,₃ = 1 ± i√3' },
-      { stepNumber: 2, title: 'Longueur des côtés', explanation: 'BC = AB = AC = √12.', mathExpression: '2√3 ≈ 3,46' },
+      { stepNumber: 1, title: 'Factorisation par (z − 4)', explanation: 'P(4) = 64 − 96 + 48 − 16 = 0.', mathExpression: 'P(z) = (z − 4)(z² − 2z + 4)' },
+      { stepNumber: 2, title: 'Racines complexes et forme exponentielle', explanation: 'Δ = −12 = (2i√3)².', mathExpression: 'z_A = 4 ;  z_B = 1 + i√3 = 2e^(iπ/3) ;  z_C = 1 − i√3 = 2e^(−iπ/3)' },
+      { stepNumber: 3, title: 'Nature du triangle ABC', explanation: 'AB = AC = BC = √12 = 2√3 ≈ 3,46.', mathExpression: '(z_C − z_A)/(z_B − z_A) = (−3 − i√3)/(−3 + i√3) = e^(iπ/3)' },
+      { stepNumber: 4, title: 'Centre de gravité et rotation', explanation: 'z_G = 2 ; r est la rotation de centre A et d’angle +π/3.', mathExpression: 'r(A, +π/3) : r(B) = C' },
     ],
   },
   {
@@ -64,17 +193,81 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2023',
     bepcPoints: '5 pts',
     visualBadge: '🌀',
-    themeTags: ['Similitude', 'Spirale', 'Complexes'],
+    themeTags: ['Similitude directe', 'Spirale', 'Suite géométrique', 'Série convergente'],
     prompt:
-      'On définit M_{n+1} = s(M_n) par z_{n+1} = (1/2) i z_n (avec M₀ d’affixe z₀ = 64). On note r_n = OM_n = |z_n|.\n' +
-      'Que vaut la longueur OM₃ = |z₃| ?',
-    hint: '|z_{n+1}| = ½ |z_n|, donc r_n est géométrique de raison ½.',
+      'Dans le plan complexe orienté, on définit la transformation s qui à tout point M(z) associe M’(z’) tel que z’ = (1/2) i z. On pose M₀ d’affixe z₀ = 64 et M_{n+1} = s(M_n) pour tout n ∈ ℕ, avec r_n = OM_n = |z_n|.\n\n' +
+      '1. Caractériser géométriquement la similitude directe s (centre, rapport k, angle θ).\n' +
+      '2. Montrer que la suite (r_n) est géométrique ; préciser sa raison et son premier terme r₀.\n' +
+      '3. Calculer r₃ = OM₃ et l’affixe algébrique z₄ du point M₄.\n' +
+      '4. Montrer que pour tout n ≥ 0, les vecteurs OM_n⃗ et OM_{n+1}⃗ sont orthogonaux, puis exprimer la longueur d_n = M_n M_{n+1} en fonction de n.\n' +
+      '5. Calculer la longueur totale L_n = ∑_{k=0}^{n−1} M_k M_{k+1} et sa limite L_∞ quand n → +∞.',
+    hint: 'k = |½ i| = ½ et θ = arg(½ i) = π/2 ; r_3 = 64 × (½)³ = 8.',
     questionType: 'numeric',
     correctAnswer: '8',
-    explanationFinal: 'r₃ = 64 × (½)³ = 64 / 8 = 8.',
+    explanationFinal: 's = S(O ; ½ ; π/2) ; r_n = 64·(1/2)^n (r₃ = 8, z₄ = 4) ; d_n = 32√5 · (1/2)^n ; L_∞ = 64√5.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Quel est le rapport k et l’angle θ de la similitude directe s : z’ = (½ i) z ?',
+        questionType: 'qcm',
+        options: [
+          'Centre O, rapport k = 1/2, angle θ = π/2',
+          'Centre O, rapport k = 2, angle θ = −π/2',
+          'Centre I(1 ; 0), rapport k = 1/2, angle θ = π/4',
+          'Centre O, rapport k = 1/2, angle θ = π',
+        ],
+        correctAnswer: 'Centre O, rapport k = 1/2, angle θ = π/2',
+        hint: 'z’ = a z avec a = ½ e^(iπ/2).',
+        ruleApplied: 'Écriture complexe d’une similitude directe',
+        mathExpression: 'a = ½ i = (1/2) e^(iπ/2)   |   z_Ω = 0/(1 − a) = 0',
+        explanation: 's est la similitude directe de centre O, de rapport k = 1/2 et d’angle θ = +π/2.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Calculer la distance r₃ = OM₃.',
+        questionType: 'numeric',
+        correctAnswer: '8',
+        hint: 'r_n = 64 × (1/2)^n.',
+        ruleApplied: 'Suite géométrique des modules',
+        mathExpression: 'r₃ = 64 × (1/2)³ = 64 / 8 = 8',
+        explanation: 'Chaque étape divise la distance à O par 2 : 64, 32, 16, 8.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quelle est l’affixe réelle z₄ du point M₄ ?',
+        questionType: 'numeric',
+        correctAnswer: '4',
+        hint: 'z₄ = (½ i)⁴ × 64 avec i⁴ = 1.',
+        ruleApplied: 'Puissances de i',
+        mathExpression: 'z₄ = (1/16) × i⁴ × 64 = 4 × 1 = 4',
+        explanation: 'Tous les 4 pas (angle 4 × π/2 = 2π), M_n revient sur le demi-axe positif [Ox).',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer la longueur du premier segment d₀ = M₀M₁ (donner la valeur numérique arrondie à 0,01 près, sachant √5 ≈ 2,236).',
+        questionType: 'numeric',
+        correctAnswer: '71.55',
+        hint: 'OM₀M₁ est rectangle en O avec OM₀ = 64 et OM₁ = 32 : M₀M₁ = √(64² + 32²) = 32√5.',
+        ruleApplied: 'Théorème de Pythagore (angle π/2 en O)',
+        mathExpression: 'd₀ = √(64² + 32²) = 32√5 ≈ 32 × 2,23607 ≈ 71,55',
+        explanation: 'Comme (OM₀⃗, OM₁⃗) = π/2, le triangle OM₀M₁ est rectangle en O.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Vers quelle limite tend la somme infinie des longueurs L_∞ = ∑_{k=0}^{+∞} d_k ? (Arrondir à 0,1 près avec 64√5 ≈ 143,1).',
+        questionType: 'numeric',
+        correctAnswer: '143.1',
+        hint: 'L_∞ = d₀ / (1 − ½) = 2 d₀ = 64√5.',
+        ruleApplied: 'Somme d’une série géométrique de raison 1/2',
+        mathExpression: 'L_∞ = 32√5 / (1 − 1/2) = 64√5 ≈ 143,1',
+        explanation: 'La ligne brisée s’enroule en spirale vers O tout en ayant une longueur totale finie égale à 64√5.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Module du rapport', explanation: '|½ i| = ½.', mathExpression: 'r_{n+1} = ½ r_n' },
-      { stepNumber: 2, title: 'Terme au rang 3', explanation: '64 × (1/8) = 8.', mathExpression: 'r₃ = 8' },
+      { stepNumber: 1, title: 'Nature de s', explanation: 's(0) = 0 et a = ½ e^(iπ/2).', mathExpression: 's = S(O ; k = ½ ; θ = π/2)' },
+      { stepNumber: 2, title: 'Suite géométrique des rayons', explanation: 'r_{n+1} = |½ i| r_n = ½ r_n.', mathExpression: 'r₃ = 64 × (1/2)³ = 8   |   z₄ = 4' },
+      { stepNumber: 3, title: 'Longueur des segments d_n', explanation: 'OM_nM_{n+1} rectangle en O : d_n = √(r_n² + r_{n+1}²) = r_{n+1}√5 = 32√5 (½)^n.', mathExpression: 'd₀ = 32√5 ≈ 71,55' },
+      { stepNumber: 4, title: 'Limite de la spirale', explanation: 'Somme géométrique de raison ½.', mathExpression: 'lim L_n = 2 d₀ = 64√5 ≈ 143,1' },
     ],
   },
   {
@@ -89,17 +282,81 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2024',
     bepcPoints: '5 pts',
     visualBadge: '⚖️',
-    themeTags: ['Barycentre', 'Leibniz', 'Lieux'],
+    themeTags: ['Barycentre', 'Leibniz', 'Lieu géométrique', 'Ligne de niveau'],
     prompt:
-      'Soit ABC un triangle rectangle isocèle en A tel que AB = AC = 4. Soit G = bar{(A, 2), (B, 1), (C, 1)}. On admet que f(G) = 2GA² + GB² + GC² = 12.\n' +
-      'Détermine le rayon R du cercle des points M tels que 2MA² + MB² + MC² = 48.',
-    hint: '4 MG² + f(G) = 48 ⟹ 4 MG² = 36.',
+      'Dans le plan, ABC est un triangle rectangle isocèle en A tel que AB = AC = 4. On note I le milieu de [BC] et G = bar{(A, 2), (B, 1), (C, 1)}. On associe la fonction scalaire de Leibniz f(M) = 2MA² + MB² + MC².\n\n' +
+      '1. Justifier l’existence de G et montrer que G est le milieu du segment [AI].\n' +
+      '2. Calculer les longueurs BC, AI, GA, puis calculer GB² = GC².\n' +
+      '3. En déduire la valeur exacte de f(G) = 2GA² + GB² + GC².\n' +
+      '4. Exprimer f(M) en fonction de MG² et f(G) (formule de Leibniz).\n' +
+      '5. Déterminer et construire l’ensemble (Γ) des points M du plan tels que 2MA² + MB² + MC² = 60 (préciser son centre et son rayon R).',
+    hint: 'Dans ABC rectangle isocèle en A (AB = AC = 4), BC = 4√2, AI = IB = 2√2 et GA = GI = √2, donc GB² = GI² + IB² = 10 et f(G) = 2(2) + 10 + 10 = 24 ; 4MG² + 24 = 60 donne R = 3.',
     questionType: 'numeric',
     correctAnswer: '3',
-    explanationFinal: '4 MG² + 12 = 48 ⟹ MG² = 9 ⟹ R = 3.',
+    explanationFinal: 'G est le milieu de [AI] avec f(G) = 24 ; 4 MG² + 24 = 60 ⟺ MG = 3 : (Γ) est le cercle de centre G et de rayon R = 3.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Par associativité barycentrique avec I = mil[BC] = bar{(B, 1), (C, 1)}, où se situe G = bar{(A, 2), (B, 1), (C, 1)} ?',
+        questionType: 'qcm',
+        options: [
+          'G est le milieu du segment [AI]',
+          'G est le milieu du segment [BC]',
+          'G vérifie AG⃗ = (1/3) AI⃗',
+          'G coïncide avec le point A',
+        ],
+        correctAnswer: 'G est le milieu du segment [AI]',
+        hint: 'Remplace (B, 1) et (C, 1) par (I, 2).',
+        ruleApplied: 'Associativité du barycentre',
+        mathExpression: 'G = bar{(A, 2), (I, 2)} = milieu de [AI]',
+        explanation: 'Les coefficients de A et I étant égaux à 2, G est l’isobarycentre de A et I.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Calculer GB² sachant que ABC est rectangle isocèle en A avec AB = AC = 4.',
+        questionType: 'numeric',
+        correctAnswer: '10',
+        hint: 'BC = 4√2 ⇒ IB = 2√2 et AI = 2√2 ⇒ GI = √2 ; puis Pythagore dans GIB rectangle en I.',
+        ruleApplied: 'Médiane d’un triangle rectangle isocèle et Pythagore',
+        mathExpression: 'IB = AI = 2√2 ⇒ GI = √2 ⇒ GB² = GI² + IB² = 2 + 8 = 10',
+        explanation: '(AI) est perpendiculaire à (BC) en I, donc GB² = GI² + IB² = (√2)² + (2√2)² = 10.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Calculer la valeur exacte de f(G) = 2GA² + GB² + GC².',
+        questionType: 'numeric',
+        correctAnswer: '24',
+        hint: 'GA = √2 (donc GA² = 2) et GB² = GC² = 10.',
+        ruleApplied: 'Calcul direct en G',
+        mathExpression: 'f(G) = 2(2) + 10 + 10 = 4 + 20 = 24',
+        explanation: 'La constante de Leibniz au centre G vaut exactement 24.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Par la formule de réduction de Leibniz, à quoi est égal f(M) = 2MA² + MB² + MC² ?',
+        questionType: 'qcm',
+        options: ['4 MG² + 24', '2 MG² + 24', '4 MG² + 12', 'MG² + 24'],
+        correctAnswer: '4 MG² + 24',
+        hint: 'La somme des coefficients vaut 2 + 1 + 1 = 4.',
+        ruleApplied: 'Formule de Leibniz : f(M) = (∑ α_i) MG² + f(G)',
+        mathExpression: 'f(M) = (2 + 1 + 1) MG² + f(G) = 4 MG² + 24',
+        explanation: 'Le produit scalaire MG⃗·(2GA⃗ + GB⃗ + GC⃗) est nul par définition de G.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Pour la ligne de niveau f(M) = 60, déterminer le rayon R du cercle solution centré en G.',
+        questionType: 'numeric',
+        correctAnswer: '3',
+        hint: '4 MG² + 24 = 60 ⇒ 4 MG² = 36 ⇒ MG² = 9.',
+        ruleApplied: 'Ligne de niveau f(M) = k',
+        mathExpression: '4 MG² = 60 − 24 = 36 ⇒ MG² = 9 ⇒ R = 3',
+        explanation: 'L’ensemble des points M tels que f(M) = 60 est le cercle de centre G et de rayon R = 3.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Formule de Leibniz', explanation: 'Somme des poids = 4.', mathExpression: 'f(M) = 4 MG² + f(G) = 4 MG² + 12' },
-      { stepNumber: 2, title: 'Rayon du cercle', explanation: '4 MG² = 36 ⟹ MG = 3.', mathExpression: 'R = 3' },
+      { stepNumber: 1, title: 'Construction de G par associativité', explanation: 'I = mil[BC] = bar{(B,1),(C,1)} donc G = bar{(A,2),(I,2)} est le milieu de [AI].', mathExpression: 'G = mil[AI]' },
+      { stepNumber: 2, title: 'Calcul de f(G)', explanation: 'BC = 4√2 ⇒ IB = AI = 2√2 ⇒ GA = GI = √2, GB² = GC² = 2 + 8 = 10.', mathExpression: 'f(G) = 2(2) + 10 + 10 = 24' },
+      { stepNumber: 3, title: 'Formule de Leibniz et ligne de niveau f(M) = 60', explanation: '4 MG² + 24 = 60 ⟹ 4 MG² = 36 ⟹ MG = 3.', mathExpression: 'Cercle (G ; R = 3)' },
     ],
   },
   {
@@ -114,16 +371,86 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2022',
     bepcPoints: '6 pts',
     visualBadge: '📈',
-    themeTags: ['Limites', 'Asymptote oblique'],
+    themeTags: ['Fonction irrationnelle', 'Asymptotes obliques', 'Dérivabilité aux bornes'],
     prompt:
-      'Soit f(x) = x + 1 + √(x² + 4x). En +∞, la courbe admet une asymptote oblique y = ax + b.\n' +
-      'Sachant que lim_{+∞} (√(x² + 4x) - x) = 2, calcule l’ordonnée à l’origine b de cette asymptote en +∞.',
-    hint: 'f(x) = x + 1 + x + (√(x² + 4x) - x) → 2x + 1 + 2.',
+      'On considère la fonction f définie par f(x) = x + 1 + √(x² + 4x).\n\n' +
+      '1. Déterminer l’ensemble de définition D_f de la fonction f.\n' +
+      '2. Étudier la dérivabilité de f en x = 0 et en x = −4 ; préciser les demi-tangentes.\n' +
+      '3. Calculer les limites de f aux bornes de D_f (en −∞ et en +∞).\n' +
+      '4. Montrer que la droite (D₁) d’équation y = −1 est asymptote horizontale à (C_f) en −∞.\n' +
+      '5. Montrer que (D₂) : y = 2x + 3 est asymptote oblique à (C_f) en +∞, et étudier la position relative de (C_f) par rapport à (D₂).',
+    hint: 'x² + 4x ≥ 0 sur ]−∞ ; −4] ∪ [0 ; +∞[. En +∞, √(x² + 4x) − x → 2 par expression conjuguée, d’où f(x) − (2x + 3) → 0.',
     questionType: 'numeric',
     correctAnswer: '3',
-    explanationFinal: 'En +∞, √(x² + 4x) ≈ x + 2, donc f(x) - (2x + 3) → 0 : asymptote y = 2x + 3 (b = 3).',
+    explanationFinal: 'D_f = ]−∞ ; −4] ∪ [0 ; +∞[ ; asymptote horizontale y = −1 en −∞ et asymptote oblique y = 2x + 3 en +∞ (b = 3), avec (C_f) en dessous de (D₂).',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Quel est l’ensemble de définition D_f de f(x) = x + 1 + √(x² + 4x) ?',
+        questionType: 'qcm',
+        options: [
+          ']−∞ ; −4] ∪ [0 ; +∞[',
+          '[−4 ; 0]',
+          'ℝ tout entier',
+          '[0 ; +∞[',
+        ],
+        correctAnswer: ']−∞ ; −4] ∪ [0 ; +∞[',
+        hint: 'Étudie le signe du trinôme x(x + 4) ≥ 0.',
+        ruleApplied: 'Domaine d’une racine carrée',
+        mathExpression: 'x(x + 4) ≥ 0 ⇔ x ≤ −4  ou  x ≥ 0',
+        explanation: 'Un trinôme du second degré à a = 1 > 0 est positif à l’extérieur de ses racines −4 et 0.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Calculer la limite de f(x) quand x → −∞.',
+        questionType: 'numeric',
+        correctAnswer: '-1',
+        hint: 'Pour x < 0, √(x² + 4x) = |x|√(1 + 4/x) = −x√(1 + 4/x). Utilise l’expression conjuguée de x + √(x² + 4x).',
+        ruleApplied: 'Expression conjuguée en −∞',
+        mathExpression: 'x + √(x² + 4x) = 4x / (x − √(x² + 4x)) → −2 ⇒ lim_(−∞) f(x) = −2 + 1 = −1',
+        explanation: 'Ainsi y = −1 est asymptote horizontale à (C_f) en −∞.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quel est le coefficient directeur a de l’asymptote oblique y = ax + b en +∞ ?',
+        questionType: 'numeric',
+        correctAnswer: '2',
+        hint: 'Pour x > 0, √(x² + 4x) ∼ x, donc f(x)/x → 1 + 1.',
+        ruleApplied: 'Recherche de direction asymptotique',
+        mathExpression: 'f(x)/x = 1 + 1/x + √(1 + 4/x) → 1 + 0 + 1 = 2',
+        explanation: 'La courbe admet une direction asymptotique de pente a = 2 en +∞.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer l’ordonnée à l’origine b de l’asymptote oblique y = 2x + b en +∞.',
+        questionType: 'numeric',
+        correctAnswer: '3',
+        hint: 'b = lim_{+∞} [f(x) − 2x] = 1 + lim_{+∞} (√(x² + 4x) − x).',
+        ruleApplied: 'Asymptote oblique : b = lim [f(x) − ax]',
+        mathExpression: '√(x² + 4x) − x = 4x / (√(x² + 4x) + x) → 2 ⇒ b = 1 + 2 = 3',
+        explanation: 'L’asymptote en +∞ est la droite (D₂) d’équation y = 2x + 3.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Sur [0 ; +∞[, comment est située la courbe (C_f) par rapport à son asymptote y = 2x + 3 ?',
+        questionType: 'qcm',
+        options: [
+          '(C_f) est strictement en dessous de (D₂)',
+          '(C_f) est strictement au-dessus de (D₂)',
+          '(C_f) coupe (D₂) en x = 2',
+          '(C_f) et (D₂) sont confondues',
+        ],
+        correctAnswer: '(C_f) est strictement en dessous de (D₂)',
+        hint: 'Compare √(x² + 4x) et (x + 2) en élevant au carré : x² + 4x < (x + 2)² = x² + 4x + 4.',
+        ruleApplied: 'Signe de f(x) − (2x + 3)',
+        mathExpression: 'f(x) − (2x + 3) = √(x² + 4x) − (x + 2) = −4 / (√(x² + 4x) + x + 2) < 0',
+        explanation: 'La différence est strictement négative pour tout x ≥ 0 : (C_f) est en dessous de y = 2x + 3.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Développement asymptotique', explanation: 'Conjugaison sur √(x² + 4x) - x → 2.', mathExpression: 'f(x) - (2x + 3) = √(x² + 4x) - (x + 2) → 0' },
+      { stepNumber: 1, title: 'Ensemble de définition', explanation: 'x² + 4x ≥ 0 sur ]−∞ ; −4] ∪ [0 ; +∞[.', mathExpression: 'D_f = ]−∞ ; −4] ∪ [0 ; +∞[' },
+      { stepNumber: 2, title: 'Asymptote horizontale en −∞', explanation: 'Par expression conjuguée avec |x| = −x, x + √(x² + 4x) → −2.', mathExpression: 'lim_(x→−∞) f(x) = −1' },
+      { stepNumber: 3, title: 'Asymptote oblique en +∞', explanation: 'f(x) − (2x + 3) = √(x² + 4x) − (x + 2) = −4 / (√(x² + 4x) + x + 2) → 0.', mathExpression: '(D₂) : y = 2x + 3  (C_f sous D₂)' },
     ],
   },
   {
@@ -138,23 +465,86 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2024',
     bepcPoints: '6 pts',
     visualBadge: '🎯',
-    themeTags: ['IAF', 'TVI', 'Suites'],
+    themeTags: ['Inégalité des accroissements finis', 'TVI', 'Suite récurrente', 'Point fixe'],
     prompt:
-      'Sur I = [0 ; 1], on étudie f(x) = cos(x / 2) et la suite u_{n+1} = f(u_n) convergeant vers α.\n' +
-      'Sachant que ∀x ∈ [0 ; 1], |f’(x)| = ½ |sin(x/2)| ≤ ½ sin(0,5) < 0,25, quel majorant k = 1/4 vérifie |u_n - α| ≤ kⁿ |u₀ - α| ? Donne k (en décimal).',
-    hint: 'k = 1/4 = 0,25.',
+      'On étudie sur I = [0 ; 1] la fonction f définie par f(x) = cos(x / 2), et la suite (u_n) définie par u₀ = 0 et u_{n+1} = f(u_n).\n\n' +
+      '1. Montrer que l’intervalle I = [0 ; 1] est stable par f (c’est-à-dire ∀x ∈ [0 ; 1], f(x) ∈ [0 ; 1]).\n' +
+      '2. Montrer que l’équation f(x) = x admet une unique solution α ∈ [0 ; 1] (on donne cos(0,5) ≈ 0,8776).\n' +
+      '3. Calculer f’(x) et justifier que pour tout x ∈ [0 ; 1], |f’(x)| ≤ ½ sin(0,5) < 0,25 (car sin(0,5) ≈ 0,479 < 0,5).\n' +
+      '4. En appliquant l’Inégalité des Accroissements Finis (IAF), montrer que ∀n ∈ ℕ, |u_{n+1} − α| ≤ 0,25 |u_n − α|, puis que |u_n − α| ≤ (0,25)^n.\n' +
+      '5. En déduire la convergence de (u_n) vers α et un rang N tel que u_N approche α à 10⁻³ près.',
+    hint: 'k = 1/4 = 0,25 ; (0,25)^5 = 1/1024 < 10⁻³.',
     questionType: 'numeric',
     correctAnswer: '0.25',
-    explanationFinal: 'Par l’IAF réitérée, |u_n - α| ≤ (0,25)ⁿ |u₀ - α| → 0.',
+    explanationFinal: 'f([0;1]) ⊂ [0;1] ; α unique par TVI ; |f’(x)| ≤ 0,25 ⇒ |u_n − α| ≤ (0,25)^n |u₀ − α| → 0 ; dès n = 5, précision < 10⁻³.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Calculer u₁ = f(u₀) pour u₀ = 0.',
+        questionType: 'numeric',
+        correctAnswer: '1',
+        hint: 'f(0) = cos(0).',
+        ruleApplied: 'Calcul du premier terme récurrent',
+        mathExpression: 'u₁ = cos(0 / 2) = cos(0) = 1',
+        explanation: 'u₀ = 0 et u₁ = 1 restent bien dans [0 ; 1].',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Pourquoi l’équation f(x) − x = 0 admet-elle une solution unique α sur [0 ; 1] ?',
+        questionType: 'qcm',
+        options: [
+          'g(x) = cos(x/2) − x est continue, strictement décroissante sur [0;1] avec g(0) = 1 > 0 et g(1) < 0',
+          'f est strictement croissante et négative sur [0 ; 1]',
+          'f(0) = 0 et f(1) = 1',
+          'La dérivée f’ est toujours nulle',
+        ],
+        correctAnswer: 'g(x) = cos(x/2) − x est continue, strictement décroissante sur [0;1] avec g(0) = 1 > 0 et g(1) < 0',
+        hint: 'g’(x) = −½ sin(x/2) − 1 < 0.',
+        ruleApplied: 'Théorème de la bijection (TVI strict)',
+        mathExpression: 'g(0) = 1 > 0  et  g(1) = cos(0,5) − 1 ≈ −0,122 < 0  ⇒  ∃! α ∈ ]0 ; 1[, g(α) = 0',
+        explanation: 'g est continue et strictement décroissante et change de signe sur [0 ; 1].',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quel coefficient contractant k = 1/4 majore |f’(x)| sur [0 ; 1] ?',
+        questionType: 'numeric',
+        correctAnswer: '0.25',
+        hint: '|f’(x)| = ½ |sin(x/2)| ≤ ½ sin(0,5) < 0,25.',
+        ruleApplied: 'Majoration de la dérivée',
+        mathExpression: '∀x ∈ [0 ; 1],  |f’(x)| = (1/2) sin(x/2) ≤ (1/2) sin(0,5) ≈ 0,2397 < 0,25',
+        explanation: 'f est 0,25-contractante sur l’intervalle stable [0 ; 1].',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Avec |u₀ − α| ≤ 1, quel majorant numérique obtient-on pour |u₂ − α| ?',
+        questionType: 'numeric',
+        correctAnswer: '0.0625',
+        hint: '(0,25)² = 1/16.',
+        ruleApplied: 'IAF réitérée : |u_n − α| ≤ k^n |u₀ − α|',
+        mathExpression: '|u₂ − α| ≤ (0,25)² × 1 = 0,0625',
+        explanation: 'La convergence vers le point fixe α est géométrique de raison 0,25.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'À partir de quel plus petit entier n garantit-on (0,25)^n < 10⁻³ (soit 4^n > 1000) ?',
+        questionType: 'numeric',
+        correctAnswer: '5',
+        hint: '4^4 = 256 et 4^5 = 1024.',
+        ruleApplied: 'Précision par seuil logarithmique',
+        mathExpression: '4^5 = 1024 > 1000 ⇒ (0,25)^5 ≈ 9,77 × 10⁻⁴ < 10⁻³',
+        explanation: 'Dès n = 5 itérations, u₅ approche α à moins de 10⁻³ près.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Majoration de |f’|', explanation: 'Sur [0;1], sin(x/2) ≤ sin(0,5) < 0,5.', mathExpression: '|f’(x)| ≤ 0,25' },
-      { stepNumber: 2, title: 'Récurrence par IAF', explanation: '|u_{n+1} - α| = |f(u_n) - f(α)| ≤ 0,25 |u_n - α|.', mathExpression: '|u_n - α| ≤ (0,25)ⁿ |u₀ - α|' },
+      { stepNumber: 1, title: 'Stabilité de [0 ; 1] et existence de α', explanation: 'Sur [0;1], cos(0,5) ≤ cos(x/2) ≤ 1 et g(x) = f(x) − x change de signe.', mathExpression: 'f([0 ; 1]) ⊂ [0 ; 1]  et  ∃! α ∈ ]0 ; 1[, f(α) = α' },
+      { stepNumber: 2, title: 'Majoration de |f’|', explanation: 'sin(x/2) ≤ sin(0,5) < 0,5.', mathExpression: '|f’(x)| ≤ 0,25' },
+      { stepNumber: 3, title: 'Récurrence par IAF et rang de précision', explanation: '|u_{n+1} − α| ≤ 0,25 |u_n − α| ⇒ |u_n − α| ≤ (0,25)^n → 0.', mathExpression: 'n ≥ 5 ⇒ |u_n − α| < 10⁻³' },
     ],
   },
   {
     id: 'bac-exam-math-7',
     chapterId: 'mathTc-ln-exp-equadiff',
-    title: 'Problème Type BAC C n°7 · Problème d’analyse complet avec e^(-x)',
+    title: 'Problème Type BAC C n°7 · Problème d’analyse complet avec e^(−x)',
     difficulty: 4,
     difficultyLabel: 'Problème de synthèse',
     category: 'bepc-examen',
@@ -163,16 +553,81 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2023',
     bepcPoints: '8 pts',
     visualBadge: '🧬',
-    themeTags: ['Exponentielle', 'Extremum', 'Intégrale'],
+    themeTags: ['Exponentielle', 'Extremum', 'Intégration par parties', 'Point d’inflexion'],
     prompt:
-      'Soit f(x) = (x + 2) e^(-x) sur ℝ. En dérivant f’(x) = (1 - x - 2)e^(-x) = -(x + 1)e^(-x), détermine l’abscisse x_m du maximum global de f sur ℝ.',
-    hint: 'f’(x) = 0 ⟺ -(x + 1) = 0.',
+      'On considère la fonction f définie sur ℝ par f(x) = (x + 2) e^(−x), de courbe (C_f).\n\n' +
+      '1. Calculer les limites de f en −∞ et en +∞ ; interpréter graphiquement la limite en +∞.\n' +
+      '2. Calculer f’(x), dresser le tableau de variations complet et préciser l’abscisse x_m du maximum global.\n' +
+      '3. Calculer f’’(x) et déterminer les coordonnées du point d’inflexion I de (C_f).\n' +
+      '4. À l’aide d’une intégration par parties, calculer l’intégrale J = ∫_0^1 (x + 2) e^(−x) dx.\n' +
+      '5. Calculer l’aire géométrique exacte du domaine délimité par (C_f), l’axe (Ox) et les droites x = 0 et x = 1.',
+    hint: 'f’(x) = −(x + 1)e^(−x) s’annule en x_m = −1 ; une primitive de (x + 2)e^(−x) est −(x + 3)e^(−x).',
     questionType: 'numeric',
     correctAnswer: '-1',
-    explanationFinal: 'f’ > 0 sur ]-∞ ; -1[ et f’ < 0 sur ]-1 ; +∞[, donc maximum global atteint en x_m = -1 (valeur f(-1) = e).',
+    explanationFinal: 'lim_(+∞) f = 0 (asymptote y = 0) ; maximum global en x_m = −1 (f(−1) = e) ; inflexion en x = 0 ; J = 3 − 4e^(−1).',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Que vaut lim_(x→+∞) (x + 2) e^(−x) ?',
+        questionType: 'numeric',
+        correctAnswer: '0',
+        hint: 'Par croissance comparée, lim_(+∞) x e^(−x) = 0.',
+        ruleApplied: 'Croissance comparée exponentielle',
+        mathExpression: 'f(x) = x/e^x + 2/e^x → 0 + 0 = 0',
+        explanation: 'L’axe des abscisses (y = 0) est asymptote horizontale en +∞.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Quelle est l’abscisse x_m où f atteint son maximum global sur ℝ ?',
+        questionType: 'numeric',
+        correctAnswer: '-1',
+        hint: 'f’(x) = 1·e^(−x) − (x + 2)e^(−x) = −(x + 1)e^(−x).',
+        ruleApplied: 'Signe de la dérivée première',
+        mathExpression: 'f’(x) = −(x + 1)e^(−x) = 0 ⇔ x = −1   (f(−1) = e)',
+        explanation: 'f’ > 0 sur ]−∞ ; −1[ et f’ < 0 sur ]−1 ; +∞[, donc maximum global e atteint en x_m = −1.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Pour quelle abscisse x_I la dérivée seconde f’’(x) s’annule-t-elle (point d’inflexion) ?',
+        questionType: 'numeric',
+        correctAnswer: '0',
+        hint: 'Dérive f’(x) = −(x + 1)e^(−x) : f’’(x) = [−1 + (x + 1)] e^(−x) = x e^(−x).',
+        ruleApplied: 'Point d’inflexion : f’’ s’annule en changeant de signe',
+        mathExpression: 'f’’(x) = x e^(−x) = 0 ⇔ x_I = 0',
+        explanation: 'f’’ change de signe en x = 0 : I(0 ; 2) est le point d’inflexion de (C_f).',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Quelle fonction F est une primitive de f(x) = (x + 2) e^(−x) sur ℝ ?',
+        questionType: 'qcm',
+        options: [
+          'F(x) = −(x + 3) e^(−x)',
+          'F(x) = (x + 1) e^(−x)',
+          'F(x) = −(x + 2) e^(−x)',
+          'F(x) = (x²/2 + 2x) e^(−x)',
+        ],
+        correctAnswer: 'F(x) = −(x + 3) e^(−x)',
+        hint: 'Dérive chaque proposition : (−(x + 3)e^(−x))’ = (−1 + x + 3)e^(−x).',
+        ruleApplied: 'Vérification de primitive par dérivation / IPP',
+        mathExpression: 'F’(x) = −e^(−x) + (x + 3)e^(−x) = (x + 2)e^(−x)',
+        explanation: 'L’IPP avec u = x + 2 et v’ = e^(−x) donne directement F(x) = −(x + 3)e^(−x).',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Calculer la valeur numérique approchée de J = ∫_0^1 (x + 2) e^(−x) dx = 3 − 4/e (arrondie à 0,01 près, avec 1/e ≈ 0,3679).',
+        questionType: 'numeric',
+        correctAnswer: '1.53',
+        hint: 'J = F(1) − F(0) = −4e^(−1) − (−3) = 3 − 4×0,3679.',
+        ruleApplied: 'Formule de Newton-Leibniz',
+        mathExpression: 'J = 3 − 4 × 0,3679 = 3 − 1,4715 ≈ 1,53 u.a.',
+        explanation: 'Sur [0 ; 1], f(x) > 0, donc l’aire vaut exactement 3 − 4e^(−1) ≈ 1,53 u.a.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Dérivation', explanation: '(uv)’ = u’v + uv’.', mathExpression: 'f’(x) = [1 - (x + 2)] e^(-x) = -(x + 1) e^(-x)' },
-      { stepNumber: 2, title: 'Extremum', explanation: 'Changement de signe + vers - en x = -1.', mathExpression: 'x_m = -1 (max = e)' },
+      { stepNumber: 1, title: 'Limites aux bornes', explanation: 'En −∞, lim f = −∞ ; en +∞, lim f = 0 par croissance comparée.', mathExpression: 'Asymptote horizontale y = 0 en +∞' },
+      { stepNumber: 2, title: 'Dérivée et extremum', explanation: 'f’(x) = −(x + 1)e^(−x) change de signe en x_m = −1.', mathExpression: 'Max en x_m = −1 : f(−1) = e' },
+      { stepNumber: 3, title: 'Dérivée seconde et inflexion', explanation: 'f’’(x) = x e^(−x) s’annule et change de signe en 0.', mathExpression: 'Point d’inflexion I(0 ; 2)' },
+      { stepNumber: 4, title: 'Intégration par parties et aire', explanation: 'F(x) = −(x + 3)e^(−x) donne J = F(1) − F(0) = 3 − 4e^(−1).', mathExpression: 'J ≈ 1,53 u.a.' },
     ],
   },
   {
@@ -187,16 +642,79 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2021',
     bepcPoints: '5 pts',
     visualBadge: '〰️',
-    themeTags: ['Équation différentielle', 'Oscillations amorties'],
+    themeTags: ['Équation différentielle linéaire', 'Racines complexes', 'Conditions initiales'],
     prompt:
-      'L’équation caractéristique de y’’ + 2y’ + 2y = 0 est r² + 2r + 2 = 0.\n' +
-      'Ses racines complexes sont r = α ± iβ. Quelle est la valeur de α (taux d’amortissement dans e^(αx)(A cos βx + B sin βx)) ?',
-    hint: 'Δ = 4 - 8 = -4 = (2i)² ⟹ r = (-2 ± 2i)/2 = -1 ± i.',
+      'On considère l’équation différentielle (E) : y’’ + 2y’ + 2y = 0, où y est une fonction deux fois dérivable sur ℝ.\n\n' +
+      '1. Écrire l’équation caractéristique associée à (E) et calculer ses racines complexes r₁ et r₂ sous la forme α ± iβ.\n' +
+      '2. Donner la forme générale des solutions réelles de (E) sur ℝ.\n' +
+      '3. Déterminer l’unique solution f de (E) vérifiant les conditions initiales f(0) = 1 et f’(0) = 1.\n' +
+      '4. Écrire f(x) sous la forme R e^(−x) cos(x − φ) puis calculer f(π) et lim_(x→+∞) f(x).',
+    hint: 'r² + 2r + 2 = 0 donne r = −1 ± i (donc α = −1, β = 1). Avec f(x) = e^(−x)(A cos x + B sin x), f(0) = A = 1 et f’(0) = −A + B = 1 ⇒ B = 2.',
     questionType: 'numeric',
     correctAnswer: '-1',
-    explanationFinal: 'r = -1 ± i, donc α = -1 et β = 1 : y(x) = e^(-x)(A cos x + B sin x).',
+    explanationFinal: 'r = −1 ± i (α = −1) ; solution particulière : f(x) = e^(−x)(cos x + 2 sin x) → 0 quand x → +∞.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Quel est le discriminant Δ de l’équation caractéristique r² + 2r + 2 = 0 ?',
+        questionType: 'numeric',
+        correctAnswer: '-4',
+        hint: 'Δ = 2² − 4(1)(2).',
+        ruleApplied: 'Équation caractéristique d’ordre 2',
+        mathExpression: 'Δ = 4 − 8 = −4 = (2i)²',
+        explanation: 'Les racines sont complexes conjuguées : r = (−2 ± 2i)/2 = −1 ± i.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Quelle est la partie réelle α des racines complexes r = α ± iβ ?',
+        questionType: 'numeric',
+        correctAnswer: '-1',
+        hint: 'r = −1 ± i.',
+        ruleApplied: 'Taux d’amortissement exponentiel',
+        mathExpression: 'r = −1 ± 1·i  ⇒  α = −1  et  β = 1',
+        explanation: 'Le terme d’amortissement dans e^(αx) est e^(−x).',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quelle est la forme générale des solutions réelles de y’’ + 2y’ + 2y = 0 ?',
+        questionType: 'qcm',
+        options: [
+          'y(x) = e^(−x) (A cos x + B sin x)',
+          'y(x) = e^(x) (A cos x + B sin x)',
+          'y(x) = A e^(−x) + B e^(x)',
+          'y(x) = e^(−2x) (A cos 2x + B sin 2x)',
+        ],
+        correctAnswer: 'y(x) = e^(−x) (A cos x + B sin x)',
+        hint: 'Pour r = α ± iβ, y(x) = e^(αx)(A cos(βx) + B sin(βx)).',
+        ruleApplied: 'Solutions réelles pour Δ < 0',
+        mathExpression: 'y(x) = e^(−x) (A cos x + B sin x),   (A, B) ∈ ℝ²',
+        explanation: 'La partie réelle −1 va dans l’exponentielle et la partie imaginaire 1 donne la pulsation cos(x), sin(x).',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Pour les conditions initiales f(0) = 1 et f’(0) = 1, déterminer la constante B dans f(x) = e^(−x)(A cos x + B sin x).',
+        questionType: 'numeric',
+        correctAnswer: '2',
+        hint: 'f(0) = A = 1 et f’(x) = e^(−x)((B − A)cos x − (A + B)sin x), donc f’(0) = B − A = 1.',
+        ruleApplied: 'Système des conditions initiales',
+        mathExpression: 'A = 1  et  B − A = 1 ⇒ B = 2',
+        explanation: 'Ainsi l’unique solution est f(x) = e^(−x)(cos x + 2 sin x).',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Quelle est la limite lim_(x→+∞) f(x) ?',
+        questionType: 'numeric',
+        correctAnswer: '0',
+        hint: '|cos x + 2 sin x| ≤ √5 et lim_(+∞) e^(−x) = 0.',
+        ruleApplied: 'Théorème des gendarmes',
+        mathExpression: '|f(x)| ≤ √5 e^(−x) → 0  quand x → +∞',
+        explanation: 'Les oscillations sinusoïdales s’amortissent exponentiellement vers 0.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Équation caractéristique', explanation: 'r² + 2r + 2 = 0.', mathExpression: 'Δ = -4 ⟹ r = -1 ± i ⟹ α = -1' },
+      { stepNumber: 1, title: 'Équation caractéristique', explanation: 'r² + 2r + 2 = 0 admet Δ = −4.', mathExpression: 'r = −1 ± i  (α = −1, β = 1)' },
+      { stepNumber: 2, title: 'Solutions générales', explanation: 'Régime pseudo-périodique amorti.', mathExpression: 'y(x) = e^(−x)(A cos x + B sin x)' },
+      { stepNumber: 3, title: 'Conditions initiales f(0) = 1, f’(0) = 1', explanation: 'A = 1 et B − A = 1 ⟹ B = 2.', mathExpression: 'f(x) = e^(−x)(cos x + 2 sin x) → 0 en +∞' },
     ],
   },
   {
@@ -211,17 +729,80 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2023',
     bepcPoints: '6 pts',
     visualBadge: '🪜',
-    themeTags: ['Suite homographique', 'Convergence'],
+    themeTags: ['Suite homographique', 'Récurrence', 'Suite auxiliaire géométrique', 'Convergence'],
     prompt:
-      'On définit u₀ = 0 et u_{n+1} = (3u_n + 2)/(u_n + 4). On montre que 0 ≤ u_n < 1 et que (u_n) est croissante.\n' +
-      'Résous l = (3l + 2)/(l + 4) avec l ≥ 0 pour trouver la limite l de (u_n).',
-    hint: 'l² + 4l = 3l + 2 ⟹ l² + l - 2 = 0.',
+      'On définit la suite (u_n) par u₀ = 0 et ∀n ∈ ℕ, u_{n+1} = (3 u_n + 2) / (u_n + 4).\n\n' +
+      '1. Calculer u₁ et u₂ sous forme de fractions irréductibles.\n' +
+      '2. Démontrer par récurrence que pour tout n ∈ ℕ, 0 ≤ u_n < 1.\n' +
+      '3. Étudier le sens de variation de la suite (u_n) en calculant u_{n+1} − u_n.\n' +
+      '4. On pose v_n = (u_n − 1) / (u_n + 2). Montrer que (v_n) est une suite géométrique dont on précisera la raison q et le premier terme v₀.\n' +
+      '5. Exprimer v_n puis u_n en fonction de n, et en déduire lim_(n→+∞) u_n.',
+    hint: 'v_{n+1} = (2/5) v_n avec v₀ = −1/2, et la limite vaut 1.',
     questionType: 'numeric',
     correctAnswer: '1',
-    explanationFinal: '(l - 1)(l + 2) = 0 et l ≥ 0 ⟹ l = 1 (la suite auxiliaire v_n = (u_n - 1)/(u_n + 2) est géométrique de raison 2/5).',
+    explanationFinal: '0 ≤ u_n < 1 et croissante ; v_n = (−1/2)(2/5)^n ; u_n = (1 − (2/5)^n)/(1 + ½(2/5)^n) → 1.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Calculer u₁ en écriture décimale (exacte).',
+        questionType: 'numeric',
+        correctAnswer: '0.5',
+        hint: 'u₁ = (3×0 + 2)/(0 + 4).',
+        ruleApplied: 'Calcul récurrent',
+        mathExpression: 'u₁ = 2 / 4 = 1 / 2 = 0,5',
+        explanation: 'Ensuite u₂ = (1,5 + 2)/(0,5 + 4) = 3,5 / 4,5 = 7 / 9.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Que vaut v₀ = (u₀ − 1)/(u₀ + 2) ?',
+        questionType: 'numeric',
+        correctAnswer: '-0.5',
+        hint: 'Remplace u₀ par 0.',
+        ruleApplied: 'Suite auxiliaire homographique',
+        mathExpression: 'v₀ = (0 − 1) / (0 + 2) = −1 / 2 = −0,5',
+        explanation: 'Le terme initial de (v_n) vaut −0,5.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quelle est la raison q de la suite géométrique (v_n) ?',
+        questionType: 'numeric',
+        correctAnswer: '0.4',
+        hint: 'v_{n+1} = (2u_n − 2) / (5u_n + 10) = (2/5) v_n.',
+        ruleApplied: 'Factorisation de v_{n+1} / v_n',
+        mathExpression: 'v_{n+1} = [(3u_n+2)−(u_n+4)] / [(3u_n+2)+2(u_n+4)] = 2(u_n−1) / [5(u_n+2)] = (2/5) v_n',
+        explanation: 'La raison vaut q = 2/5 = 0,4.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Quel est le sens de variation de (u_n) sur ℕ ?',
+        questionType: 'qcm',
+        options: [
+          'Strictement croissante',
+          'Strictement décroissante',
+          'Constante égale à 1',
+          'Non monotone (alternée)',
+        ],
+        correctAnswer: 'Strictement croissante',
+        hint: 'u_{n+1} − u_n = (2 − u_n − u_n²)/(u_n + 4) = (1 − u_n)(u_n + 2)/(u_n + 4) > 0 car 0 ≤ u_n < 1.',
+        ruleApplied: 'Signe de u_{n+1} − u_n',
+        mathExpression: 'u_{n+1} − u_n = (1 − u_n)(u_n + 2) / (u_n + 4) > 0',
+        explanation: 'Comme 0 ≤ u_n < 1, chaque facteur est strictement positif.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Quelle est la limite lim_(n→+∞) u_n ?',
+        questionType: 'numeric',
+        correctAnswer: '1',
+        hint: 'v_n → 0 donc (u_n − 1)/(u_n + 2) → 0.',
+        ruleApplied: 'Passage à la limite / théorème du point fixe',
+        mathExpression: 'lim v_n = 0 ⇒ u_n = (1 + 2 v_n)/(1 − v_n) → 1',
+        explanation: 'L’unique point fixe positif de f(x) = (3x + 2)/(x + 4) est l = 1.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Équation du point fixe', explanation: 'l(l + 4) = 3l + 2.', mathExpression: 'l² + l - 2 = 0 ⟹ (l - 1)(l + 2) = 0' },
-      { stepNumber: 2, title: 'Choix de la limite', explanation: 'u_n ≥ 0 ⟹ l = 1.', mathExpression: 'lim u_n = 1' },
+      { stepNumber: 1, title: 'Premiers termes et récurrence', explanation: 'u₁ = 1/2, u₂ = 7/9 ; comme f est croissante sur [0;1], 0 ≤ u_n < 1.', mathExpression: '0 ≤ f(u_n) < f(1) = 1' },
+      { stepNumber: 2, title: 'Monotonie', explanation: 'u_{n+1} − u_n = (1 − u_n)(u_n + 2)/(u_n + 4) > 0.', mathExpression: '(u_n) strictement croissante' },
+      { stepNumber: 3, title: 'Suite géométrique (v_n) et limite', explanation: 'v_n = (−1/2)(2/5)^n → 0.', mathExpression: 'u_n = (1 − (2/5)^n)/(1 + ½(2/5)^n) → 1' },
     ],
   },
   {
@@ -236,16 +817,86 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2024',
     bepcPoints: '5 pts',
     visualBadge: '🔗',
-    themeTags: ['Suites adjacentes', 'Encadrement'],
+    themeTags: ['Suites adjacentes', 'Sommes harmoniques', 'Encadrement intégral', 'ln 2'],
     prompt:
-      'On pose u_n = Σ_{k=n+1}^{2n} 1/k et v_n = u_n + 1/(2n). Pour tout n ≥ 1, u_{n+1} - u_n > 0 et v_{n+1} - v_n < 0.\n' +
-      'Sachant que les sommes de Riemann de 1/x sur [1 ; 2] donnent lim u_n = ∫₁² (1/x)dx = ln 2, quelle est la valeur arrondie à 0,01 de leur limite commune ?',
-    hint: 'ln 2 ≈ 0,693.',
+      'Pour tout entier n ≥ 1, on pose u_n = ∑_{k=n+1}^{2n} 1/k = 1/(n+1) + 1/(n+2) + ... + 1/(2n), et v_n = u_n + 1/(2n).\n\n' +
+      '1. Calculer u₁, v₁ et u₂ sous forme décimale exacte (ou fractionnaire).\n' +
+      '2. Calculer u_{n+1} − u_n = 1/(2n + 1) + 1/(2n + 2) − 1/(n + 1) et montrer que (u_n) est strictement croissante.\n' +
+      '3. Calculer v_{n+1} − v_n et montrer que (v_n) est strictement décroissante.\n' +
+      '4. Montrer que les suites (u_n) et (v_n) sont adjacentes et convergent vers une même limite ℓ.\n' +
+      '5. En encadrant 1/k par des intégrales de t ↦ 1/t (somme de Riemann sur [1 ; 2]), montrer que ℓ = ln 2 ≈ 0,69.',
+    hint: 'u₁ = 1/2 = 0,5 ; v₁ = 1/2 + 1/2 = 1 ; u_{n+1} − u_n = 1/((2n+1)(2n+2)) > 0 ; lim u_n = ln 2 ≈ 0,69.',
     questionType: 'numeric',
     correctAnswer: '0.69',
-    explanationFinal: 'u_n et v_n sont adjacentes et convergent toutes deux vers ln 2 ≈ 0,69.',
+    explanationFinal: 'u_n croissante, v_n décroissante et v_n − u_n = 1/(2n) → 0 : (u_n) et (v_n) sont adjacentes et convergent vers ln 2 ≈ 0,69.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Calculer u₁ (pour n = 1, somme de k = 2 à 2 de 1/k).',
+        questionType: 'numeric',
+        correctAnswer: '0.5',
+        hint: 'Pour n = 1, u₁ n’a qu’un seul terme : 1/2.',
+        ruleApplied: 'Indexation d’une somme finie',
+        mathExpression: 'u₁ = ∑_{k=2}^{2} 1/k = 1/2 = 0,5   (et v₁ = 0,5 + 0,5 = 1)',
+        explanation: 'u₂ = 1/3 + 1/4 = 7/12 ≈ 0,583.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'À quoi est égal u_{n+1} − u_n après réduction au même dénominateur ?',
+        questionType: 'qcm',
+        options: [
+          '1 / [(2n + 1)(2n + 2)]',
+          '−1 / [(2n + 1)(2n + 2)]',
+          '1 / (2n + 2)',
+          '1 / (n + 1)',
+        ],
+        correctAnswer: '1 / [(2n + 1)(2n + 2)]',
+        hint: '1/(2n+1) + 1/(2n+2) − 2/(2n+2) = 1/(2n+1) − 1/(2n+2).',
+        ruleApplied: 'Télescopage des bornes',
+        mathExpression: 'u_{n+1} − u_n = 1/(2n+1) − 1/(2n+2) = 1 / [(2n+1)(2n+2)] > 0',
+        explanation: 'La différence est strictement positive, donc (u_n) est strictement croissante.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'À quoi est égal v_{n+1} − v_n ?',
+        questionType: 'qcm',
+        options: [
+          '−1 / [2n(2n + 1)] < 0',
+          '+1 / [2n(2n + 1)] > 0',
+          '0 (suite constante)',
+          '−1 / (2n) < 0',
+        ],
+        correctAnswer: '−1 / [2n(2n + 1)] < 0',
+        hint: 'v_{n+1} − v_n = (u_{n+1} − u_n) + 1/(2n+2) − 1/(2n) = 1/(2n+1) − 1/(2n).',
+        ruleApplied: 'Simplification algébrique',
+        mathExpression: 'v_{n+1} − v_n = 1/(2n+1) − 1/(2n) = −1 / [2n(2n+1)] < 0',
+        explanation: 'Les termes en 1/(2n+2) se simplifient : v_{n+1} − v_n = −1 / [2n(2n+1)] < 0, donc (v_n) décroît.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Pour quelle valeur de n la largeur d’encadrement v_n − u_n = 1/(2n) devient-elle égale à 0,01 ?',
+        questionType: 'numeric',
+        correctAnswer: '50',
+        hint: 'Résous 1/(2n) = 0,01 = 1/100.',
+        ruleApplied: 'Vitesse de convergence des suites adjacentes',
+        mathExpression: 'v_n − u_n = 1/(2n) = 0,01 ⇔ 2n = 100 ⇔ n = 50',
+        explanation: 'À n = 50, on encadre ln 2 à 10⁻² près.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Donner la valeur arrondie à 0,01 près de la limite commune ℓ = ln 2.',
+        questionType: 'numeric',
+        correctAnswer: '0.69',
+        hint: 'ln 2 ≈ 0,6931.',
+        ruleApplied: 'Sommes de Riemann de ∫₁² (1/t) dt = ln 2',
+        mathExpression: 'u_n = ∑_{k=1}^n (1/n) · 1/(1 + k/n) → ∫₀¹ 1/(1 + x) dx = ln 2 ≈ 0,69',
+        explanation: 'Les deux suites adjacentes convergent vers ln 2 ≈ 0,69.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Suites adjacentes', explanation: 'u_n ↗, v_n ↘ et v_n - u_n = 1/(2n) → 0.', mathExpression: 'lim u_n = lim v_n = ln 2 ≈ 0,69' },
+      { stepNumber: 1, title: 'Monotonie de (u_n)', explanation: 'u_{n+1} − u_n = 1/(2n+1) − 1/(2n+2) > 0.', mathExpression: '(u_n) croissante' },
+      { stepNumber: 2, title: 'Monotonie de (v_n)', explanation: 'v_{n+1} − v_n = 1/(2n+1) − 1/(2n) = −1/[2n(2n+1)] < 0.', mathExpression: '(v_n) décroissante' },
+      { stepNumber: 3, title: 'Adjacence et limite ln 2', explanation: 'v_n − u_n = 1/(2n) → 0 et u_n est une somme de Riemann de 1/x sur [1 ; 2].', mathExpression: 'lim u_n = lim v_n = ln 2 ≈ 0,69' },
     ],
   },
   {
@@ -260,17 +911,79 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2023',
     bepcPoints: '6 pts',
     visualBadge: '∫',
-    themeTags: ['Calcul intégral', 'Aire'],
+    themeTags: ['Calcul intégral', 'Position relative', 'Aire plane', 'Volume'],
     prompt:
-      'Calcule l’aire A (en u.a.) du domaine compris entre la parabole y = x² et la droite y = x + 2 sur l’intervalle [-1 ; 2].',
-    hint: 'Sur [-1 ; 2], x + 2 ≥ x². Calcule ∫_{-1}² (x + 2 - x²) dx.',
+      'Dans un repère orthonormé (O ; i⃗, j⃗) d’unité graphique 2 cm, on considère la parabole (P) : y = x² et la droite (D) : y = x + 2.\n\n' +
+      '1. Déterminer par le calcul les coordonnées des deux points d’intersection A et B de (P) et (D).\n' +
+      '2. Étudier la position relative de (D) et (P) sur ℝ, en particulier sur l’intervalle [−1 ; 2].\n' +
+      '3. Calculer l’aire A_u (en unités d’aire u.a.) du domaine D compris entre (D) et (P) sur [−1 ; 2].\n' +
+      '4. En déduire l’aire réelle en cm² sachant que l’unité graphique vaut 2 cm sur chaque axe (1 u.a. = 4 cm²).\n' +
+      '5. Calculer la valeur moyenne μ de la hauteur h(x) = x + 2 − x² sur [−1 ; 2].',
+    hint: 'x² = x + 2 donne x = −1 et x = 2 ; ∫_{-1}^2 (x + 2 − x²) dx = 9/2 = 4,5 u.a. ; en cm² : 4,5 × 4 = 18 cm².',
     questionType: 'numeric',
     correctAnswer: '4.5',
     unit: 'u.a.',
-    explanationFinal: 'Primitive [x²/2 + 2x - x³/3]_{-1}² = (2 + 4 - 8/3) - (1/2 - 2 + 1/3) = 10/3 - (-7/6) = 27/6 = 4,5 u.a.',
+    explanationFinal: 'A(−1 ; 1) et B(2 ; 4) ; aire = 4,5 u.a. = 18 cm² ; hauteur moyenne μ = 1,5.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Quelles sont les abscisses des points d’intersection A et B de y = x² et y = x + 2 ?',
+        questionType: 'qcm',
+        options: ['x = −1 et x = 2', 'x = 1 et x = −2', 'x = 0 et x = 2', 'x = −1 et x = 3'],
+        correctAnswer: 'x = −1 et x = 2',
+        hint: 'Résous x² − x − 2 = 0.',
+        ruleApplied: 'Résolution d’équation du 2nd degré',
+        mathExpression: 'x² − x − 2 = (x − 2)(x + 1) = 0 ⇔ x = −1  ou  x = 2',
+        explanation: 'Les points d’intersection sont A(−1 ; 1) et B(2 ; 4).',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Une primitive F(x) de h(x) = x + 2 − x² (avec F(0) = 0) évaluée en x = 2 vaut :',
+        questionType: 'qcm',
+        options: ['10/3', '8/3', '14/3', '4'],
+        correctAnswer: '10/3',
+        hint: 'F(x) = x²/2 + 2x − x³/3 ; calcule F(2) = 2 + 4 − 8/3.',
+        ruleApplied: 'Primitivation polynomiale',
+        mathExpression: 'F(2) = 2²/2 + 2(2) − 2³/3 = 6 − 8/3 = 10/3',
+        explanation: 'En x = −1, F(−1) = 1/2 − 2 + 1/3 = −7/6.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Calculer l’aire A (en u.a.) comprise entre la droite y = x + 2 et la parabole y = x² sur [−1 ; 2].',
+        questionType: 'numeric',
+        correctAnswer: '4.5',
+        unit: 'u.a.',
+        hint: 'F(2) − F(−1) = 10/3 − (−7/6) = 27/6.',
+        ruleApplied: 'Intégrale de la différence positive',
+        mathExpression: 'A = 10/3 + 7/6 = 27/6 = 9/2 = 4,5 u.a.',
+        explanation: 'Comme x + 2 ≥ x² sur [−1 ; 2], l’aire vaut exactement 4,5 u.a.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Sachant que l’unité graphique vaut 2 cm sur (Ox) et 2 cm sur (Oy), convertir cette aire en cm².',
+        questionType: 'numeric',
+        correctAnswer: '18',
+        unit: 'cm²',
+        hint: '1 u.a. = ||i⃗|| × ||j⃗|| = 2 × 2 = 4 cm².',
+        ruleApplied: 'Conversion u.a. → cm²',
+        mathExpression: 'A_cm² = 4,5 × (2 cm × 2 cm) = 4,5 × 4 = 18 cm²',
+        explanation: 'L’aire physique réelle du domaine sur la feuille mesure 18 cm².',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Calculer la valeur moyenne μ = [1/(2 − (−1))] ∫_{−1}^2 (x + 2 − x²) dx sur [−1 ; 2].',
+        questionType: 'numeric',
+        correctAnswer: '1.5',
+        hint: 'Divise l’intégrale 4,5 par la longueur de l’intervalle 3.',
+        ruleApplied: 'Valeur moyenne d’une fonction continue',
+        mathExpression: 'μ = 4,5 / (2 − (−1)) = 4,5 / 3 = 1,5',
+        explanation: 'La hauteur verticale moyenne entre la parabole et la droite vaut 1,5.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Position relative', explanation: 'x + 2 - x² = (2 - x)(x + 1) ≥ 0 sur [-1 ; 2].', mathExpression: 'A = ∫_{-1}² (x + 2 - x²) dx' },
-      { stepNumber: 2, title: 'Calcul exact', explanation: '10/3 + 7/6 = 27/6.', mathExpression: 'A = 9/2 = 4,5 u.a.' },
+      { stepNumber: 1, title: 'Intersections et position relative', explanation: 'x + 2 − x² = (2 − x)(x + 1) ≥ 0 sur [−1 ; 2].', mathExpression: 'A(−1 ; 1),  B(2 ; 4)  et  (D) au-dessus de (P)' },
+      { stepNumber: 2, title: 'Calcul de l’aire en u.a.', explanation: 'F(2) − F(−1) = 10/3 − (−7/6) = 27/6 = 9/2.', mathExpression: 'A = 4,5 u.a.' },
+      { stepNumber: 3, title: 'Conversion en cm² et moyenne', explanation: '1 u.a. = 2×2 = 4 cm² ; longueur b − a = 3.', mathExpression: 'A = 18 cm²  |  μ = 1,5' },
     ],
   },
   {
@@ -285,23 +998,90 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2024',
     bepcPoints: '5 pts',
     visualBadge: '🔁',
-    themeTags: ['IPP double', 'Trigonométrie'],
+    themeTags: ['Intégration par parties double', 'Cyclique', 'Complexes & Intégrales'],
     prompt:
-      'On veut calculer I = ∫₀^π e^x sin x dx par deux intégrations par parties successives. On trouve 2I = [-e^x cos x]₀^π = e^π + 1.\n' +
-      'Calcule la valeur approchée de I (arrondie à 0,01 près, avec e^π ≈ 23,1407).',
-    hint: 'I = (e^π + 1) / 2.',
+      'On propose deux méthodes pour calculer les intégrales I = ∫₀^π e^x sin(x) dx et J = ∫₀^π e^x cos(x) dx.\n\n' +
+      'Méthode 1 — Double intégration par parties\n' +
+      '1. En posant u(x) = sin x et v’(x) = e^x, exprimer I en fonction de J.\n' +
+      '2. En posant dans J : u(x) = cos x et v’(x) = e^x, exprimer J en fonction de I.\n' +
+      '3. En déduire les valeurs exactes de I et J, puis une valeur approchée de I à 0,01 près (e^π ≈ 23,1407).\n\n' +
+      'Méthode 2 — Passage par les nombres complexes\n' +
+      '4. Calculer l’intégrale complexe K = ∫₀^π e^((1+i)x) dx = J + i I.\n' +
+      '5. En prenant les parties réelle et imaginaire de K, retrouver exactement les valeurs de J et I.',
+    hint: 'I = [e^x sin x]₀^π − J = −J ; J = [e^x cos x]₀^π + I = (−e^π − 1) + I ⇒ 2I = e^π + 1 ≈ 24,1407 ⇒ I ≈ 12,07.',
     questionType: 'numeric',
     correctAnswer: '12.07',
-    explanationFinal: 'I = (23,1407 + 1) / 2 = 24,1407 / 2 ≈ 12,07.',
+    explanationFinal: 'I = (e^π + 1)/2 ≈ 12,07 et J = −(e^π + 1)/2 ≈ −12,07 ; retrouvé instantanément par K = (e^((1+i)π) − 1)/(1 + i) = −(e^π + 1)(1 − i)/2.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'À l’issue de la première IPP sur I = ∫₀^π e^x sin(x) dx (avec u = sin x, v’ = e^x), quelle relation lie I et J ?',
+        questionType: 'qcm',
+        options: ['I = −J', 'I = J + e^π', 'I = J − 1', 'I = 2J'],
+        correctAnswer: 'I = −J',
+        hint: 'Calcule [e^x sin x]₀^π = e^π sin π − e^0 sin 0 = 0.',
+        ruleApplied: 'Première IPP',
+        mathExpression: 'I = [e^x sin x]₀^π − ∫₀^π e^x cos(x) dx = 0 − J = −J',
+        explanation: 'Comme sin(π) = sin(0) = 0, le terme tout intégré s’annule et I = −J.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Que vaut le crochet [e^x cos x]₀^π apparaissant dans la seconde IPP sur J ?',
+        questionType: 'qcm',
+        options: ['−e^π − 1', 'e^π − 1', 'e^π + 1', '1 − e^π'],
+        correctAnswer: '−e^π − 1',
+        hint: 'cos(π) = −1 et cos(0) = +1.',
+        ruleApplied: 'Évaluation aux bornes trigonométriques',
+        mathExpression: 'e^π cos(π) − e^0 cos(0) = −e^π − 1',
+        explanation: 'Donc J = (−e^π − 1) + I, et comme J = −I, on a −2I = −e^π − 1.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Que vaut l’intégrale complexe K = ∫₀^π e^((1+i)x) dx avant séparation en Re + i Im ?',
+        questionType: 'qcm',
+        options: [
+          '−(e^π + 1)(1 − i) / 2',
+          '(e^π − 1)(1 + i) / 2',
+          '(e^π + 1)(1 + i) / 2',
+          '−(e^π − 1) / (1 − i)',
+        ],
+        correctAnswer: '−(e^π + 1)(1 − i) / 2',
+        hint: 'e^(iπ) = −1 et 1/(1 + i) = (1 − i)/2.',
+        ruleApplied: 'Primitive complexe de e^(αx)',
+        mathExpression: 'K = (e^((1+i)π) − 1)/(1 + i) = (−e^π − 1)/(1 + i) = −(e^π + 1)(1 − i)/2',
+        explanation: 'La partie imaginaire donne directement I = +(e^π + 1)/2 et la partie réelle J = −(e^π + 1)/2.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer la valeur numérique approchée de I = (e^π + 1)/2 (arrondie à 0,01 près, avec e^π ≈ 23,1407).',
+        questionType: 'numeric',
+        correctAnswer: '12.07',
+        hint: '(23,1407 + 1) / 2.',
+        ruleApplied: 'Application numérique',
+        mathExpression: 'I = (23,1407 + 1) / 2 = 24,1407 / 2 = 12,07035 ≈ 12,07',
+        explanation: 'Le résultat est cohérent avec sin x ≥ 0 sur [0 ; π].',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'En déduire la valeur approchée de J = ∫₀^π e^x cos(x) dx (à 0,01 près).',
+        questionType: 'numeric',
+        correctAnswer: '-12.07',
+        hint: 'J = −I.',
+        ruleApplied: 'Symétrie I = −J',
+        mathExpression: 'J = −I ≈ −12,07',
+        explanation: 'Sur [π/2 ; π], e^x est grand et cos x < 0, ce qui rend J négatif.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Double IPP cyclique', explanation: 'On retombe sur -I.', mathExpression: 'I = (e^π + 1) - I ⟹ 2I = e^π + 1' },
-      { stepNumber: 2, title: 'Valeur numérique', explanation: '24,1407 / 2.', mathExpression: 'I ≈ 12,07' },
+      { stepNumber: 1, title: 'Première IPP sur I', explanation: 'sin π = sin 0 = 0 donne I = −J.', mathExpression: 'I = −J' },
+      { stepNumber: 2, title: 'Seconde IPP sur J', explanation: 'J = [e^x cos x]₀^π + I = −(e^π + 1) + I.', mathExpression: '2I = e^π + 1 ⇒ I = (e^π + 1)/2 ≈ 12,07  ;  J ≈ −12,07' },
+      { stepNumber: 3, title: 'Vérification complexe K = J + iI', explanation: 'Primitive de e^((1+i)x) entre 0 et π.', mathExpression: 'K = −(e^π + 1)(1 − i)/2' },
     ],
   },
   {
     id: 'bac-exam-math-13',
     chapterId: 'mathTc-denombrement-probas',
-    title: 'Problème Type BAC C n°13 · Urnes couplées & probabilités totales',
+    title: 'Problème Type BAC C n°13 · Urnes couplées, Bayes & loi binomiale',
     difficulty: 4,
     difficultyLabel: 'Problème de synthèse',
     category: 'bepc-examen',
@@ -310,16 +1090,76 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2024',
     bepcPoints: '5 pts',
     visualBadge: '🎲',
-    themeTags: ['Bayes', 'Probabilités totales'],
+    themeTags: ['Probabilités totales', 'Formule de Bayes', 'Loi binomiale'],
     prompt:
-      'On lance un dé équilibré. Si le résultat est ≤ 2 (P(U₁) = 1/3), on tire une boule dans U₁ (3 R, 1 B). Sinon (P(U₂) = 2/3), on tire dans U₂ (1 R, 3 B).\n' +
-      'Calcule la probabilité P(R) d’obtenir une boule rouge (arrondie à 0,01 près).',
-    hint: 'P(R) = (1/3)×(3/4) + (2/3)×(1/4).',
+      'On lance un dé cubique équilibré à 6 faces.\n' +
+      '• Si le numéro obtenu est ≤ 2 (événement U₁), on tire une boule dans l’urne U₁ contenant 3 boules rouges et 1 boule blanche.\n' +
+      '• Sinon (événement U₂), on tire une boule dans l’urne U₂ contenant 1 boule rouge et 3 boules blanches.\n\n' +
+      '1. Construire l’arbre pondéré complet de l’expérience.\n' +
+      '2. Calculer P(U₁), P(U₂), puis la probabilité P(R) d’obtenir une boule rouge (fraction exacte et arrondi à 0,01).\n' +
+      '3. Sachant que la boule tirée est rouge, calculer la probabilité conditionnelle P_R(U₁) qu’elle provienne de l’urne U₁.\n' +
+      '4. On répète 12 fois cette expérience de façon indépendante et on note X le nombre de boules rouges obtenues. Donner l’espérance E(X).',
+    hint: 'P(R) = (1/3)(3/4) + (2/3)(1/4) = 5/12 ≈ 0,42 ; P_R(U₁) = (3/12)/(5/12) = 3/5 = 0,6 ; E(X) = 12 × 5/12 = 5.',
     questionType: 'numeric',
     correctAnswer: '0.42',
-    explanationFinal: 'P(R) = 3/12 + 2/12 = 5/12 ≈ 0,4167 ≈ 0,42.',
+    explanationFinal: 'P(R) = 5/12 ≈ 0,42 ; P_R(U₁) = 3/5 = 0,60 (Bayes) ; X ∼ B(12 ; 5/12) ⇒ E(X) = 5.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Calculer P(U₁ ∩ R), la probabilité d’obtenir ≤ 2 au dé puis une boule rouge dans U₁.',
+        questionType: 'numeric',
+        correctAnswer: '0.25',
+        hint: 'P(U₁) = 2/6 = 1/3 et P_{U₁}(R) = 3/4.',
+        ruleApplied: 'Probabilité d’une branche (intersection)',
+        mathExpression: 'P(U₁ ∩ R) = (1/3) × (3/4) = 1/4 = 0,25',
+        explanation: 'Un quart des lancers donnent le passage par U₁ et une boule rouge.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Sous forme de fraction irréductible, que vaut la probabilité totale P(R) ?',
+        questionType: 'qcm',
+        options: ['5/12', '1/2', '7/12', '1/3'],
+        correctAnswer: '5/12',
+        hint: '1/4 + (2/3)(1/4) = 3/12 + 2/12.',
+        ruleApplied: 'Formule des probabilités totales',
+        mathExpression: 'P(R) = (1/3)(3/4) + (2/3)(1/4) = 3/12 + 2/12 = 5/12',
+        explanation: 'Les événements U₁ et U₂ forment une partition de l’univers.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Donner la valeur décimale de P(R) arrondie à 0,01 près.',
+        questionType: 'numeric',
+        correctAnswer: '0.42',
+        hint: '5 / 12 = 0,4166...',
+        ruleApplied: 'Approximation décimale',
+        mathExpression: '5 ÷ 12 ≈ 0,4167 ≈ 0,42',
+        explanation: 'La probabilité d’obtenir une boule rouge vaut environ 42 %.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Par la formule de Bayes, sachant que la boule obtenue est rouge, quelle est la probabilité P_R(U₁) qu’elle provienne de U₁ ?',
+        questionType: 'numeric',
+        correctAnswer: '0.6',
+        hint: 'P(U₁ ∩ R) / P(R) = (3/12) / (5/12).',
+        ruleApplied: 'Formule de Bayes',
+        mathExpression: 'P_R(U₁) = (3/12) / (5/12) = 3 / 5 = 0,6',
+        explanation: 'Bien que U₁ soit choisie moins souvent (1/3), elle contient 3 fois plus de rouges donc représente 60 % des tirages rouges.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Si l’on répète 12 fois indépendamment cette expérience, quelle est l’espérance E(X) du nombre de boules rouges obtenues ?',
+        questionType: 'numeric',
+        correctAnswer: '5',
+        hint: 'E(X) = n × p = 12 × (5/12).',
+        ruleApplied: 'Espérance de la loi binomiale B(n, p)',
+        mathExpression: 'E(X) = 12 × (5/12) = 5',
+        explanation: 'On espère obtenir en moyenne 5 boules rouges sur 12 tirages.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Probabilités totales', explanation: 'Partition (U₁, U₂).', mathExpression: 'P(R) = (1/3)(3/4) + (2/3)(1/4) = 5/12 ≈ 0,42' },
+      { stepNumber: 1, title: 'Probabilités des branches', explanation: 'P(U₁) = 1/3, P(U₂) = 2/3 ; P_{U₁}(R) = 3/4, P_{U₂}(R) = 1/4.', mathExpression: 'P(U₁∩R) = 3/12 ; P(U₂∩R) = 2/12' },
+      { stepNumber: 2, title: 'Probabilités totales P(R)', explanation: 'Somme des deux chemins rouges.', mathExpression: 'P(R) = 5/12 ≈ 0,42' },
+      { stepNumber: 3, title: 'Bayes et loi binomiale', explanation: 'P_R(U₁) = 3/5 = 0,6 ; pour n = 12, E(X) = 12×(5/12) = 5.', mathExpression: 'P_R(U₁) = 0,6  |  E(X) = 5' },
     ],
   },
   {
@@ -334,16 +1174,74 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2023',
     bepcPoints: '5 pts',
     visualBadge: '🎰',
-    themeTags: ['Variable aléatoire', 'Espérance'],
+    themeTags: ['Combinaisons', 'Variable aléatoire', 'Espérance', 'Variance'],
     prompt:
-      'Une urne contient 3 boules blanches et 2 boules noires. On tire simultanément 2 boules (C_5² = 10 tirages). X est le nombre de boules blanches obtenues.\n' +
-      'P(X = 0) = 1/10, P(X = 1) = 6/10, P(X = 2) = 3/10. Calcule l’espérance E(X).',
-    hint: 'E(X) = 0×(0,1) + 1×(0,6) + 2×(0,3).',
+      'Une urne contient 3 boules blanches et 2 boules noires indiscernables au toucher. On tire simultanément 2 boules de l’urne et on note X la variable aléatoire égale au nombre de boules blanches obtenues.\n\n' +
+      '1. Déterminer le nombre total de tirages possibles C₅² et les valeurs prises par X.\n' +
+      '2. Calculer exactement P(X = 0), P(X = 1) et P(X = 2) et vérifier que leur somme vaut 1.\n' +
+      '3. Calculer l’espérance mathématique E(X).\n' +
+      '4. Calculer E(X²), puis la variance V(X) et l’écart-type σ(X) (à 0,01 près).\n' +
+      '5. On associe un gain algébrique G = 5X − 6 (en milliers de FCFA). Calculer E(G) ; le jeu est-il favorable au joueur ?',
+    hint: 'E(X) = 0×0,1 + 1×0,6 + 2×0,3 = 1,2 ; E(X²) = 1×0,6 + 4×0,3 = 1,8 ⇒ V(X) = 1,8 − 1,44 = 0,36 ⇒ σ(X) = 0,6.',
     questionType: 'numeric',
     correctAnswer: '1.2',
-    explanationFinal: 'E(X) = 0,6 + 0,6 = 1,2 (ce qui coïncide avec 2 × (3/5) = 1,2 !).',
+    explanationFinal: 'P(X=0)=0,1 ; P(X=1)=0,6 ; P(X=2)=0,3 ; E(X) = 1,2 ; V(X) = 0,36 (σ = 0,6) ; E(G) = 0 (jeu équitable).',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Combien de tirages simultanés de 2 boules parmi 5 existe-t-il au total ?',
+        questionType: 'numeric',
+        correctAnswer: '10',
+        hint: 'C₅² = (5 × 4) / 2.',
+        ruleApplied: 'Combinaisons sans répétition',
+        mathExpression: 'C₅² = 5! / (2! 3!) = (5 × 4)/2 = 10',
+        explanation: 'L’univers équiprobable contient 10 tirages.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Calculer P(X = 1), la probabilité d’obtenir exactement 1 boule blanche et 1 boule noire.',
+        questionType: 'numeric',
+        correctAnswer: '0.6',
+        hint: 'C₃¹ × C₂¹ / 10.',
+        ruleApplied: 'Dénombrement des cas favorables',
+        mathExpression: 'P(X = 1) = (C₃¹ × C₂¹) / C₅² = (3 × 2) / 10 = 6/10 = 0,6',
+        explanation: 'De même P(X = 0) = C₂²/10 = 0,1 et P(X = 2) = C₃²/10 = 0,3.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Calculer l’espérance mathématique E(X).',
+        questionType: 'numeric',
+        correctAnswer: '1.2',
+        hint: 'E(X) = 0×(0,1) + 1×(0,6) + 2×(0,3).',
+        ruleApplied: 'Espérance d’une variable aléatoire discrète',
+        mathExpression: 'E(X) = 0 + 0,6 + 0,6 = 1,2',
+        explanation: 'On obtient en moyenne 1,2 boule blanche par tirage de 2 boules.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer la variance V(X) puis l’écart-type σ(X). Que vaut l’écart-type σ(X) ?',
+        questionType: 'numeric',
+        correctAnswer: '0.6',
+        hint: 'E(X²) = 1²(0,6) + 2²(0,3) = 1,8 ; V(X) = E(X²) − [E(X)]² = 1,8 − 1,44 = 0,36.',
+        ruleApplied: 'Formule de König-Huygens',
+        mathExpression: 'V(X) = 1,8 − 1,2² = 0,36 ⇒ σ(X) = √0,36 = 0,6',
+        explanation: 'L’écart-type est exactement décimal : σ(X) = 0,6.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Avec le gain algébrique G = 5X − 6, quelle est l’espérance de gain E(G) ?',
+        questionType: 'numeric',
+        correctAnswer: '0',
+        hint: 'E(aX + b) = a E(X) + b = 5(1,2) − 6.',
+        ruleApplied: 'Linéarité de l’espérance',
+        mathExpression: 'E(G) = 5 × 1,2 − 6 = 6 − 6 = 0',
+        explanation: 'E(G) = 0 signifie que le jeu est parfaitement équitable.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Calcul de E(X)', explanation: 'Σ x_i p_i.', mathExpression: 'E(X) = 0 + 0,6 + 2(0,3) = 1,2' },
+      { stepNumber: 1, title: 'Loi de probabilité de X', explanation: 'P(X=0)=1/10, P(X=1)=6/10, P(X=2)=3/10 (somme = 1).', mathExpression: 'Card(Ω) = C₅² = 10' },
+      { stepNumber: 2, title: 'Espérance et variance', explanation: 'E(X) = 1,2 ; E(X²) = 1,8 ⇒ V(X) = 0,36.', mathExpression: 'E(X) = 1,2  |  σ(X) = 0,6' },
+      { stepNumber: 3, title: 'Équité du jeu G = 5X − 6', explanation: 'E(G) = 5E(X) − 6 = 0.', mathExpression: 'E(G) = 0 (jeu équitable)' },
     ],
   },
   {
@@ -358,17 +1256,77 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2022',
     bepcPoints: '5 pts',
     visualBadge: '📊',
-    themeTags: ['Statistiques 2D', 'Régression'],
+    themeTags: ['Statistiques doubles', 'Point moyen', 'Moindres carrés', 'Prévision'],
     prompt:
-      'Une coopérative obtient la droite de régression de la production y (tonnes) en fonction du rang x de l’année : y = 3,5 x + 12.\n' +
-      'Quelle production y prévoit-on pour l’année de rang x = 8 ?',
-    hint: 'Remplace x par 8 dans l’équation de la droite d’ajustement.',
+      'Une coopérative agricole du Woleu-Ntem suit sa production y_i (en tonnes) sur 5 années de rang x_i :\n' +
+      '  (x_i ; y_i) : (1 ; 15), (2 ; 20), (3 ; 22), (4 ; 26), (5 ; 29,5).\n\n' +
+      '1. Calculer les coordonnées du point moyen G(x̄, ȳ) de ce nuage.\n' +
+      '2. Calculer la variance V(X) = (1/5) ∑ (x_i − x̄)² et la covariance Cov(X, Y).\n' +
+      '3. Déterminer la droite d’ajustement affine de y en x par la méthode des moindres carrés : montrer qu’elle a pour équation y = 3,5 x + 12.\n' +
+      '4. Utiliser cette équation pour estimer la production prévue à l’année de rang x = 8.\n' +
+      '5. À partir de quel rang entier x la production dépassera-t-elle 50 tonnes selon ce modèle ?',
+    hint: 'Pour (1;15), (2;20), (3;22), (4;26), (5;29,5) : x̄ = 3, ȳ = 22,5, V(X) = 2, Cov(X,Y) = 7 ⇒ y = 3,5 x + 12.',
     questionType: 'numeric',
     correctAnswer: '40',
     unit: 'tonnes',
-    explanationFinal: 'y(8) = 3,5 × 8 + 12 = 28 + 12 = 40 tonnes.',
+    explanationFinal: 'G(3 ; 22,5), V(X) = 2, Cov(X,Y) = 7 ⟹ droite y = 3,5 x + 12 ; pour x = 8, y = 40 tonnes ; y > 50 pour x ≥ 11.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Pour les rangs x ∈ {1, 2, 3, 4, 5}, quelle est la moyenne x̄ ?',
+        questionType: 'numeric',
+        correctAnswer: '3',
+        hint: '(1 + 2 + 3 + 4 + 5) / 5.',
+        ruleApplied: 'Moyenne arithmétique',
+        mathExpression: 'x̄ = 15 / 5 = 3   |   ȳ = (15 + 20 + 22 + 26 + 29,5) / 5 = 112,5 / 5 = 22,5',
+        explanation: 'Le point moyen du nuage est G(3 ; 22,5).',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Calculer la variance V(X) des rangs {1, 2, 3, 4, 5}.',
+        questionType: 'numeric',
+        correctAnswer: '2',
+        hint: '[(−2)² + (−1)² + 0² + 1² + 2²] / 5.',
+        ruleApplied: 'Variance statistique',
+        mathExpression: 'V(X) = (4 + 1 + 0 + 1 + 4) / 5 = 10 / 5 = 2',
+        explanation: 'La variance V(X) vaut exactement 2.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Calculer le coefficient directeur a = Cov(X, Y) / V(X) avec Cov(X, Y) = 7.',
+        questionType: 'numeric',
+        correctAnswer: '3.5',
+        hint: '7 / 2.',
+        ruleApplied: 'Pente de la droite de régression de y en x',
+        mathExpression: 'a = Cov(X, Y) / V(X) = 7 / 2 = 3,5   ⇒   b = 22,5 − 3,5 × 3 = 12',
+        explanation: 'La droite des moindres carrés a pour équation y = 3,5 x + 12.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Quelle production y (en tonnes) prévoit-on pour l’année de rang x = 8 ?',
+        questionType: 'numeric',
+        correctAnswer: '40',
+        unit: 'tonnes',
+        hint: '3,5 × 8 + 12.',
+        ruleApplied: 'Extrapolation linéaire',
+        mathExpression: 'y(8) = 3,5 × 8 + 12 = 28 + 12 = 40 tonnes',
+        explanation: 'Le modèle linéaire prévoit 40 tonnes au rang x = 8.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'À partir de quel rang entier x la production prévue dépasse-t-elle strictement 50 tonnes ?',
+        questionType: 'numeric',
+        correctAnswer: '11',
+        hint: '3,5 x + 12 > 50 ⇒ 3,5 x > 38 ⇒ x > 10,85.',
+        ruleApplied: 'Résolution d’inéquation linéaire',
+        mathExpression: '3,5 x > 38 ⇒ x > 38 / 3,5 ≈ 10,86 ⇒ x ≥ 11',
+        explanation: 'À x = 11, y = 38,5 + 12 = 50,5 tonnes > 50 tonnes.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Prévision linéaire', explanation: 'Substitution de x = 8.', mathExpression: 'y = 3,5 × 8 + 12 = 40 tonnes' },
+      { stepNumber: 1, title: 'Point moyen et variance', explanation: 'G(3 ; 22,5), V(X) = 2 et Cov(X, Y) = 7.', mathExpression: 'x̄ = 3, ȳ = 22,5, V(X) = 2' },
+      { stepNumber: 2, title: 'Droite de régression', explanation: 'a = Cov/V = 3,5 et b = ȳ − a x̄ = 12.', mathExpression: 'y = 3,5 x + 12' },
+      { stepNumber: 3, title: 'Prévisions x = 8 et seuil 50 t', explanation: 'y(8) = 40 t ; 3,5x + 12 > 50 ⟹ x ≥ 11.', mathExpression: '40 tonnes (rang 8)  |  Seuil : x = 11' },
     ],
   },
   {
@@ -383,16 +1341,80 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2020',
     bepcPoints: '5 pts',
     visualBadge: '🧊',
-    themeTags: ['Espace 3D', 'Tétraèdre', 'Volume'],
+    themeTags: ['Géométrie dans l’espace', 'Produit vectoriel', 'Tétraèdre', 'Volume'],
     prompt:
-      'Soient A(0,0,0), B(3,0,0), C(0,4,0) et D(1,2,6) dans un repère orthonormé.\n' +
-      'L’aire du triangle ABC vaut 6, et le plan (ABC) est z = 0 donc la hauteur issue de D vaut h = 6.\nCalcule le volume V du tétraèdre ABCD.',
-    hint: 'V = (1/3) × Aire(ABC) × h.',
+      'Dans l’espace rapporté à un repère orthonormé direct (O ; i⃗, j⃗, k⃗), on donne les points A(0 ; 0 ; 0), B(3 ; 0 ; 0), C(0 ; 4 ; 0) et D(1 ; 2 ; 6).\n\n' +
+      '1. Calculer le produit vectoriel AB⃗ ∧ AC⃗ et en déduire l’aire du triangle ABC.\n' +
+      '2. Déterminer une équation cartésienne du plan (ABC), puis calculer la distance h du point D au plan (ABC).\n' +
+      '3. Calculer le volume V du tétraèdre ABCD par deux méthodes (Base × Hauteur / 3 et produit mixte |(AB⃗ ∧ AC⃗)·AD⃗| / 6).\n' +
+      '4. Soit H le projeté orthogonal de D sur (ABC). Préciser les coordonnées de H.\n' +
+      '5. Vérifier que les triangles ABC et ABD ne sont pas dans le même plan (ABCD non coplanaires).',
+    hint: 'AB⃗ = (3,0,0), AC⃗ = (0,4,0) ⇒ AB⃗ ∧ AC⃗ = (0,0,12) ; Aire(ABC) = ½ × 12 = 6 ; h = 6 ⇒ V = 12.',
     questionType: 'numeric',
     correctAnswer: '12',
-    explanationFinal: 'V = (1/3) × 6 × 6 = 12 u.v. (et |(AB⃗ ∧ AC⃗)·AD⃗|/6 = |(0,0,12)·(1,2,6)|/6 = 72/6 = 12).',
+    explanationFinal: 'AB⃗ ∧ AC⃗ = 12 k⃗ ; Aire(ABC) = 6 u.a. ; plan (ABC) : z = 0 ; h = d(D, ABC) = 6 (H(1;2;0)) ; Volume V = 12 u.v.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Calculer la norme ||AB⃗ ∧ AC⃗|| avec AB⃗(3 ; 0 ; 0) et AC⃗(0 ; 4 ; 0).',
+        questionType: 'numeric',
+        correctAnswer: '12',
+        hint: 'AB⃗ ∧ AC⃗ = (0 ; 0 ; 3×4 − 0) = 12 k⃗.',
+        ruleApplied: 'Norme du produit vectoriel',
+        mathExpression: 'AB⃗ ∧ AC⃗ = (0 ; 0 ; 12) ⇒ ||AB⃗ ∧ AC⃗|| = 12',
+        explanation: 'Les vecteurs AB⃗ et AC⃗ étant non colinéaires, A, B, C ne sont pas alignés.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'En déduire l’aire du triangle ABC (en unités d’aire).',
+        questionType: 'numeric',
+        correctAnswer: '6',
+        hint: 'Aire(ABC) = ½ ||AB⃗ ∧ AC⃗||.',
+        ruleApplied: 'Aire d’un triangle par produit vectoriel',
+        mathExpression: 'Aire(ABC) = ½ × 12 = 6 u.a.',
+        explanation: 'Le triangle ABC est rectangle en A de côtés 3 et 4, donc d’aire (3×4)/2 = 6.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quelle est l’équation cartésienne du plan (ABC) et la distance h de D(1 ; 2 ; 6) à (ABC) ?',
+        questionType: 'qcm',
+        options: [
+          'Plan (ABC) : z = 0 et hauteur h = 6',
+          'Plan (ABC) : 3x + 4y = 0 et hauteur h = 2',
+          'Plan (ABC) : x + y + z = 0 et hauteur h = 3',
+          'Plan (ABC) : z = 6 et hauteur h = 0',
+        ],
+        correctAnswer: 'Plan (ABC) : z = 0 et hauteur h = 6',
+        hint: 'A, B, C ont tous une cote z = 0.',
+        ruleApplied: 'Distance d’un point au plan z = 0',
+        mathExpression: '(ABC) : z = 0 ⇒ h = |z_D| = |6| = 6   (projeté H(1 ; 2 ; 0))',
+        explanation: 'Le projeté orthogonal de D(1 ; 2 ; 6) sur le plan z = 0 est H(1 ; 2 ; 0), donc DH = 6.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer le volume V du tétraèdre ABCD (en u.v.).',
+        questionType: 'numeric',
+        correctAnswer: '12',
+        hint: 'V = (1/3) × Aire(ABC) × h = (1/3) × 6 × 6.',
+        ruleApplied: 'Volume du tétraèdre',
+        mathExpression: 'V = (1/3) × 6 × 6 = 12 u.v.   |   |(0,0,12)·(1,2,6)| / 6 = 72 / 6 = 12',
+        explanation: 'Les deux méthodes donnent exactement V = 12 u.v.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Quelle est la somme x_H + y_H + z_H des coordonnées du projeté orthogonal H de D sur (ABC) ?',
+        questionType: 'numeric',
+        correctAnswer: '3',
+        hint: 'H(1 ; 2 ; 0).',
+        ruleApplied: 'Projection orthogonale sur le plan (Oxy)',
+        mathExpression: 'H(1 ; 2 ; 0) ⇒ 1 + 2 + 0 = 3',
+        explanation: 'H a mêmes abscisse et ordonnée que D, et une cote nulle.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Formule du tétraèdre', explanation: 'Un tiers de base × hauteur.', mathExpression: 'V = (1/3) × 6 × 6 = 12' },
+      { stepNumber: 1, title: 'Produit vectoriel et aire de base', explanation: 'AB⃗ ∧ AC⃗ = (0, 0, 12).', mathExpression: 'Aire(ABC) = ½ ||AB⃗ ∧ AC⃗|| = 6 u.a.' },
+      { stepNumber: 2, title: 'Hauteur et projeté H', explanation: '(ABC) est le plan z = 0, donc h = |z_D| = 6 et H(1 ; 2 ; 0).', mathExpression: 'h = 6' },
+      { stepNumber: 3, title: 'Volume du tétraèdre', explanation: 'V = (1/3) Base × Hauteur = |(AB⃗ ∧ AC⃗)·AD⃗| / 6.', mathExpression: 'V = 12 u.v.' },
     ],
   },
   {
@@ -407,15 +1429,76 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2025',
     bepcPoints: '5 pts',
     visualBadge: '🌐',
-    themeTags: ['Sphère', 'Distance point-plan'],
+    themeTags: ['Sphère', 'Distance point-plan', 'Cercle d’intersection', 'Droite orthogonale'],
     prompt:
-      'Soit la sphère S de centre Ω(1 ; 2 ; -1) et de rayon R = 13, et le plan P : 3x + 4y - 12z + 3 = 0 (||n⃗|| = 13).\n' +
-      'Calcule d(Ω, P), puis le rayon r du cercle d’intersection P ∩ S. Saisis r.',
-    hint: 'd = |3 + 8 + 12 + 3| / 13 = 26 / 13 = 2 ? Vérifions avec R = √(2² + r²) ou prenons R = 5 et P : 3x + 4y - 12z + 16 = 0 ➔ d = 39/13 = 3 ➔ r = 4 !',
+      'Dans un repère orthonormé de l’espace, on considère la sphère (S) de centre Ω(1 ; 2 ; −1) et de rayon R = 5, et le plan (P) d’équation cartésienne 3x + 4y − 12z + 16 = 0.\n\n' +
+      '1. Écrire une équation cartésienne développée de la sphère (S).\n' +
+      '2. Donner les coordonnées d’un vecteur normal n⃗ au plan (P) et calculer sa norme ||n⃗||.\n' +
+      '3. Calculer la distance d(Ω, P) du centre Ω au plan (P) et justifier que (P) coupe (S) suivant un cercle (C).\n' +
+      '4. Déterminer les coordonnées du centre H du cercle (C) (projeté orthogonal de Ω sur (P)) et calculer le rayon r de (C).\n' +
+      '5. Déterminer une équation du plan (P’) parallèle à (P) et tangent à la sphère (S) côté Ω (ou passant à distance 5 de Ω).',
+    hint: '||n⃗|| = √(9 + 16 + 144) = 13 ; d(Ω, P) = |3 + 8 + 12 + 16|/13 = 39/13 = 3 < 5 ; r = √(5² − 3²) = 4.',
     questionType: 'numeric',
     correctAnswer: '4',
-    explanationFinal: 'd = 3 < R = 5, donc r = √(5² - 3²) = 4.',
-    steps: [],
+    explanationFinal: '||n⃗|| = 13 ; d(Ω, P) = 3 < R = 5 ⟹ cercle de centre H(4/13 ; 14/13 ; 23/13) et de rayon r = √(25 − 9) = 4.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Calculer la norme ||n⃗|| du vecteur normal n⃗(3 ; 4 ; −12) au plan (P).',
+        questionType: 'numeric',
+        correctAnswer: '13',
+        hint: '√(3² + 4² + (−12)²).',
+        ruleApplied: 'Norme euclidienne dans ℝ³',
+        mathExpression: '||n⃗|| = √(9 + 16 + 144) = √169 = 13',
+        explanation: '(3, 4, 12, 13) est un quadruplet pythagoricien exact.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Calculer la distance d(Ω, P) du centre Ω(1 ; 2 ; −1) au plan (P) : 3x + 4y − 12z + 16 = 0.',
+        questionType: 'numeric',
+        correctAnswer: '3',
+        hint: '|3(1) + 4(2) − 12(−1) + 16| / 13 = 39 / 13.',
+        ruleApplied: 'Distance d’un point à un plan',
+        mathExpression: 'd(Ω, P) = |3 + 8 + 12 + 16| / 13 = 39 / 13 = 3',
+        explanation: 'Comme d = 3 < R = 5, le plan (P) est sécant à la sphère (S).',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Calculer le rayon r du cercle d’intersection (C) = (P) ∩ (S).',
+        questionType: 'numeric',
+        correctAnswer: '4',
+        hint: 'r = √(R² − d²) = √(5² − 3²).',
+        ruleApplied: 'Théorème de Pythagore dans ΩHM',
+        mathExpression: 'r = √(5² − 3²) = √(25 − 9) = √16 = 4',
+        explanation: 'Le cercle section a pour rayon exact r = 4.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Pour trouver le projeté orthogonal H sur (P), on écrit OH⃗ = OΩ⃗ + t n⃗ soit H(1 + 3t ; 2 + 4t ; −1 − 12t) ∈ (P). Quelle valeur de t obtient-on ?',
+        questionType: 'qcm',
+        options: ['t = −3/13', 't = +3/13', 't = −39', 't = −1/13'],
+        correctAnswer: 't = −3/13',
+        hint: 'Injecte dans 3x + 4y − 12z + 16 = 0 ⇒ 39 + 169 t = 0.',
+        ruleApplied: 'Intersection droite orthogonale et plan',
+        mathExpression: '39 + 169 t = 0 ⇒ t = −39 / 169 = −3 / 13',
+        explanation: 'On obtient H(1 − 9/13 ; 2 − 12/13 ; −1 + 36/13) = (4/13 ; 14/13 ; 23/13).',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Quel est le rayon R_eq = √25 de la sphère (S) tel que x² + y² + z² − 2x − 4y + 2z − k = 0 ?',
+        questionType: 'numeric',
+        correctAnswer: '19',
+        hint: 'Développe (x − 1)² + (y − 2)² + (z + 1)² = 25 ⇒ 1 + 4 + 1 − 25 = −19 donc −k = −19 ⇒ k = 19.',
+        ruleApplied: 'Forme développée de l’équation d’une sphère',
+        mathExpression: '(x−1)² + (y−2)² + (z+1)² = 25 ⇔ x² + y² + z² − 2x − 4y + 2z − 19 = 0',
+        explanation: 'Ainsi le terme constant est −19 (donc k = 19).',
+      },
+    ],
+    steps: [
+      { stepNumber: 1, title: 'Norme du vecteur normal', explanation: '||n⃗|| = √(9 + 16 + 144) = 13.', mathExpression: '||n⃗|| = 13' },
+      { stepNumber: 2, title: 'Distance Ω à (P)', explanation: '|3(1)+4(2)−12(−1)+16| / 13 = 39 / 13 = 3 < 5.', mathExpression: 'd(Ω, P) = 3' },
+      { stepNumber: 3, title: 'Rayon du cercle et centre H', explanation: 'r = √(5² − 3²) = 4 et t = −3/13 donne H(4/13 ; 14/13 ; 23/13).', mathExpression: 'r = 4  |  H(4/13 ; 14/13 ; 23/13)' },
+    ],
   },
   {
     id: 'bac-exam-math-18',
@@ -429,17 +1512,85 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2022',
     bepcPoints: '5 pts',
     visualBadge: '🪞',
-    themeTags: ['Antidéplacement', 'Symétrie glissée'],
+    themeTags: ['Isométries', 'Antidéplacement', 'Symétrie glissée', 'Décomposition'],
     prompt:
-      'ABCD est un carré direct de côté a = 6 cm. Soit f = t_{AB⃗} ◦ s_{(AB)}.\n' +
-      'Puisque AB⃗ // (AB), f est une symétrie glissée d’axe (AB). Quelle est la norme du vecteur de f ◦ f ?',
-    hint: 'f ◦ f = t_{2 AB⃗}, donc la norme vaut 2 a.',
+      'Soit ABCD un carré direct de côté a = 6 cm et de centre O. On considère l’application f = t_{AB⃗} ∘ s_{(AB)}.\n\n' +
+      '1. Justifier que f est un antidéplacement (isométrie indirecte) sans point invariant.\n' +
+      '2. Montrer que AB⃗ dirige l’axe (AB) et en déduire les éléments caractéristiques de la symétrie glissée f.\n' +
+      '3. Déterminer les images f(A), f(B) et f(D) des sommets A, B, D.\n' +
+      '4. Montrer que t_{AB⃗} et s_{(AB)} commutent, puis calculer f ∘ f et la norme du vecteur de translation de f ∘ f.\n' +
+      '5. Soit g = s_{(CD)} ∘ s_{(BC)} ∘ s_{(AB)}. Identifier la nature de g et montrer que g est aussi une symétrie glissée d’axe parallèle à (AB) ou (BC).',
+    hint: 'f ∘ f = t_{2 AB⃗} donc ||2 AB⃗|| = 12 cm ; g = s_{(CD)} ∘ r_{(C, −π)}... attention s_{(CD)} ∘ s_{(BC)} = r_{(C, −π)} = s_C.',
     questionType: 'numeric',
     correctAnswer: '12',
     unit: 'cm',
-    explanationFinal: 's_{(AB)} ◦ s_{(AB)} = Id et t_{AB⃗} commute avec s_{(AB)}, donc f ◦ f = t_{2 AB⃗} de norme 2 × 6 = 12 cm.',
+    explanationFinal: 'f est la symétrie glissée d’axe (AB) et de vecteur AB⃗ (6 cm) ; f² = t_{2 AB⃗} de norme 12 cm ; g = s_{(CD)} ∘ s_{(BC)} ∘ s_{(AB)} = t_{2 BC⃗} ∘ s_{(AB)} (symétrie glissée).',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Pourquoi l’application f = t_{AB⃗} ∘ s_{(AB)} n’a-t-elle aucun point invariant ?',
+        questionType: 'qcm',
+        options: [
+          'Car tout point invariant de s_{(AB)} appartient à (AB) et est ensuite translaté de AB⃗ ≠ 0⃗',
+          'Car toute symétrie orthogonale n’a aucun point fixe',
+          'Car le rapport d’une isométrie est différent de 1',
+          'Car f est une rotation d’angle π/2',
+        ],
+        correctAnswer: 'Car tout point invariant de s_{(AB)} appartient à (AB) et est ensuite translaté de AB⃗ ≠ 0⃗',
+        hint: 'f(M) = M ⟺ s_{(AB)}(M) = M − AB⃗ ; en appliquant s_{(AB)}, on aurait M = s_{(AB)}(M) − AB⃗ car s_{(AB)}(AB⃗) = AB⃗.',
+        ruleApplied: 'Forme réduite d’un antidéplacement',
+        mathExpression: 'M’ = f(M) = M ⇒ t_{AB⃗}(M) = M impossible car AB = 6 ≠ 0',
+        explanation: 'Un antidéplacement sans point fixe est nécessairement une symétrie glissée.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Quel est le vecteur de glissement u⃗ de f = t_{AB⃗} ∘ s_{(AB)} ?',
+        questionType: 'qcm',
+        options: ['u⃗ = AB⃗', 'u⃗ = 2 AB⃗', 'u⃗ = AD⃗', 'u⃗ = 0⃗'],
+        correctAnswer: 'u⃗ = AB⃗',
+        hint: 'AB⃗ étant colinéaire à (AB), la décomposition t_{AB⃗} ∘ s_{(AB)} est déjà la forme réduite.',
+        ruleApplied: 'Unicité de la forme réduite',
+        mathExpression: 'AB⃗ // (AB) ⇒ f = t_{AB⃗} ∘ s_{(AB)} est réduite d’axe (AB) et de vecteur AB⃗',
+        explanation: 'La droite (AB) est globalement invariante par f.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Quelle est la distance entre le point D et son image D’ = f(D) (arrondie à 0,01 près, sachant 6√5 ≈ 13,42) ?',
+        questionType: 'numeric',
+        correctAnswer: '13.42',
+        unit: 'cm',
+        hint: 's_{(AB)}(D) = D₁ tel que D₁A = AD = 6 perpendiculaire à (AB), puis t_{AB⃗}(D₁) décale de 6 parallèlement à (AB) : DD’ = √(12² + 6²) = 6√5.',
+        ruleApplied: 'Théorème de Pythagore sur les composantes orthogonale et parallèle',
+        mathExpression: 'DD’ = √((2a)² + a²) = a√5 = 6√5 ≈ 13,42 cm',
+        explanation: 'Composante orthogonale à (AB) : 2a = 12 cm ; composante parallèle : a = 6 cm.',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Quelle est la norme du vecteur de translation de la composée f ∘ f (en cm) ?',
+        questionType: 'numeric',
+        correctAnswer: '12',
+        unit: 'cm',
+        hint: 'f ∘ f = t_{2 AB⃗}.',
+        ruleApplied: 'Carré d’une symétrie glissée',
+        mathExpression: 'f² = t_{AB⃗} ∘ s_{(AB)} ∘ t_{AB⃗} ∘ s_{(AB)} = t_{2 AB⃗} ⇒ ||2 AB⃗|| = 2 × 6 = 12 cm',
+        explanation: 'Le carré de toute symétrie glissée de vecteur u⃗ est la translation de vecteur 2 u⃗.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Calculer l’image de A par f : à quelle distance de A se trouve f(A) (en cm) ?',
+        questionType: 'numeric',
+        correctAnswer: '6',
+        unit: 'cm',
+        hint: 'A ∈ (AB) donc s_{(AB)}(A) = A, puis t_{AB⃗}(A) = B.',
+        ruleApplied: 'Point sur l’axe de symétrie',
+        mathExpression: 'f(A) = t_{AB⃗}(A) = B ⇒ d(A, f(A)) = AB = 6 cm',
+        explanation: 'Sur l’axe (AB), f agit simplement comme la translation de vecteur AB⃗.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Carré de f', explanation: 'Commutation de la translation parallèle à l’axe.', mathExpression: 'f² = t_{2 AB⃗} ⟹ ||2 AB⃗|| = 12 cm' },
+      { stepNumber: 1, title: 'Forme réduite de f', explanation: 'AB⃗ // (AB) donc f est déjà sous forme réduite : symétrie glissée d’axe (AB) et de vecteur AB⃗.', mathExpression: 'f(A) = B' },
+      { stepNumber: 2, title: 'Carré de f', explanation: 'Commutation : f² = t_{2 AB⃗}.', mathExpression: '||2 AB⃗|| = 12 cm' },
+      { stepNumber: 3, title: 'Image de D', explanation: 'DD’ = √((2a)² + a²) = 6√5 ≈ 13,42 cm.', mathExpression: 'DD’ ≈ 13,42 cm' },
     ],
   },
   {
@@ -454,17 +1605,75 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2025',
     bepcPoints: '5 pts',
     visualBadge: '🪐',
-    themeTags: ['Parabole', 'Tangente', 'Dédoublement'],
+    themeTags: ['Parabole', 'Foyer et directrice', 'Tangente par dédoublement', 'Sous-tangente'],
     prompt:
-      'Soit la parabole (P) : y² = 8x et le point M₀(2 ; 4) ∈ (P). Par dédoublement (y₀y = 4(x + x₀)), la tangente T en M₀ coupe l’axe (Ox) (y = 0) en H.\n' +
-      'Calcule l’abscisse x_H du point H.',
-    hint: 'Équation de T : 4y = 4(x + 2) ⟺ y = x + 2. Pose y = 0.',
+      'Dans le plan muni d’un repère orthonormé (O ; i⃗, j⃗), on considère la parabole (P) d’équation réduite y² = 8x.\n\n' +
+      '1. Déterminer le paramètre p de (P), les coordonnées du sommet S, du foyer F et une équation de la directrice (D).\n' +
+      '2. Vérifier que le point M₀(2 ; 4) appartient à (P) et vérifier la propriété focale FM₀ = d(M₀, D).\n' +
+      '3. Déterminer une équation de la tangente (T) à (P) au point M₀ par la règle de dédoublement (y₀ y = p(x + x₀)).\n' +
+      '4. La tangente (T) coupe l’axe focal (Ox) en H et la directrice (D) en K. Calculer x_H et montrer que HFM₀K ou le triangle FHM₀ est isocèle (FM₀ = FH).\n' +
+      '5. Montrer que la droite (FM₀) est orthogonale à la tangente en un point remarquable (propriété optique du miroir parabolique : la normale en M₀ bissecte l’angle (FM₀, vecteur parallèle à Ox)).',
+    hint: '2p = 8 ⇒ p = 4, F(p/2 ; 0) = (2 ; 0) ; tangente 4y = 4(x + 2) ⟺ y = x + 2 ; pour y = 0, x_H = −2.',
     questionType: 'numeric',
     correctAnswer: '-2',
-    explanationFinal: 'En y = 0, x + 2 = 0 ⟹ x_H = -2 (toujours symétrique de x₀ par rapport à O !).',
+    explanationFinal: 'p = 4, F(2 ; 0), directrice x = −2 ; tangente en M₀(2 ; 4) : y = x + 2 ; intersection avec (Ox) : H(−2 ; 0) ; FH = FM₀ = 4.',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Quel est le paramètre p de la parabole (P) : y² = 8x (identifiée à y² = 2px) ?',
+        questionType: 'numeric',
+        correctAnswer: '4',
+        hint: '2p = 8.',
+        ruleApplied: 'Équation réduite de la parabole',
+        mathExpression: '2p = 8 ⇒ p = 4',
+        explanation: 'Le foyer est en F(p/2 ; 0) = (2 ; 0) et la directrice est x = −p/2 = −2.',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Quelle est la distance FM₀ entre le foyer F(2 ; 0) et le point M₀(2 ; 4) ?',
+        questionType: 'numeric',
+        correctAnswer: '4',
+        hint: 'FM₀ = d(M₀, D) = x₀ + p/2 = 2 + 2.',
+        ruleApplied: 'Définition foyer-directrice (e = 1)',
+        mathExpression: 'FM₀ = √((2−2)² + (4−0)²) = 4 = d(M₀, D)',
+        explanation: 'M₀ est situé exactement au bout du demi-latus rectum passant par F.',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Par dédoublement des termes en M₀(2 ; 4), quelle est l’équation réduite de la tangente (T) ?',
+        questionType: 'qcm',
+        options: ['y = x + 2', 'y = 2x', 'y = −x + 6', 'y = ½ x + 3'],
+        correctAnswer: 'y = x + 2',
+        hint: 'y₀ y = p(x + x₀) ⟺ 4y = 4(x + 2).',
+        ruleApplied: 'Règle de dédoublement de la tangente',
+        mathExpression: '4y = 4(x + 2) ⇔ y = x + 2',
+        explanation: 'Le coefficient directeur de la tangente en M₀ vaut 1 (angle 45°).',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer l’abscisse x_H du point d’intersection H de la tangente (T) avec l’axe focal (Ox).',
+        questionType: 'numeric',
+        correctAnswer: '-2',
+        hint: 'Pose y = 0 dans y = x + 2.',
+        ruleApplied: 'Propriété de la sous-tangente parabolique',
+        mathExpression: '0 = x_H + 2 ⇒ x_H = −2',
+        explanation: 'La sous-tangente vaut toujours 2 x₀ : H(−2 ; 0) est le symétrique de la projection (2 ; 0) par rapport à O.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Que vaut l’ordonnée y_K du point K = (T) ∩ (D) où la directrice (D) a pour équation x = −2 ?',
+        questionType: 'numeric',
+        correctAnswer: '0',
+        hint: 'Remplace x par −2 dans y = x + 2.',
+        ruleApplied: 'Intersection tangente et directrice',
+        mathExpression: 'x = −2 ⇒ y_K = −2 + 2 = 0  (K = H)',
+        explanation: 'Pour ce point particulier (corde focale verticale), T coupe l’axe focal directement sur la directrice !',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Tangente par dédoublement', explanation: 'y² → 4y ; 8x = 4(2x) → 4(x + 2).', mathExpression: '4y = 4(x + 2) ⟺ y = x + 2' },
-      { stepNumber: 2, title: 'Intersection avec (Ox)', explanation: 'y = 0.', mathExpression: 'x_H = -2' },
+      { stepNumber: 1, title: 'Éléments caractéristiques', explanation: '2p = 8 ⟹ p = 4.', mathExpression: 'S(0;0),  F(2;0),  directrice (D) : x = −2' },
+      { stepNumber: 2, title: 'Tangente en M₀(2 ; 4)', explanation: 'y₀ y = p(x + x₀) donne 4y = 4(x + 2).', mathExpression: '(T) : y = x + 2' },
+      { stepNumber: 3, title: 'Intersection H avec (Ox) et isocélie FHM₀', explanation: 'H(−2 ; 0), d’où FH = 4 = FM₀.', mathExpression: 'x_H = −2  et  FH = FM₀ = 4' },
     ],
   },
   {
@@ -479,38 +1688,82 @@ export const BAC_EXAM_MATH_PROBLEMS: Exercise[] = ([
     originYear: 'Session 2026',
     bepcPoints: '6 pts',
     visualBadge: '✨',
-    themeTags: ['Hyperbole', 'Forme canonique'],
+    themeTags: ['Hyperbole', 'Foyers et directrices', 'Asymptotes', 'Excentricité'],
     prompt:
-      'Une hyperbole a pour équation réduite (x - 1)² / 9 - (y + 2)² / 16 = 1.\n' +
-      'Calcule la distance focale 2c (entre ses deux foyers F et F’).',
-    hint: 'a² = 9, b² = 16, et pour une hyperbole c² = a² + b².',
+      'Dans le plan rapporté à un repère orthonormé (O ; i⃗, j⃗), on considère la conique (H) d’équation :\n' +
+      '  (x − 1)² / 9 − (y + 2)² / 16 = 1.\n\n' +
+      '1. Identifier la nature de (H), les coordonnées de son centre Ω et son axe focal.\n' +
+      '2. Calculer a, b, puis la demi-distance focale c et la distance focale 2c = FF’.\n' +
+      '3. Déterminer les coordonnées des deux sommets S, S’ et des deux foyers F, F’.\n' +
+      '4. Calculer l’excentricité e de (H) et donner les équations de ses deux directrices (D) et (D’).\n' +
+      '5. Donner les équations cartésiennes des deux asymptotes de l’hyperbole (H).',
+    hint: 'Ω(1 ; −2) ; a = 3, b = 4 ⇒ c = √(9 + 16) = 5 ⇒ distance focale 2c = 10 ; e = 5/3 ; asymptotes y + 2 = ±(4/3)(x − 1).',
     questionType: 'numeric',
     correctAnswer: '10',
-    explanationFinal: 'c = √(9 + 16) = 5, donc la distance entre les deux foyers vaut 2c = 10.',
+    explanationFinal: 'Hyperbole centrée en Ω(1 ; −2) ; a = 3, b = 4, c = 5 ⇒ FF’ = 10 ; foyers (6 ; −2) et (−4 ; −2) ; e = 5/3 ; asymptotes y + 2 = ±(4/3)(x − 1).',
+    subQuestions: [
+      {
+        questionNumber: 1,
+        questionPrompt: 'Quelles sont les coordonnées du centre Ω de l’hyperbole (H) ?',
+        questionType: 'qcm',
+        options: ['Ω(1 ; −2)', 'Ω(−1 ; 2)', 'Ω(3 ; 4)', 'Ω(0 ; 0)'],
+        correctAnswer: 'Ω(1 ; −2)',
+        hint: 'Annule x − 1 et y + 2.',
+        ruleApplied: 'Translation de centre Ω(x₀, y₀)',
+        mathExpression: 'x − 1 = 0 et y + 2 = 0 ⇒ Ω(1 ; −2)',
+        explanation: 'Le repère propre centré sur l’hyperbole est (Ω ; i⃗, j⃗).',
+      },
+      {
+        questionNumber: 2,
+        questionPrompt: 'Calculer la demi-distance focale c = √(a² + b²).',
+        questionType: 'numeric',
+        correctAnswer: '5',
+        hint: 'a² = 9 et b² = 16.',
+        ruleApplied: 'Relation focale de l’hyperbole',
+        mathExpression: 'c = √(9 + 16) = √25 = 5',
+        explanation: 'Les paramètres forment le triangle rectangle classique (3, 4, 5).',
+      },
+      {
+        questionNumber: 3,
+        questionPrompt: 'Calculer la distance focale totale 2c = FF’ entre les deux foyers.',
+        questionType: 'numeric',
+        correctAnswer: '10',
+        hint: 'Multiplie c = 5 par 2.',
+        ruleApplied: 'Distance entre foyers symétriques par rapport à Ω',
+        mathExpression: 'FF’ = 2c = 2 × 5 = 10   [F(6 ; −2) et F’(−4 ; −2)]',
+        explanation: 'L’axe focal étant parallèle à (Ox) (y = −2), les foyers sont en (1 ± 5 ; −2).',
+      },
+      {
+        questionNumber: 4,
+        questionPrompt: 'Calculer l’excentricité e = c / a de l’hyperbole (arrondie à 0,01 près).',
+        questionType: 'numeric',
+        correctAnswer: '1.67',
+        hint: 'c = 5 et a = √9 = 3 ⇒ 5/3.',
+        ruleApplied: 'Excentricité e = c / a > 1',
+        mathExpression: 'e = 5 / 3 ≈ 1,67 > 1',
+        explanation: 'Une hyperbole a toujours une excentricité strictement supérieure à 1.',
+      },
+      {
+        questionNumber: 5,
+        questionPrompt: 'Quelles sont les équations des deux asymptotes de l’hyperbole (H) ?',
+        questionType: 'qcm',
+        options: [
+          'y + 2 = ±(4/3)(x − 1)',
+          'y + 2 = ±(3/4)(x − 1)',
+          'y − 2 = ±(4/3)(x + 1)',
+          'y + 2 = ±(5/3)(x − 1)',
+        ],
+        correctAnswer: 'y + 2 = ±(4/3)(x − 1)',
+        hint: 'Résous (x − 1)²/9 − (y + 2)²/16 = 0 ⇒ (y + 2)/4 = ±(x − 1)/3.',
+        ruleApplied: 'Asymptotes d’une hyperbole réduite',
+        mathExpression: '[(x−1)/3 − (y+2)/4] · [(x−1)/3 + (y+2)/4] = 0 ⇒ y + 2 = ±(4/3)(x − 1)',
+        explanation: 'Les deux droites passent par Ω(1 ; −2) avec des pentes ±b/a = ±4/3.',
+      },
+    ],
     steps: [
-      { stepNumber: 1, title: 'Paramètres a et b', explanation: 'a = 3, b = 4.', mathExpression: 'c = √(a² + b²) = √(9 + 16) = 5' },
-      { stepNumber: 2, title: 'Distance focale', explanation: 'FF’ = 2c.', mathExpression: '2c = 10' },
+      { stepNumber: 1, title: 'Centre et paramètres a, b, c', explanation: 'Ω(1 ; −2), a = 3, b = 4 ⟹ c = √(9 + 16) = 5.', mathExpression: 'FF’ = 2c = 10' },
+      { stepNumber: 2, title: 'Sommets, foyers et excentricité', explanation: 'Axe focal y = −2.', mathExpression: 'S(4;−2), S’(−2;−2) | F(6;−2), F’(−4;−2) | e = 5/3 ≈ 1,67' },
+      { stepNumber: 3, title: 'Directrices et asymptotes', explanation: 'Directrices x = 1 ± a²/c = 1 ± 9/5 ; asymptotes de pentes ±b/a.', mathExpression: 'y + 2 = ±(4/3)(x − 1)' },
     ],
   },
-] as Exercise[]).map((pb) =>
-  pb.id === 'bac-exam-math-3'
-    ? {
-        ...pb,
-        prompt:
-          'On définit M_{n+1} = s(M_n) par z_{n+1} = (½ i) z_n avec M₀ d’affixe z₀ = 64. On note r_n = OM_n = |z_n|.\n' +
-          'Calcule la distance r₃ = OM₃.',
-      }
-    : pb.id === 'bac-exam-math-17'
-    ? {
-        ...pb,
-        prompt:
-          'Soit la sphère S de centre Ω(1 ; 2 ; -1) et de rayon R = 5, et le plan P : 3x + 4y - 12z + 16 = 0 (||n⃗|| = 13).\n' +
-          'Calcule d(Ω, P) = 39/13 = 3, puis le rayon r du cercle d’intersection P ∩ S. Saisis r.',
-        hint: 'r = √(R² - d²) = √(5² - 3²).',
-        steps: [
-          { stepNumber: 1, title: 'Distance Ω à P', explanation: '|3(1)+4(2)-12(-1)+16| / 13.', mathExpression: 'd(Ω, P) = 39 ÷ 13 = 3 < R = 5' },
-          { stepNumber: 2, title: 'Rayon du cercle', explanation: 'Pythagore.', mathExpression: 'r = √(5² - 3²) = 4' },
-        ],
-      }
-    : pb
-);
+];

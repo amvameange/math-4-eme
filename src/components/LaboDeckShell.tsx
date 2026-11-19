@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RotateCcw, Sparkles } from 'lucide-react';
 import { LaboEvalResult, LaboPresetSpec, LaboSliderSpec } from '../data/labo/laboTypes';
+import { FormattedMathText } from './FormattedMathText';
 
 interface LaboDeckShellProps {
   specKey: string;
@@ -50,7 +51,9 @@ export const LaboDeckShell: React.FC<LaboDeckShellProps> = ({
   return (
     <div className="space-y-3.5">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="text-xs text-slate-300 leading-relaxed flex-1 min-w-[220px]">{goal}</p>
+        <p className="text-xs text-slate-300 leading-relaxed flex-1 min-w-[220px]">
+          <FormattedMathText text={goal} />
+        </p>
         <div className="flex flex-wrap items-center gap-1.5">
           {presets?.map((p) => (
             <button
@@ -60,7 +63,7 @@ export const LaboDeckShell: React.FC<LaboDeckShellProps> = ({
               className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-bold text-amber-300 transition cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1"
             >
               <Sparkles className="w-3 h-3" />
-              <span>{p.label}</span>
+              <span><FormattedMathText text={p.label} /></span>
             </button>
           ))}
           <button
@@ -85,7 +88,7 @@ export const LaboDeckShell: React.FC<LaboDeckShellProps> = ({
             {sliders.map((s, idx) => (
               <div key={s.label} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-200">{s.label}</span>
+                  <span className="font-bold text-slate-200"><FormattedMathText text={s.label} /></span>
                   <span
                     className={`font-black tabular-nums ${
                       accentTheme === 'sky' ? 'text-sky-300' : 'text-amber-300'
@@ -120,7 +123,7 @@ export const LaboDeckShell: React.FC<LaboDeckShellProps> = ({
               Mesure en direct
             </div>
             <div className="text-xs sm:text-sm font-black text-white tabular-nums mt-0.5">
-              {res.headline}
+              <FormattedMathText text={res.headline} />
             </div>
           </div>
 
@@ -133,10 +136,10 @@ export const LaboDeckShell: React.FC<LaboDeckShellProps> = ({
                 }`}
               >
                 <div className="text-[10px] font-bold uppercase tracking-wide opacity-80 truncate">
-                  {m.label}
+                  <FormattedMathText text={m.label} />
                 </div>
                 <div className="text-xs font-black tabular-nums mt-0.5 break-words">
-                  {m.value}
+                  <FormattedMathText text={m.value} />
                 </div>
               </div>
             ))}
@@ -149,13 +152,13 @@ export const LaboDeckShell: React.FC<LaboDeckShellProps> = ({
           <span className="text-[10px] font-black uppercase tracking-wider text-sky-300 block">
             Formule & Loi
           </span>
-          <span className="font-mono text-slate-200">{formula}</span>
+          <span className="font-mono text-slate-200"><FormattedMathText text={formula} /></span>
         </div>
         <div className="rounded-xl bg-emerald-950/30 border border-emerald-500/25 px-3 py-2 text-xs">
           <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300 block">
             À retenir (BAC C)
           </span>
-          <span className="text-slate-200">{res.conclusion}</span>
+          <span className="text-slate-200"><FormattedMathText text={res.conclusion} /></span>
         </div>
       </div>
     </div>

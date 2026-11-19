@@ -4,6 +4,7 @@ import {
   CorrectionStep,
   Exercise,
   ExerciseDifficulty,
+  SubQuestion,
   SubjectId,
 } from '../../types/math';
 
@@ -39,6 +40,7 @@ export interface ArchivePartSeed {
     explanation: string;
     subResult?: string;
   }[];
+  subQuestions?: SubQuestion[];
   themeTags?: string[];
 }
 
@@ -189,6 +191,7 @@ export function buildArchivePapers(
         themeTags: part.themeTags,
         explanationFinal: part.explanationFinal,
         steps,
+        subQuestions: part.subQuestions,
       };
     });
 

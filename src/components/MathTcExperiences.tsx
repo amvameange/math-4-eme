@@ -2,6 +2,7 @@ import React from 'react';
 import { LaboEvalResult, MathVisualKind } from '../data/labo/laboTypes';
 import { MATH_TC_EXPERIENCE_META, MATH_TC_LABO_SPECS } from '../data/labo/mathTcLaboSpecs';
 import { LaboDeckShell } from './LaboDeckShell';
+import { SvgMathTspans } from './FormattedMathText';
 
 export { MATH_TC_EXPERIENCE_META };
 
@@ -149,10 +150,10 @@ const renderMathSvg = (kind: MathVisualKind, res: LaboEvalResult) => {
           <polygon points={`70,140 ${70 + uLen},140 ${vx + uLen},${vy} ${vx},${vy}`} fill="#38bdf8" fillOpacity="0.18" stroke="#38bdf8" strokeWidth="1.5" />
           <line x1="70" y1="140" x2={70 + uLen} y2="140" stroke="#34d399" strokeWidth="2.8" />
           <line x1="70" y1="140" x2={vx} y2={vy} stroke="#fbbf24" strokeWidth="2.8" />
-          <text x={70 + uLen / 2} y="158" fill="#34d399" fontSize="10" fontWeight="bold">u⃗</text>
-          <text x={vx - 14} y={vy - 6} fill="#fbbf24" fontSize="10" fontWeight="bold">v⃗</text>
+          <text x={70 + uLen / 2} y="158" fill="#34d399" fontSize="10" fontWeight="bold"><SvgMathTspans text="u⃗" baseFontSize={10} /></text>
+          <text x={vx - 14} y={vy - 6} fill="#fbbf24" fontSize="10" fontWeight="bold"><SvgMathTspans text="v⃗" baseFontSize={10} /></text>
           <text x="24" y="26" fill="#cbd5e1" fontSize="10" fontWeight="bold">
-            Aire ||u⃗ ∧ v⃗|| = {n(s.area, 0).toFixed(2)}
+            <SvgMathTspans text={`Aire ‖u⃗ ∧ v⃗‖ = ${n(s.area, 0).toFixed(2)}`} baseFontSize={10} />
           </text>
         </svg>
       );
@@ -249,7 +250,9 @@ const renderMathSvg = (kind: MathVisualKind, res: LaboEvalResult) => {
           <line x1={mapX(0)} y1={mapY(0)} x2={mapX(4.3)} y2={mapY(4.3)} stroke="#64748b" strokeDasharray="4 3" strokeWidth="1.5" />
           <line x1={mapX(0)} y1={mapY(yFn(0))} x2={mapX(4.3)} y2={mapY(yFn(4.3))} stroke="#38bdf8" strokeWidth="2.2" />
           <polyline fill="none" stroke="#fbbf24" strokeWidth="2" points={steps.join(' ')} />
-          <text x="52" y="24" fill="#fbbf24" fontSize="10" fontWeight="bold">Escalier / Toile u_{'{n+1}'} = f(u_n) (b={b.toFixed(1)})</text>
+          <text x="52" y="24" fill="#fbbf24" fontSize="10" fontWeight="bold">
+            <SvgMathTspans text={`Escalier / Toile u_{n+1} = f(u_n) (b=${b.toFixed(1)})`} baseFontSize={10} />
+          </text>
         </svg>
       );
     }

@@ -2,6 +2,7 @@ import React from 'react';
 import { ChapterExpMeta, LaboEvalResult, PhysicsVisualKind } from '../data/labo/laboTypes';
 import { PHYSICS_TC_EXPERIENCE_META, PHYSICS_TC_LABO_SPECS } from '../data/labo/physicsTcLaboSpecs';
 import { LaboDeckShell } from './LaboDeckShell';
+import { SvgMathTspans } from './FormattedMathText';
 
 export { PHYSICS_TC_EXPERIENCE_META };
 export type { ChapterExpMeta };
@@ -41,13 +42,13 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           <text x="142" y="72" fill="#e2e8f0" fontSize="11" fontWeight="bold">M</text>
           {/* uT tangent */}
           <line x1="155" y1="82" x2={155 + Math.max(24, aT)} y2={82 - Math.max(8, aT * 0.3)} stroke="#38bdf8" strokeWidth="2.5" markerEnd="url(#arrSky)" />
-          <text x={158 + Math.max(24, aT)} y={80 - Math.max(8, aT * 0.3)} fill="#38bdf8" fontSize="10" fontWeight="bold">a_T</text>
+          <text x={158 + Math.max(24, aT)} y={80 - Math.max(8, aT * 0.3)} fill="#38bdf8" fontSize="10" fontWeight="bold"><SvgMathTspans text="a_T" baseFontSize={10} /></text>
           {/* uN normal */}
           <line x1="155" y1="82" x2={155 - aN * 0.25} y2={82 + aN} stroke="#fb7185" strokeWidth="2.5" markerEnd="url(#arrRose)" />
-          <text x={135 - aN * 0.25} y={92 + aN} fill="#fb7185" fontSize="10" fontWeight="bold">a_N = v²/R</text>
+          <text x={135 - aN * 0.25} y={92 + aN} fill="#fb7185" fontSize="10" fontWeight="bold"><SvgMathTspans text="a_N = v²/R" baseFontSize={10} /></text>
           {/* total a */}
           <line x1="155" y1="82" x2={155 + aT - aN * 0.25} y2={82 - aT * 0.3 + aN} stroke="#fbbf24" strokeWidth="2.5" strokeDasharray="4 2" markerEnd="url(#arrAmb)" />
-          <text x="16" y="22" fill="#94a3b8" fontSize="10">Base de Frenet (u⃗_T, u⃗_N)</text>
+          <text x="16" y="22" fill="#94a3b8" fontSize="10"><SvgMathTspans text="Base de Frenet (u⃗_T, u⃗_N)" baseFontSize={10} /></text>
         </svg>
       );
     }
@@ -151,8 +152,8 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           <circle cx={150 + R} cy="95" r="6" fill="#fbbf24" />
           <line x1={150 + R} y1="95" x2={150 + R} y2="48" stroke="#34d399" strokeWidth="2.5" />
           <line x1={150 + R} y1="95" x2={150 + R * 0.45} y2="95" stroke="#fb7185" strokeWidth="2.5" />
-          <text x={156 + R} y="54" fill="#34d399" fontSize="10" fontWeight="bold">v⃗ = Rω</text>
-          <text x={150 + R * 0.25} y="112" fill="#fb7185" fontSize="10" fontWeight="bold">F⃗_c</text>
+          <text x={156 + R} y="54" fill="#34d399" fontSize="10" fontWeight="bold"><SvgMathTspans text="v⃗ = Rω" baseFontSize={10} /></text>
+          <text x={150 + R * 0.25} y="112" fill="#fb7185" fontSize="10" fontWeight="bold"><SvgMathTspans text="F⃗_c" baseFontSize={10} /></text>
         </svg>
       );
     }
@@ -167,7 +168,7 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           <polygon points={`45,155 255,155 45,${clampedTopY}`} fill="#1e293b" stroke="#475569" strokeWidth="2" />
           <rect x="128" y={(155 + clampedTopY) / 2 - 18} width="26" height="18" rx="3" fill="#38bdf8" transform={`rotate(${alpha}, 141, ${(155 + clampedTopY) / 2 - 9})`} />
           <line x1="141" y1={(155 + clampedTopY) / 2} x2="141" y2={(155 + clampedTopY) / 2 + 40} stroke="#fb7185" strokeWidth="2.5" />
-          <text x="147" y={(155 + clampedTopY) / 2 + 38} fill="#fb7185" fontSize="10" fontWeight="bold">P⃗ = mg</text>
+          <text x="147" y={(155 + clampedTopY) / 2 + 38} fill="#fb7185" fontSize="10" fontWeight="bold"><SvgMathTspans text="P⃗ = mg" baseFontSize={10} /></text>
           <text x="200" y="148" fill="#fbbf24" fontSize="10" fontWeight="bold">α = {alpha}°</text>
         </svg>
       );
@@ -185,8 +186,8 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           )}
           <line x1="30" y1="125" x2="110" y2="125" stroke="#34d399" strokeWidth="2.5" />
           <path d={`M 110 125 A ${rPx} ${rPx} 0 0 0 ${110 + rPx} ${125 - rPx}`} fill="none" stroke="#fbbf24" strokeWidth="2.8" />
-          <text x="34" y="114" fill="#34d399" fontSize="10" fontWeight="bold">v⃗₀</text>
-          <text x="205" y="38" fill="#38bdf8" fontSize="10" fontWeight="bold">B⃗ ⊙</text>
+          <text x="34" y="114" fill="#34d399" fontSize="10" fontWeight="bold"><SvgMathTspans text="v⃗₀" baseFontSize={10} /></text>
+          <text x="205" y="38" fill="#38bdf8" fontSize="10" fontWeight="bold"><SvgMathTspans text="B⃗ ⊙" baseFontSize={10} /></text>
           <text x="145" y="160" fill="#fbbf24" fontSize="10">R = mv / (|q|B)</text>
         </svg>
       );
@@ -201,7 +202,7 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           <text x="147" y="99" fill="#f8fafc" fontSize="9" fontWeight="bold">Terre</text>
           <circle cx={160 + rOrb} cy="95" r="5" fill="#fbbf24" />
           <line x1={160 + rOrb} y1="95" x2={160 + rOrb} y2="52" stroke="#34d399" strokeWidth="2" />
-          <text x={165 + rOrb} y="56" fill="#34d399" fontSize="10" fontWeight="bold">v⃗</text>
+          <text x={165 + rOrb} y="56" fill="#34d399" fontSize="10" fontWeight="bold"><SvgMathTspans text="v⃗" baseFontSize={10} /></text>
           <text x="16" y="24" fill="#94a3b8" fontSize="10">Orbite circulaire : v = √(GM / r)</text>
         </svg>
       );
@@ -284,8 +285,8 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           <line x1="45" y1="110" x2={45 + dx} y2="110" stroke="#34d399" strokeWidth="2.8" />
           <line x1={45 + dx} y1="110" x2={45 + dx} y2={110 - dy} stroke="#38bdf8" strokeWidth="2.5" />
           <line x1="45" y1="110" x2={45 + dx} y2={110 - dy} stroke="#fbbf24" strokeWidth="2.8" strokeDasharray="4 2" />
-          <text x={45 + dx / 2 - 10} y="126" fill="#34d399" fontSize="10" fontWeight="bold">U_R</text>
-          <text x={52 + dx} y={110 - dy / 2} fill="#38bdf8" fontSize="10" fontWeight="bold">U_L - U_C</text>
+          <text x={45 + dx / 2 - 10} y="126" fill="#34d399" fontSize="10" fontWeight="bold"><SvgMathTspans text="U_R" baseFontSize={10} /></text>
+          <text x={52 + dx} y={110 - dy / 2} fill="#38bdf8" fontSize="10" fontWeight="bold"><SvgMathTspans text="U_L - U_C" baseFontSize={10} /></text>
           <text x="20" y="26" fill="#fbbf24" fontSize="10" fontWeight="bold">Fresnel : φ = {n(s.phi, 0).toFixed(1)}°</text>
         </svg>
       );
@@ -309,7 +310,7 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           <polyline fill="none" stroke="#38bdf8" strokeWidth="2.8" points={pts.join(' ')} />
           <line x1="85" y1="73" x2="235" y2="73" stroke="#34d399" strokeDasharray="3 3" />
           <circle cx="160" cy={152 - ratio * 112} r="5" fill="#fbbf24" />
-          <text x="168" y="34" fill="#fbbf24" fontSize="10" fontWeight="bold">Résonance f₀ (I₀/√2 ⟹ Δf)</text>
+          <text x="168" y="34" fill="#fbbf24" fontSize="10" fontWeight="bold"><SvgMathTspans text="Résonance f₀ (I₀/√2 ⇒ Δf)" baseFontSize={10} /></text>
         </svg>
       );
     }
@@ -372,7 +373,7 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
             <>
               <line x1="72" y1="95" x2="245" y2="95" stroke="#34d399" strokeWidth="2.5" strokeDasharray="5 3" />
               <circle cx="170" cy="95" r="5" fill="#34d399" />
-              <text x="115" y="82" fill="#34d399" fontSize="10" fontWeight="bold">e⁻ éjecté (E_c &gt; 0)</text>
+              <text x="115" y="82" fill="#34d399" fontSize="10" fontWeight="bold"><SvgMathTspans text="e⁻ éjecté (E_c > 0)" baseFontSize={10} /></text>
             </>
           ) : (
             <text x="105" y="102" fill="#fb7185" fontSize="11" fontWeight="bold">Bloqué : hν &lt; W₀ (λ &gt; λ₀)</text>
@@ -397,7 +398,7 @@ const renderPhysicsSvg = (kind: PhysicsVisualKind, res: LaboEvalResult) => {
           <line x1="40" y1="152" x2="290" y2="152" stroke="#475569" strokeWidth="2" />
           <polyline fill="none" stroke="#fbbf24" strokeWidth="2.8" points={pts.join(' ')} />
           <line x1="40" y1={152 - curRatio * 115} x2="280" y2={152 - curRatio * 115} stroke="#38bdf8" strokeDasharray="3 3" />
-          <text x="85" y="28" fill="#fbbf24" fontSize="10" fontWeight="bold">N(t) = N₀ e^(-λt) — Paliers de t₁/₂</text>
+          <text x="85" y="28" fill="#fbbf24" fontSize="10" fontWeight="bold"><SvgMathTspans text="N(t) = N₀ e^(-λt) — Paliers de t₁/₂" baseFontSize={10} /></text>
         </svg>
       );
     }

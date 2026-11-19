@@ -1,4 +1,5 @@
 import React from 'react';
+import { FormattedMathText } from '../FormattedMathText';
 
 /**
  * Fun, playful cartoon illustrations of Koko the Gabonese Panther
@@ -91,12 +92,12 @@ export const KokoSuccessCelebration: React.FC<{ message?: string; subMessage?: s
           </div>
 
           <h4 className="text-base sm:text-lg font-black text-white flex items-center justify-center sm:justify-start gap-2">
-            <span>{message}</span>
+            <FormattedMathText text={message} />
             <span className="text-xl">🎉</span>
           </h4>
 
           <p className="text-xs text-slate-200 font-medium leading-relaxed">
-            {subMessage}
+            <FormattedMathText text={subMessage} />
           </p>
 
           <div className="pt-1 flex items-center justify-center sm:justify-start gap-2 text-[11px] text-emerald-400 font-semibold">
@@ -179,11 +180,11 @@ export const KokoEncouragingFeedback: React.FC<{
           </div>
 
           <h4 className="text-base sm:text-lg font-black text-white">
-            {title}
+            <FormattedMathText text={title} />
           </h4>
 
           <p className="text-xs text-slate-200 font-medium leading-relaxed">
-            {message}
+            <FormattedMathText text={message} />
           </p>
 
           {onShowSolution && (
@@ -193,7 +194,7 @@ export const KokoEncouragingFeedback: React.FC<{
                 className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center justify-center sm:justify-start gap-2 shadow-md transition cursor-pointer active:scale-95"
               >
                 <span>🔍 Découvrir la solution détaillée pas à pas</span>
-                <span>➔</span>
+                <span>→</span>
               </button>
             </div>
           )}
@@ -241,7 +242,7 @@ export const KokoStepDetective: React.FC<{
           <span className="text-slate-400 font-medium truncate">{getStepSubtitle(stepNumber, totalSteps)}</span>
         </div>
         <h5 className="text-xs sm:text-sm font-bold text-white truncate mt-0.5">
-          {title}
+          <FormattedMathText text={title} />
         </h5>
       </div>
     </div>

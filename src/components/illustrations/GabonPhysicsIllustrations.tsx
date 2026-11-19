@@ -1,6 +1,7 @@
 import React from 'react';
 import { GradeLevel, PhysicsIllustrationKey } from '../../types/math';
 import { TerminaleCPhysicsDrawing } from './TerminaleCPhysicsDrawings';
+import { FormattedMathText, SvgMathTspans } from '../FormattedMathText';
 
 /**
  * Illustrations pédagogiques vivantes, colorées et gabonaises pour Physique-Chimie Terminale C Gabon
@@ -8,7 +9,7 @@ import { TerminaleCPhysicsDrawing } from './TerminaleCPhysicsDrawings';
 
 export const MascotKokoPhysics: React.FC<{ speech?: string; gradeLevel?: GradeLevel }> = ({
   speech,
-  gradeLevel = '4eme',
+  gradeLevel = 'Terminale C',
 }) => {
   return (
     <div className="flex items-start gap-3.5 p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-sky-500/10 to-purple-500/15 border border-sky-500/35 shadow-lg">
@@ -52,12 +53,16 @@ export const MascotKokoPhysics: React.FC<{ speech?: string; gradeLevel?: GradeLe
           </span>
         </div>
         <p className="text-slate-200 mt-1 leading-relaxed font-medium">
-          {speech ||
-            (gradeLevel === 'Terminale C'
-              ? 'Mbolo futur bachelier de Terminale Série C ! Rédige toujours avec la rigueur du Bac C : 1) Référentiel / Système & Bilan, 2) Équation littérale & différentielle, 3) Application numérique SI, 4) Conclusion encadrée !'
-              : gradeLevel === '3eme'
-              ? 'Mbolo futur lauréat du BEPC ! En 3ème, chaque exercice se rédige avec rigueur : 1) Bilan / Données SI, 2) Formule littérale, 3) Calcul debout en colonne, 4) Conclusion avec l’unité exacte !'
-              : 'Mbolo jeune scientifique ! En Physique-Chimie 4ème, on rédige toujours en 4 temps : 1) Données & conversions, 2) Formule littérale, 3) Calcul posé debout, 4) Phrase réponse avec la bonne unité !')}
+          <FormattedMathText
+            text={
+              speech ||
+              (gradeLevel === 'Terminale C'
+                ? 'Mbolo futur bachelier de Terminale Série C ! Rédige toujours avec la rigueur du Bac C : 1) Référentiel / Système & Bilan, 2) Équation littérale & différentielle, 3) Application numérique SI, 4) Conclusion encadrée !'
+                : gradeLevel === '3eme'
+                ? 'Mbolo futur lauréat du BEPC ! En 3ème, chaque exercice se rédige avec rigueur : 1) Bilan / Données SI, 2) Formule littérale, 3) Calcul debout en colonne, 4) Conclusion avec l’unité exacte !'
+                : 'Mbolo jeune scientifique ! En Physique-Chimie 4ème, on rédige toujours en 4 temps : 1) Données & conversions, 2) Formule littérale, 3) Calcul posé debout, 4) Phrase réponse avec la bonne unité !')
+            }
+          />
         </p>
       </div>
     </div>
@@ -82,7 +87,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
           {illustrationKey === 'puissance-seeg' && '🏠 Puissance P = U × I & Calcul de la Facture SEEG (F CFA)'}
           {illustrationKey === 'propagation-lumiere' && '🔦 Propagation Rectiligne & Vitesse c = 300 000 km/s'}
           {illustrationKey === 'ombres-eclipses' && '🌒 Cône d’Ombre & Éclipse Solaire / Lunaire'}
-          {illustrationKey === 'reflexion-refraction' && '🪞 Réflexion sur Miroir (i = r) & Réfraction Air ➔ Eau'}
+          {illustrationKey === 'reflexion-refraction' && '🪞 Réflexion sur Miroir (i = r) & Réfraction Air → Eau'}
           {illustrationKey === 'lentilles' && '🔍 Lentille Convergente, Foyer F’ & Grandissement γ'}
           {illustrationKey === 'dispersion-couleurs' && '🌈 Dispersion par Prisme & Synthèse Additive (RVB)'}
           {illustrationKey === 'masse-volumique' && '🪵 Masse Volumique ρ = m/V & Flottabilité de l’Okoumé'}
@@ -139,7 +144,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               {/* Encadré résumé */}
               <rect x="335" y="34" width="112" height="122" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="391" y="58" textAnchor="middle" className="text-[10px] font-black fill-rose-400">Sens du courant I :</text>
-              <text x="391" y="76" textAnchor="middle" className="text-[10px] font-bold fill-white">Borne + ➔ Borne −</text>
+              <text x="391" y="76" textAnchor="middle" className="text-[10px] font-bold fill-white">Borne + → Borne −</text>
               <text x="391" y="94" textAnchor="middle" className="text-[9px] fill-slate-300">(à l’extérieur du gén.)</text>
               <text x="391" y="122" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">Circuit FERMÉ =</text>
               <text x="391" y="138" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">La lampe brille !</text>
@@ -158,7 +163,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <text x="144" y="56" textAnchor="middle" className="text-[9px] font-black fill-amber-300">L2</text>
               <circle cx="117" cy="136" r="10" fill="#020617" stroke="#38bdf8" strokeWidth="2" />
               <text x="117" y="139" textAnchor="middle" className="text-[9px] font-black fill-sky-300">G</text>
-              <text x="117" y="164" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">Si L1 grille ➔ L2 s’éteint !</text>
+              <text x="117" y="164" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">Si L1 grille → L2 s’éteint !</text>
 
               <rect x="242" y="18" width="202" height="158" rx="14" fill="#064e3b" fillOpacity="0.25" stroke="#10b981" strokeWidth="1.5" />
               <text x="343" y="38" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">DÉRIVATION (2 boucles)</text>
@@ -219,11 +224,11 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
 
               <rect x="252" y="22" width="188" height="150" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
               <text x="346" y="44" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">ADDITIVITÉ DES TENSIONS</text>
-              <text x="346" y="74" textAnchor="middle" className="text-xs font-black fill-white font-mono">En SÉRIE : U_G = U₁ + U₂</text>
+              <text x="346" y="74" textAnchor="middle" className="text-xs font-black fill-white font-mono"><SvgMathTspans text="En SÉRIE : U_G = U₁ + U₂" baseFontSize={12} /></text>
               <text x="346" y="96" textAnchor="middle" className="text-[11px] font-bold fill-amber-300 font-mono">12 V = 4,5 V + 7,5 V</text>
               <line x1="270" y1="112" x2="422" y2="112" stroke="#334155" strokeWidth="1.5" />
               <text x="346" y="134" textAnchor="middle" className="text-xs font-black fill-sky-300 font-mono">En DÉRIVATION :</text>
-              <text x="346" y="154" textAnchor="middle" className="text-xs font-black fill-emerald-300 font-mono">U_G = U₁ = U₂</text>
+              <text x="346" y="154" textAnchor="middle" className="text-xs font-black fill-emerald-300 font-mono"><SvgMathTspans text="U_G = U₁ = U₂" baseFontSize={12} /></text>
             </>
           )}
 
@@ -329,7 +334,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
 
               {/* Réfraction Air/Eau */}
               <rect x="238" y="18" width="204" height="158" rx="14" fill="#0f172a" stroke="#06b6d4" strokeWidth="1.5" />
-              <text x="340" y="38" textAnchor="middle" className="text-[10px] font-black fill-cyan-300">RÉFRACTION (AIR ➔ EAU)</text>
+              <text x="340" y="38" textAnchor="middle" className="text-[10px] font-black fill-cyan-300">RÉFRACTION (AIR → EAU)</text>
               <rect x="252" y="98" width="176" height="62" fill="#0369a1" fillOpacity="0.4" />
               <line x1="252" y1="98" x2="428" y2="98" stroke="#38bdf8" strokeWidth="2" />
               <line x1="340" y1="48" x2="340" y2="160" stroke="#64748b" strokeDasharray="4 4" strokeWidth="1.5" />
@@ -362,7 +367,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <text x="386" y="56" textAnchor="middle" className="text-xs font-black fill-amber-300">VERGENCE C</text>
               <text x="386" y="84" textAnchor="middle" className="text-sm font-black fill-white font-mono">C = 1 ÷ f’</text>
               <text x="386" y="108" textAnchor="middle" className="text-[10px] fill-sky-300">Unité : dioptrie (δ)</text>
-              <text x="386" y="136" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300 font-mono">f’=0,25m ➔ 4 δ</text>
+              <text x="386" y="136" textAnchor="middle" className="text-[10px] font-bold fill-emerald-300 font-mono">f’=0,25m → 4 δ</text>
             </>
           )}
 
@@ -406,8 +411,8 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <rect x="180" y="24" width="260" height="146" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
               <text x="310" y="50" textAnchor="middle" className="text-sm font-black fill-amber-300 font-mono">ρ = m ÷ V</text>
               <text x="310" y="76" textAnchor="middle" className="text-xs font-bold fill-white font-mono">m = ρ × V   |   V = m ÷ ρ</text>
-              <text x="310" y="106" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300">Si ρ_objet &lt; ρ_eau : IL FLOTTE !</text>
-              <text x="310" y="128" textAnchor="middle" className="text-[11px] font-bold fill-rose-300">Si ρ_objet &gt; ρ_eau : IL COULE !</text>
+              <text x="310" y="106" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300"><SvgMathTspans text="Si ρ_objet < ρ_eau : IL FLOTTE !" baseFontSize={11} /></text>
+              <text x="310" y="128" textAnchor="middle" className="text-[11px] font-bold fill-rose-300"><SvgMathTspans text="Si ρ_objet > ρ_eau : IL COULE !" baseFontSize={11} /></text>
               <text x="310" y="152" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">1 g/cm³ = 1 000 kg/m³</text>
             </>
           )}
@@ -424,14 +429,14 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <text x="108" y="153" textAnchor="middle" className="text-[9px] font-black fill-white">4 N</text>
 
               <rect x="208" y="24" width="234" height="148" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
-              <text x="325" y="46" textAnchor="middle" className="text-[11px] font-black fill-amber-300">VECTEUR FORCE F⃗ : 4 ÉLÉMENTS</text>
+              <text x="325" y="46" textAnchor="middle" className="text-[11px] font-black fill-amber-300"><SvgMathTspans text="VECTEUR FORCE F⃗ : 4 ÉLÉMENTS" baseFontSize={11} /></text>
               <circle cx="242" cy="90" r="5" fill="#f43f5e" />
               <line x1="242" y1="90" x2="395" y2="90" stroke="#fbbf24" strokeWidth="4" />
               <polygon points="405,90 388,82 388,98" fill="#fbbf24" />
               <text x="242" y="74" textAnchor="start" className="text-[9px] font-bold fill-rose-300">1. Point d’application</text>
               <text x="325" y="114" textAnchor="middle" className="text-[9px] font-bold fill-sky-300">2. Direction (droite) + 3. Sens (flèche)</text>
               <text x="325" y="138" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">4. Intensité (en Newton N) · Échelle !</text>
-              <text x="325" y="156" textAnchor="middle" className="text-[9px] font-mono fill-slate-300">Ex : 1 cm ↔ 2 N ➔ 4 N = flèche de 2 cm</text>
+              <text x="325" y="156" textAnchor="middle" className="text-[9px] font-mono fill-slate-300">Ex : 1 cm ↔ 2 N → 4 N = flèche de 2 cm</text>
             </>
           )}
 
@@ -464,18 +469,18 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <rect x="22" y="22" width="198" height="150" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
               <text x="121" y="44" textAnchor="middle" className="text-[11px] font-black fill-amber-300">PRESSION : p = F ÷ S</text>
               <rect x="46" y="76" width="52" height="34" fill="#38bdf8" fillOpacity="0.4" stroke="#38bdf8" strokeWidth="2" />
-              <text x="72" y="130" textAnchor="middle" className="text-[9px] fill-sky-300">Grande S ➔ faible p</text>
+              <text x="72" y="130" textAnchor="middle" className="text-[9px] fill-sky-300">Grande S → faible p</text>
               <polygon points="154,110 176,110 165,134" fill="#f43f5e" />
               <rect x="148" y="76" width="34" height="34" fill="#f43f5e" fillOpacity="0.35" stroke="#f43f5e" strokeWidth="2" />
-              <text x="165" y="154" textAnchor="middle" className="text-[9px] fill-rose-300">Petite S ➔ forte p !</text>
+              <text x="165" y="154" textAnchor="middle" className="text-[9px] fill-rose-300">Petite S → forte p !</text>
 
               <rect x="236" y="22" width="206" height="150" rx="14" fill="#0369a1" fillOpacity="0.22" stroke="#38bdf8" strokeWidth="1.5" />
-              <text x="339" y="44" textAnchor="middle" className="text-[11px] font-black fill-sky-300">POUSSÉE D’ARCHIMÈDE (F_A)</text>
+              <text x="339" y="44" textAnchor="middle" className="text-[11px] font-black fill-sky-300"><SvgMathTspans text="POUSSÉE D’ARCHIMÈDE (F_A)" baseFontSize={11} /></text>
               <rect x="252" y="96" width="174" height="58" fill="#0284c7" fillOpacity="0.35" />
               <polygon points="295,88 383,88 369,112 309,112" fill="#f59e0b" stroke="#fde68a" strokeWidth="2" />
               <line x1="339" y1="88" x2="339" y2="56" stroke="#10b981" strokeWidth="3.5" />
               <polygon points="339,50 333,60 345,60" fill="#10b981" />
-              <text x="352" y="72" className="text-[10px] font-black fill-emerald-300">F_A ↑</text>
+              <text x="352" y="72" className="text-[10px] font-black fill-emerald-300"><SvgMathTspans text="F_A ↑" baseFontSize={10} /></text>
               <line x1="339" y1="112" x2="339" y2="144" stroke="#f43f5e" strokeWidth="3.5" />
               <polygon points="339,150 333,140 345,140" fill="#f43f5e" />
               <text x="352" y="138" className="text-[10px] font-black fill-rose-300">P ↓</text>
@@ -545,10 +550,10 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <rect x="232" y="22" width="210" height="148" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="337" y="44" textAnchor="middle" className="text-[11px] font-black fill-sky-300">COMPLÈTE vs INCOMPLÈTE</text>
               <text x="337" y="74" textAnchor="middle" className="text-xs font-black fill-sky-400">🔥 Flamme BLEUE = Complète</text>
-              <text x="337" y="92" textAnchor="middle" className="text-[10px] fill-slate-200">Assez d’O₂ ➔ CO₂ + H₂O</text>
+              <text x="337" y="92" textAnchor="middle" className="text-[10px] fill-slate-200">Assez d’O₂ → CO₂ + H₂O</text>
               <line x1="250" y1="106" x2="424" y2="106" stroke="#334155" />
               <text x="337" y="126" textAnchor="middle" className="text-xs font-black fill-amber-400">🔥 Flamme JAUNE = Incomplète</text>
-              <text x="337" y="146" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Manque d’O₂ ➔ C (suie) + CO (mortel !)</text>
+              <text x="337" y="146" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Manque d’O₂ → C (suie) + CO (mortel !)</text>
             </>
           )}
 
@@ -560,7 +565,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
                 CONSERVATION DES ATOMES & DE LA MASSE (LAVOISIER)
               </text>
               <text x="230" y="84" textAnchor="middle" className="text-base font-black fill-white font-mono">
-                CH₄  +  2 O₂   ➔   CO₂  +  2 H₂O
+                CH₄  +  2 O₂   →   CO₂  +  2 H₂O
               </text>
               <text x="125" y="114" textAnchor="middle" className="text-[11px] font-bold fill-sky-300">
                 Réactifs : 1 C, 4 H, 4 O
@@ -595,7 +600,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
 
               <rect x="36" y="110" width="388" height="64" rx="12" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="230" y="134" textAnchor="middle" className="text-xs font-black fill-amber-300 font-mono">
-                Concentration Massique : Cm = m_soluté ÷ V_solution (en g/L)
+                <SvgMathTspans text="Concentration Massique : Cm = m_soluté ÷ V_solution (en g/L)" baseFontSize={12} />
               </text>
               <text x="230" y="158" textAnchor="middle" className="text-[10px] font-bold fill-slate-200">
                 Diluer (ajouter de l’eau) rapproche toujours le pH vers 7 et diminue Cm !
@@ -618,10 +623,10 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <text x="116" y="168" className="text-xs font-black fill-rose-300">P (↓)</text>
               <rect x="200" y="24" width="240" height="150" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
               <text x="320" y="50" textAnchor="middle" className="text-xs font-black fill-amber-300">ÉQUILIBRE À 2 FORCES</text>
-              <text x="320" y="76" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white">F₁⃗ + F₂⃗ = 0⃗  ⇔  F₁ = F₂</text>
+              <text x="320" y="76" textAnchor="middle" className="text-[11px] font-mono font-bold fill-white"><SvgMathTspans text="F₁⃗ + F₂⃗ = 0⃗  ⇔  F₁ = F₂" baseFontSize={11} /></text>
               <text x="320" y="102" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Même droite · Sens contraires</text>
-              <text x="320" y="130" textAnchor="middle" className="text-[11px] font-mono font-bold fill-emerald-300">Pa = P − P’ = ρ_liq × V × g</text>
-              <text x="320" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Flotte si Pa_max &gt; P</text>
+              <text x="320" y="130" textAnchor="middle" className="text-[11px] font-mono font-bold fill-emerald-300"><SvgMathTspans text="Pa = P − P’ = ρ_liq × V × g" baseFontSize={11} /></text>
+              <text x="320" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300"><SvgMathTspans text="Flotte si Pa_max > P" baseFontSize={10} /></text>
             </>
           )}
 
@@ -633,13 +638,13 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <rect x="155" y="102" width="48" height="42" rx="6" fill="#10b981" fillOpacity="0.35" stroke="#10b981" strokeWidth="2.5" strokeDasharray="4 3" />
               <line x1="88" y1="122" x2="148" y2="122" stroke="#fbbf24" strokeWidth="3.5" />
               <polygon points="154,122 142,116 142,128" fill="#fbbf24" />
-              <text x="118" y="112" textAnchor="middle" className="text-xs font-black fill-amber-300">F⃗</text>
+              <text x="118" y="112" textAnchor="middle" className="text-xs font-black fill-amber-300"><SvgMathTspans text="F⃗" baseFontSize={12} /></text>
               <line x1="64" y1="164" x2="179" y2="164" stroke="#f43f5e" strokeWidth="2" />
               <text x="122" y="180" textAnchor="middle" className="text-[11px] font-black fill-rose-300">Distance d (m)</text>
               <rect x="232" y="24" width="208" height="150" rx="14" fill="#0f172a" stroke="#fbbf24" strokeWidth="1.5" />
               <text x="336" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">TRAVAIL (J) &amp; PUISSANCE (W)</text>
-              <text x="336" y="76" textAnchor="middle" className="text-xs font-mono font-bold fill-white">W(F⃗) = F × d</text>
-              <text x="336" y="100" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">W(P⃗) = m × g × h</text>
+              <text x="336" y="76" textAnchor="middle" className="text-xs font-mono font-bold fill-white"><SvgMathTspans text="W(F⃗) = F × d" baseFontSize={12} /></text>
+              <text x="336" y="100" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300"><SvgMathTspans text="W(P⃗) = m × g × h" baseFontSize={11} /></text>
               <text x="336" y="128" textAnchor="middle" className="text-xs font-mono font-bold fill-emerald-300">P = W ÷ t = F × v</text>
               <text x="336" y="156" textAnchor="middle" className="text-[10px] font-bold fill-rose-300">Toujours v en m/s (÷ 3,6)</text>
             </>
@@ -658,7 +663,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <text x="337" y="78" textAnchor="middle" className="text-xs font-mono font-bold fill-sky-300">Ec = ½ × m × v² (J)</text>
               <text x="337" y="104" textAnchor="middle" className="text-xs font-mono font-bold fill-amber-300">Ep = m × g × h (J)</text>
               <text x="337" y="132" textAnchor="middle" className="text-xs font-mono font-black fill-emerald-300">Em = Ec + Ep = Cte</text>
-              <text x="337" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">v_sol = √(2 × g × h)</text>
+              <text x="337" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300"><SvgMathTspans text="v_sol = √(2 × g × h)" baseFontSize={10} /></text>
             </>
           )}
 
@@ -702,7 +707,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <rect x="225" y="24" width="215" height="150" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="332" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">TRANSFORMATEUR &amp; DIODE</text>
               <text x="332" y="76" textAnchor="middle" className="text-xs font-mono font-bold fill-white">Us ÷ Up = Ns ÷ Np = k</text>
-              <text x="332" y="106" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300">Diode : passe A ➔ K (bloqué K ➔ A)</text>
+              <text x="332" y="106" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300">Diode : passe A → K (bloqué K → A)</text>
               <text x="332" y="136" textAnchor="middle" className="text-[11px] font-mono font-bold fill-purple-300">Transistor NPN : Ic = β × Ib</text>
             </>
           )}
@@ -722,8 +727,8 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
 
               <rect x="225" y="24" width="215" height="150" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="332" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">ŒIL RÉDUIT &amp; LOUPE</text>
-              <text x="332" y="76" textAnchor="middle" className="text-[11px] font-bold fill-sky-300">Myope (flou loin) ➔ Divergente (−)</text>
-              <text x="332" y="102" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300">Hypermétrope ➔ Convergente (+)</text>
+              <text x="332" y="76" textAnchor="middle" className="text-[11px] font-bold fill-sky-300">Myope (flou loin) → Divergente (−)</text>
+              <text x="332" y="102" textAnchor="middle" className="text-[11px] font-bold fill-emerald-300">Hypermétrope → Convergente (+)</text>
               <text x="332" y="136" textAnchor="middle" className="text-xs font-mono font-bold fill-amber-300">Loupe : G = C ÷ 4</text>
             </>
           )}
@@ -738,13 +743,13 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <text x="170" y="60" textAnchor="middle" className="text-xs font-black fill-slate-100">Al (Léger)</text>
               <text x="170" y="78" textAnchor="middle" className="text-[9px] fill-emerald-300">Alumine protège</text>
               <rect x="30" y="106" width="182" height="62" rx="10" fill="#7f1d1d" fillOpacity="0.35" stroke="#f87171" strokeWidth="2" />
-              <text x="121" y="130" textAnchor="middle" className="text-xs font-black fill-rose-300">Fe + Air humide ➔ Rouille</text>
-              <text x="121" y="152" textAnchor="middle" className="text-[11px] font-mono fill-white">4 Fe + 3 O₂ ➔ 2 Fe₂O₃</text>
+              <text x="121" y="130" textAnchor="middle" className="text-xs font-black fill-rose-300">Fe + Air humide → Rouille</text>
+              <text x="121" y="152" textAnchor="middle" className="text-[11px] font-mono fill-white">4 Fe + 3 O₂ → 2 Fe₂O₃</text>
 
               <rect x="228" y="24" width="212" height="150" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
               <text x="334" y="50" textAnchor="middle" className="text-xs font-black fill-amber-300">OXYDATION &amp; RÉDUCTION</text>
-              <text x="334" y="82" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">3 Fe + 2 O₂ ➔ Fe₃O₄ (vif)</text>
-              <text x="334" y="112" textAnchor="middle" className="text-[11px] font-mono font-bold fill-emerald-300">Fe₂O₃ + 2 Al ➔ 2 Fe + Al₂O₃</text>
+              <text x="334" y="82" textAnchor="middle" className="text-[11px] font-mono font-bold fill-sky-300">3 Fe + 2 O₂ → Fe₃O₄ (vif)</text>
+              <text x="334" y="112" textAnchor="middle" className="text-[11px] font-mono font-bold fill-emerald-300">Fe₂O₃ + 2 Al → 2 Fe + Al₂O₃</text>
               <text x="334" y="142" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Aimant attire uniquement Fe !</text>
             </>
           )}
@@ -769,7 +774,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
               <text x="347" y="48" textAnchor="middle" className="text-xs font-black fill-amber-300">TESTS AU LABO (NaOH / Ag⁺)</text>
               <text x="347" y="76" textAnchor="middle" className="text-[11px] font-bold fill-sky-300">Cation (+) : a PERDU des e⁻</text>
               <text x="347" y="102" textAnchor="middle" className="text-[11px] font-bold fill-rose-300">Anion (−) : a GAGNÉ des e⁻</text>
-              <text x="347" y="132" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Cl⁻ + Ag⁺ ➔ AgCl ↓ (noircit)</text>
+              <text x="347" y="132" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">Cl⁻ + Ag⁺ → AgCl ↓ (noircit)</text>
               <text x="347" y="156" textAnchor="middle" className="text-[10px] font-bold fill-slate-300">Solution neutre : Σ(+) = Σ(−)</text>
             </>
           )}
@@ -791,10 +796,10 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
 
               <rect x="28" y="94" width="404" height="78" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
               <text x="230" y="118" textAnchor="middle" className="text-xs font-mono font-black fill-white">
-                Neutralisation : H⁺ + OH⁻ ➔ H₂O    |    Équivalence : Ca·Va = Cb·Vb
+                Neutralisation : H⁺ + OH⁻ → H₂O    |    Équivalence : Ca·Va = Cb·Vb
               </text>
               <text x="230" y="142" textAnchor="middle" className="text-[11px] font-bold fill-amber-300">
-                Acide sur Zinc/Fer : Zn + 2 H⁺ ➔ Zn²⁺ + H₂↑ (détonation)
+                Acide sur Zinc/Fer : Zn + 2 H⁺ → Zn²⁺ + H₂↑ (détonation)
               </text>
               <text x="230" y="162" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">
                 Diluer ramène TOUJOURS le pH vers 7 sans jamais le franchir !
@@ -814,7 +819,7 @@ export const PhysicsChapterIllustration: React.FC<{ illustrationKey: PhysicsIllu
 
               <rect x="224" y="30" width="212" height="142" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="330" y="54" textAnchor="middle" className="text-xs font-black fill-sky-300">RAFFINAGE SOGARA &amp; FEU</text>
-              <text x="330" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">2 C₄H₁₀ + 13 O₂ ➔ 8 CO₂ + 10 H₂O</text>
+              <text x="330" y="84" textAnchor="middle" className="text-[10px] font-mono font-bold fill-emerald-300">2 C₄H₁₀ + 13 O₂ → 8 CO₂ + 10 H₂O</text>
               <text x="330" y="114" textAnchor="middle" className="text-[11px] font-bold fill-sky-400">Flamme BLEUE = Complète (CO₂)</text>
               <text x="330" y="142" textAnchor="middle" className="text-[11px] font-bold fill-rose-400">Flamme JAUNE = Danger CO !</text>
             </>

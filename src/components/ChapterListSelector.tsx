@@ -3,6 +3,7 @@ import { Chapter, DomainId, DomainMeta, SubjectId } from '../types/math';
 import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
 import { Play, BookOpen, FileText, CheckCircle2 } from 'lucide-react';
 import { scrollToSectionById } from '../utils/uiFeedback';
+import { FormattedMathText } from './FormattedMathText';
 
 interface ChapterListSelectorProps {
   subject: SubjectId;
@@ -269,7 +270,7 @@ export const ChapterListSelector: React.FC<ChapterListSelectorProps> = ({
                       <span className="truncate">{domain?.shortTitle}</span>
                     </div>
                     <h4 className="text-sm font-extrabold text-white truncate group-hover:text-amber-200 transition-colors">
-                      {chap.title}
+                      <FormattedMathText text={chap.title} />
                     </h4>
                     <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-2 mt-0.5 tabular-nums">
                       <span className={allSolved ? 'text-emerald-400 font-bold flex items-center gap-1' : 'text-emerald-400/90 font-semibold'}>

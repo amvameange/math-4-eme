@@ -74,6 +74,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun shareText(title: String, textContent: String) {
+            runOnUiThread {
+                try {
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_SUBJECT, title)
+                        putExtra(Intent.EXTRA_TEXT, textContent)
+                    }
+                    startActivity(Intent.createChooser(shareIntent, title))
+                } catch (_: Exception) {
+                    // Ignored if no handler installed
+                }
+            }
+        }
+
+        @JavascriptInterface
         fun printPage() {
             runOnUiThread {
                 if (!::webView.isInitialized || isWebViewDestroyed) return@runOnUiThread
@@ -293,8 +309,8 @@ class MainActivity : AppCompatActivity() {
         settings.loadWithOverviewMode = true
         settings.textZoom = 100
         settings.displayZoomControls = false
-        settings.builtInZoomControls = false
-        settings.setSupportZoom(false)
+        settings.builtInZoomControls = true
+        settings.setSupportZoom(true)
 
         settings.cacheMode = WebSettings.LOAD_DEFAULT
     }

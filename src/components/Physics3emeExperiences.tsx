@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StandingMathRenderer } from './StandingMathRenderer';
+import { FormattedMathText, SvgMathTspans } from './FormattedMathText';
 
 export interface ChapterExperienceInfo {
   titles: [string, string, string];
@@ -329,7 +330,9 @@ export const Physics3emeExperiences: React.FC<{
           </div>
           <div className="grid sm:grid-cols-2 gap-3 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 tabular-nums">
             <div>
-              <label className="text-xs font-bold text-sky-300 block mb-1">Volume V : {m2VolL} L (Pa_max = {paMax} N)</label>
+              <label className="text-xs font-bold text-sky-300 block mb-1">
+                Volume V : {m2VolL} L (<FormattedMathText text={`Pa_max = ${paMax} N`} />)
+              </label>
               <input type="range" min="1" max="8" value={m2VolL} onChange={(e) => setM2VolL(Number(e.target.value))} className="w-full accent-sky-400" />
             </div>
             <div>
@@ -342,9 +345,11 @@ export const Physics3emeExperiences: React.FC<{
               <rect x="30" y="34" width="130" height="76" rx="8" fill="#0284c7" fillOpacity="0.22" stroke="#38bdf8" strokeWidth="2" />
               <rect x="75" y={floats ? 24 : 74} width="40" height="30" rx="4" fill="#fbbf24" stroke="#f59e0b" strokeWidth="2" />
               <text x="245" y="52" textAnchor="middle" className={`text-xs font-black ${floats ? 'fill-emerald-300' : 'fill-rose-300'}`}>
-                {floats ? 'FLOTTE (Pa_max ≥ P)' : 'COULE (P > Pa_max)'}
+                <SvgMathTspans text={floats ? 'FLOTTE (Pa_max ≥ P)' : 'COULE (P > Pa_max)'} />
               </text>
-              <text x="245" y="74" textAnchor="middle" className="text-[11px] font-mono fill-white">Pa_max = {paMax} N vs P = {m2Weight} N</text>
+              <text x="245" y="74" textAnchor="middle" className="text-[11px] font-mono fill-white">
+                <SvgMathTspans text={`Pa_max = ${paMax} N vs P = ${m2Weight} N`} />
+              </text>
             </svg>
           </div>
           <StandingMathRenderer expression={`Pa_max = ρ × V × g = ${rho} × ${m2VolL} × 10 = ${paMax} N | Verdict : ${floats ? 'FLOTTE (Pa = P)' : 'COULE'}`} showColumnOp={false} />

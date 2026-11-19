@@ -1,5 +1,6 @@
 import React from 'react';
 import { PhysicsIllustrationKey } from '../../types/math';
+import { FormattedMathText, SvgMathTspans } from '../FormattedMathText';
 
 const TC_PHYS_TITLES: Record<string, string> = {
   'tc-cinematique-frenet': '🚀 Cinématique du Point : Vecteurs Cartésiens & Repère de Frenet (u⃗_T, u⃗_N)',
@@ -26,7 +27,7 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
   return (
     <div className="rounded-3xl bg-slate-900 border-2 border-sky-500/35 p-4 sm:p-5 shadow-xl space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-sky-300">
-        <span>{title}</span>
+        <span><FormattedMathText text={title} /></span>
         <span className="text-[11px] text-amber-300 font-bold">Programme Terminale C · Gabon</span>
       </div>
 
@@ -44,21 +45,21 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               {/* u_T tangent */}
               <line x1="158" y1="90" x2="235" y2="90" stroke="#10b981" strokeWidth="3" />
               <polygon points="241,90 231,85 231,95" fill="#10b981" />
-              <text x="242" y="84" className="text-[10px] font-black fill-emerald-300">v⃗, u⃗_T (a_T = dv/dt)</text>
+              <text x="242" y="84" className="text-[10px] font-black fill-emerald-300"><SvgMathTspans text="v⃗, u⃗_T (a_T = dv/dt)" baseFontSize={10} /></text>
               {/* u_N normal */}
               <line x1="158" y1="90" x2="158" y2="138" stroke="#f43f5e" strokeWidth="3" />
               <polygon points="158,144 153,134 163,134" fill="#f43f5e" />
-              <text x="108" y="122" className="text-[10px] font-black fill-rose-400">a_N = v²/R</text>
+              <text x="108" y="122" className="text-[10px] font-black fill-rose-400"><SvgMathTspans text="a_N = v²/R" baseFontSize={10} /></text>
               {/* a total */}
               <line x1="158" y1="90" x2="208" y2="132" stroke="#a855f7" strokeWidth="2.5" strokeDasharray="3 2" />
-              <text x="212" y="138" className="text-[10px] font-bold fill-purple-300">a⃗</text>
+              <text x="212" y="138" className="text-[10px] font-bold fill-purple-300"><SvgMathTspans text="a⃗" baseFontSize={10} /></text>
 
               <rect x="295" y="22" width="170" height="160" rx="12" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
               <text x="380" y="45" textAnchor="middle" className="text-[11px] font-black fill-amber-300">FRENET &amp; MRUV</text>
-              <text x="380" y="70" textAnchor="middle" className="text-[10px] font-mono fill-white">a⃗ = (dv/dt)u⃗_T + (v²/R)u⃗_N</text>
-              <text x="380" y="96" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">a = √(a_T² + a_N²)</text>
-              <text x="380" y="124" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">v² - v₀² = 2a(x - x₀)</text>
-              <text x="380" y="152" textAnchor="middle" className="text-[9px] font-bold fill-slate-300">MCU : a_T=0 mais a_N = Rω² ≠ 0</text>
+              <text x="380" y="70" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="a⃗ = (dv/dt)u⃗_T + (v²/R)u⃗_N" baseFontSize={10} /></text>
+              <text x="380" y="96" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="a = √(a_T² + a_N²)" baseFontSize={10} /></text>
+              <text x="380" y="124" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="v² - v₀² = 2a(x - x₀)" baseFontSize={10} /></text>
+              <text x="380" y="152" textAnchor="middle" className="text-[9px] font-bold fill-slate-300"><SvgMathTspans text="MCU : a_T=0 mais a_N = Rω² ≠ 0" baseFontSize={9} /></text>
             </>
           )}
 
@@ -67,7 +68,7 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
             <>
               {/* Zone champ B */}
               <rect x="28" y="24" width="225" height="156" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
-              <text x="140" y="42" textAnchor="middle" className="text-[10px] font-black fill-sky-300">Champ magnétique B⃗ ⊙ (sortant)</text>
+              <text x="140" y="42" textAnchor="middle" className="text-[10px] font-black fill-sky-300"><SvgMathTspans text="Champ magnétique B⃗ ⊙ (sortant)" baseFontSize={10} /></text>
               {[58, 95, 132, 169].map((x) =>
                 [65, 105, 145].map((y) => (
                   <g key={`${x}-${y}`}>
@@ -79,13 +80,13 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               <path d="M 45 145 A 68 68 0 0 1 178 100" fill="none" stroke="#facc15" strokeWidth="3" />
               <circle cx="105" cy="94" r="4.5" fill="#fbbf24" />
               <line x1="105" y1="94" x2="148" y2="78" stroke="#10b981" strokeWidth="2.5" />
-              <text x="150" y="74" className="text-[10px] font-black fill-emerald-300">v⃗</text>
+              <text x="150" y="74" className="text-[10px] font-black fill-emerald-300"><SvgMathTspans text="v⃗" baseFontSize={10} /></text>
               <line x1="105" y1="94" x2="122" y2="132" stroke="#f43f5e" strokeWidth="2.5" />
-              <text x="125" y="142" className="text-[10px] font-black fill-rose-400">F⃗ = qv⃗∧B⃗</text>
+              <text x="125" y="142" className="text-[10px] font-black fill-rose-400"><SvgMathTspans text="F⃗ = qv⃗∧B⃗" baseFontSize={10} /></text>
 
               <rect x="268" y="24" width="194" height="156" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
               <text x="365" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">LOIS DE NEWTON &amp; WIEN</text>
-              <text x="365" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">Σ F⃗ = m a⃗</text>
+              <text x="365" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="Σ F⃗ = m a⃗" baseFontSize={10} /></text>
               <text x="365" y="102" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">R = m v / (|q| B)</text>
               <text x="365" y="128" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Tir : D = v₀² sin(2α) / g</text>
               <text x="365" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">Filtre de vitesse : v = E / B</text>
@@ -101,7 +102,7 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               <circle cx="235" cy="64" r="6" fill="#34d399" />
               <line x1="235" y1="64" x2="178" y2="82" stroke="#f43f5e" strokeWidth="2.5" />
               <polygon points="172,84 182,77 184,86" fill="#f43f5e" />
-              <text x="195" y="65" className="text-[10px] font-black fill-rose-400">F⃗_G = -GMm/r² u⃗</text>
+              <text x="195" y="65" className="text-[10px] font-black fill-rose-400"><SvgMathTspans text="F⃗_G = -GMm/r² u⃗" baseFontSize={10} /></text>
               <line x1="98" y1="104" x2="260" y2="104" stroke="#64748b" strokeWidth="1" strokeDasharray="3 3" />
               <text x="190" y="118" className="text-[9px] fill-slate-300">Demi-grand axe a</text>
 
@@ -109,7 +110,7 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               <text x="369" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">SATELLITES &amp; KEPLER</text>
               <text x="369" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">v = √(GM / r)</text>
               <text x="369" y="102" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">T² / a³ = 4π² / (G M)</text>
-              <text x="369" y="128" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">g(h) = g₀ (R_T/(R_T+h))²</text>
+              <text x="369" y="128" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="g(h) = g₀ (R_T/(R_T+h))²" baseFontSize={10} /></text>
               <text x="369" y="156" textAnchor="middle" className="text-[9px] font-bold fill-amber-200">Géostationnaire : T ≈ 23h56</text>
             </>
           )}
@@ -122,14 +123,14 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               <rect x="132" y="68" width="46" height="46" rx="8" fill="#10b981" fillOpacity="0.3" stroke="#34d399" strokeWidth="2.5" />
               <text x="155" y="95" textAnchor="middle" className="text-xs font-black fill-white">m</text>
               <line x1="20" y1="120" x2="235" y2="120" stroke="#64748b" strokeWidth="2" />
-              <text x="155" y="142" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">x(t) = X_m cos(ω₀t + φ)</text>
+              <text x="155" y="142" textAnchor="middle" className="text-[10px] font-bold fill-amber-300"><SvgMathTspans text="x(t) = X_m cos(ω₀t + φ)" baseFontSize={10} /></text>
               <text x="130" y="165" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">T₀ = 2π √(m/k)</text>
 
               <rect x="255" y="24" width="206" height="156" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
-              <text x="358" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">BILAN ÉNERGÉTIQUE E_m</text>
+              <text x="358" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300"><SvgMathTspans text="BILAN ÉNERGÉTIQUE E_m" baseFontSize={11} /></text>
               <path d="M 278 142 Q 358 62 438 142" fill="none" stroke="#38bdf8" strokeWidth="2.5" />
               <line x1="278" y1="102" x2="438" y2="102" stroke="#facc15" strokeWidth="2" strokeDasharray="4 3" />
-              <text x="358" y="94" textAnchor="middle" className="text-[9px] font-bold fill-amber-300">E_m = ½ k X_m² = ½ m v_max²</text>
+              <text x="358" y="94" textAnchor="middle" className="text-[9px] font-bold fill-amber-300"><SvgMathTspans text="E_m = ½ k X_m² = ½ m v_max²" baseFontSize={9} /></text>
               <text x="358" y="164" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">x’’ + (k/m) x = 0</text>
             </>
           )}
@@ -150,10 +151,10 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
 
               <rect x="262" y="24" width="202" height="156" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
               <text x="363" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">RC, RL &amp; THOMSON LC</text>
-              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">RC : τ = R·C  |  E_C = ½CU²</text>
-              <text x="363" y="104" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">RL : τ = L/R_t | E_L = ½LI²</text>
+              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="RC : τ = R·C  |  E_C = ½CU²" baseFontSize={10} /></text>
+              <text x="363" y="104" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="RL : τ = L/R_t | E_L = ½LI²" baseFontSize={10} /></text>
               <text x="363" y="132" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">LC : T₀ = 2π √(L C)</text>
-              <text x="363" y="158" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">u_C + RC du_C/dt = E</text>
+              <text x="363" y="158" textAnchor="middle" className="text-[9px] font-bold fill-rose-300"><SvgMathTspans text="u_C + RC du_C/dt = E" baseFontSize={9} /></text>
             </>
           )}
 
@@ -172,8 +173,8 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               <rect x="268" y="24" width="194" height="156" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="365" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">RÉSONANCE RLC SÉRIE</text>
               <text x="365" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">Z = √[R² + (Lω - 1/Cω)²]</text>
-              <text x="365" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Résonance : LCω₀² = 1 ➔ Z=R</text>
-              <text x="365" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Q = f₀/Δf = Lω₀/R = U_C/U</text>
+              <text x="365" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="Résonance : LCω₀² = 1 → Z=R" baseFontSize={10} /></text>
+              <text x="365" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="Q = f₀/Δf = Lω₀/R = U_C/U" baseFontSize={10} /></text>
               <text x="365" y="156" textAnchor="middle" className="text-[10px] font-mono fill-rose-300">P = U · I · cos φ</text>
             </>
           )}
@@ -212,9 +213,9 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
 
               <rect x="275" y="24" width="188" height="156" rx="14" fill="#0f172a" stroke="#f43f5e" strokeWidth="1.5" />
               <text x="369" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">EFFET PHOTOÉLECTRIQUE</text>
-              <text x="369" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">E_photon = hν = hc/λ</text>
-              <text x="369" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">hν = W₀ + E_{'{c,max}'}</text>
-              <text x="369" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">E_{'{c,max}'} = e · U₀</text>
+              <text x="369" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="E_photon = hν = hc/λ" baseFontSize={10} /></text>
+              <text x="369" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="hν = W₀ + E_{c,max}" baseFontSize={10} /></text>
+              <text x="369" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="E_{c,max} = e · U₀" baseFontSize={10} /></text>
               <text x="369" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">Seuil : λ ≤ λ₀ = hc/W₀</text>
             </>
           )}
@@ -235,10 +236,10 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
 
               <rect x="262" y="24" width="202" height="156" rx="14" fill="#0f172a" stroke="#f43f5e" strokeWidth="1.5" />
               <text x="363" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">LOIS DE RADIOACTIVITÉ</text>
-              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">N(t) = N₀ e^(-λt) ; A = λN</text>
+              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="N(t) = N₀ e^(-λt) ; A = λN" baseFontSize={10} /></text>
               <text x="363" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">t₁/₂ = ln(2) / λ</text>
               <text x="363" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Soddy : Σ A et Σ Z conservés</text>
-              <text x="363" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">E_l = Δm·c² (1u = 931,5 MeV)</text>
+              <text x="363" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300"><SvgMathTspans text="E_l = Δm·c² (1u = 931,5 MeV)" baseFontSize={9} /></text>
             </>
           )}
 
@@ -250,15 +251,15 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               <path d="M 44 50 Q 75 148 110 144 T 235 122" fill="none" stroke="#fbbf24" strokeWidth="3" />
               <circle cx="102" cy="144" r="5" fill="#10b981" />
               <text x="102" y="128" textAnchor="middle" className="text-[9px] font-black fill-emerald-300">Max stabilité (⁵⁶Fe)</text>
-              <text x="58" y="44" className="text-[9px] font-bold fill-sky-300">Fusion ➔</text>
-              <text x="195" y="108" className="text-[9px] font-bold fill-rose-300">⬅ Fission (²³⁵U)</text>
+              <text x="58" y="44" className="text-[9px] font-bold fill-sky-300">Fusion →</text>
+              <text x="195" y="108" className="text-[9px] font-bold fill-rose-300">← Fission (²³⁵U)</text>
 
               <rect x="262" y="24" width="202" height="156" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
               <text x="363" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">FISSION (OKLO) &amp; FUSION</text>
-              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">ΔE = [Σm_init - Σm_fin] c²</text>
-              <text x="363" y="104" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Fusion : ²H + ³H ➔ ⁴He + n</text>
-              <text x="363" y="132" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Fission : ²³⁵U + n ➔ Sr+Xe+kn</text>
-              <text x="363" y="158" textAnchor="middle" className="text-[9px] font-bold fill-amber-200">E_lib = Σ E_l(prod) - Σ E_l(réact)</text>
+              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="ΔE = [Σm_init - Σm_fin] c²" baseFontSize={10} /></text>
+              <text x="363" y="104" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="Fusion : ²H + ³H → ⁴He + n" baseFontSize={10} /></text>
+              <text x="363" y="132" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="Fission : ²³⁵U + n → Sr+Xe+kn" baseFontSize={10} /></text>
+              <text x="363" y="158" textAnchor="middle" className="text-[9px] font-bold fill-amber-200"><SvgMathTspans text="E_lib = Σ E_l(prod) - Σ E_l(réact)" baseFontSize={9} /></text>
             </>
           )}
 
@@ -269,20 +270,20 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               <line x1="36" y1="28" x2="36" y2="158" stroke="#64748b" strokeWidth="2" />
               <path d="M 36 158 Q 68 48 235 44" fill="none" stroke="#a855f7" strokeWidth="3" />
               <line x1="36" y1="44" x2="235" y2="44" stroke="#facc15" strokeWidth="1.5" strokeDasharray="4 4" />
-              <text x="28" y="48" textAnchor="end" className="text-[9px] font-bold fill-amber-300">x_f</text>
+              <text x="28" y="48" textAnchor="end" className="text-[9px] font-bold fill-amber-300"><SvgMathTspans text="x_f" baseFontSize={9} /></text>
               <line x1="36" y1="101" x2="88" y2="101" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3 3" />
               <line x1="88" y1="101" x2="88" y2="158" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3 3" />
-              <text x="28" y="104" textAnchor="end" className="text-[9px] font-bold fill-emerald-300">x_f/2</text>
+              <text x="28" y="104" textAnchor="end" className="text-[9px] font-bold fill-emerald-300"><SvgMathTspans text="x_f/2" baseFontSize={9} /></text>
               <text x="88" y="174" textAnchor="middle" className="text-[10px] font-black fill-emerald-300">t₁/₂</text>
               <line x1="36" y1="158" x2="90" y2="54" stroke="#38bdf8" strokeWidth="2" />
               <text x="108" y="68" className="text-[9px] font-bold fill-sky-300">Pente = dx/dt</text>
 
               <rect x="262" y="24" width="202" height="156" rx="14" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
               <text x="363" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">CINÉTIQUE CHIMIQUE</text>
-              <text x="363" y="78" textAnchor="middle" className="text-[10px] font-mono fill-white">v(t) = (1 / V_sol) · dx/dt</text>
-              <text x="363" y="106" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">x(t₁/₂) = x_f / 2</text>
+              <text x="363" y="78" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="v(t) = (1 / V_sol) · dx/dt" baseFontSize={10} /></text>
+              <text x="363" y="106" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="x(t₁/₂) = x_f / 2" baseFontSize={10} /></text>
               <text x="363" y="134" textAnchor="middle" className="text-[9px] font-bold fill-sky-300">Accélérateurs : T ↑, [Réactifs] ↑</text>
-              <text x="363" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">&amp; Catalyseur (sans changer x_f)</text>
+              <text x="363" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300"><SvgMathTspans text="& Catalyseur (sans changer x_f)" baseFontSize={9} /></text>
             </>
           )}
 
@@ -294,16 +295,16 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
               {/* Courbe sigmoïde de titrage acide faible par base forte */}
               <path d="M 38 140 Q 95 128 135 120 Q 150 112 152 80 Q 154 46 175 42 L 235 40" fill="none" stroke="#10b981" strokeWidth="3" />
               <circle cx="95" cy="126" r="4" fill="#fbbf24" />
-              <text x="95" y="114" textAnchor="middle" className="text-[9px] font-bold fill-amber-300">Demi-éq: pH=pK_a</text>
+              <text x="95" y="114" textAnchor="middle" className="text-[9px] font-bold fill-amber-300"><SvgMathTspans text="Demi-éq: pH=pK_a" baseFontSize={9} /></text>
               <circle cx="152" cy="80" r="4.5" fill="#f43f5e" />
-              <text x="188" y="84" className="text-[10px] font-black fill-rose-400">E(V_{'{bE}'}; pH_E)</text>
+              <text x="188" y="84" className="text-[10px] font-black fill-rose-400"><SvgMathTspans text="E(V_{bE}; pH_E)" baseFontSize={10} /></text>
 
               <rect x="262" y="24" width="202" height="156" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
-              <text x="363" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">pH, pK_a &amp; TITRAGE</text>
-              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">pH = pK_a + log([A⁻]/[HA])</text>
-              <text x="363" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Équivalence : C_a V_a = C_b V_{'{bE}'}</text>
+              <text x="363" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300"><SvgMathTspans text="pH, pK_a & TITRAGE" baseFontSize={11} /></text>
+              <text x="363" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="pH = pK_a + log([A⁻]/[HA])" baseFontSize={10} /></text>
+              <text x="363" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="Équivalence : C_a V_a = C_b V_{bE}" baseFontSize={10} /></text>
               <text x="363" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Acide fort : pH = -log C</text>
-              <text x="363" y="156" textAnchor="middle" className="text-[9px] font-bold fill-purple-300">Tampon : [HA] ≈ [A⁻] ➔ pH ≈ pK_a</text>
+              <text x="363" y="156" textAnchor="middle" className="text-[9px] font-bold fill-purple-300"><SvgMathTspans text="Tampon : [HA] ≈ [A⁻] → pH ≈ pK_a" baseFontSize={9} /></text>
             </>
           )}
 
@@ -312,8 +313,8 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
             <>
               <rect x="22" y="28" width="222" height="150" rx="14" fill="#0f172a" stroke="#38bdf8" strokeWidth="1.5" />
               <text x="133" y="50" textAnchor="middle" className="text-[11px] font-black fill-sky-300">OXYDATION MÉNAGÉE</text>
-              <text x="133" y="78" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">I : R-CH₂OH ➔ Aldéhyde ➔ Acide</text>
-              <text x="133" y="106" textAnchor="middle" className="text-[10px] font-mono fill-amber-300">II : R-CHOH-R’ ➔ Cétone (R-CO-R’)</text>
+              <text x="133" y="78" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="I : R-CH₂OH → Aldéhyde → Acide" baseFontSize={10} /></text>
+              <text x="133" y="106" textAnchor="middle" className="text-[10px] font-mono fill-amber-300">II : R-CHOH-R’ → Cétone (R-CO-R’)</text>
               <text x="133" y="134" textAnchor="middle" className="text-[10px] font-mono fill-rose-400">III : Pas d’oxydation ménagée !</text>
               <text x="133" y="160" textAnchor="middle" className="text-[9px] font-bold fill-slate-300">Sans rupture de la chaîne carbonée</text>
 
@@ -338,7 +339,7 @@ export const TerminaleCPhysicsDrawing: React.FC<{ illustrationKey: PhysicsIllust
 
               <rect x="258" y="28" width="204" height="150" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
               <text x="360" y="50" textAnchor="middle" className="text-[11px] font-black fill-emerald-300">SAPONIFICATION (SAVON)</text>
-              <text x="360" y="80" textAnchor="middle" className="text-[10px] font-mono fill-white">Ester + HO⁻ ➔ R-COO⁻ + R’-OH</text>
+              <text x="360" y="80" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="Ester + HO⁻ → R-COO⁻ + R’-OH" baseFontSize={10} /></text>
               <text x="360" y="108" textAnchor="middle" className="text-[10px] font-bold fill-amber-300">Réaction LENTE mais TOTALE !</text>
               <text x="360" y="136" textAnchor="middle" className="text-[10px] font-bold fill-sky-300">Relargage : NaCl saturé précipite</text>
               <text x="360" y="154" textAnchor="middle" className="text-[9px] fill-slate-300">le savon (carboxylate de sodium)</text>

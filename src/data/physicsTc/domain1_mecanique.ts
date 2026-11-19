@@ -27,7 +27,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
     },
     unitsTable: [
       { symbol: 'OM⃗(t)', quantity: 'Vecteur position', unit: 'mètre (m)', instrument: 'Repère (O; i⃗, j⃗, k⃗)' },
-      { symbol: 'v⃗(t) = dOM⃗/dt', quantity: 'Vecteur vitesse instantanée', unit: 'm·s⁻¹', instrument: 'Dérivée 1ère / chronophotographie' },
+      { symbol: 'v⃗(t) = dOM⃗/dt', quantity: 'Vecteur vitesse instantanée', unit: 'm·s⁻¹', instrument: 'Dérivée 1re / chronophotographie' },
       { symbol: 'a⃗(t) = dv⃗/dt', quantity: 'Vecteur accélération', unit: 'm·s⁻²', instrument: 'a_T = dv/dt ; a_N = v²/R' },
       { symbol: 'θ(t), ω', quantity: 'Abscisse & vitesse angulaires', unit: 'rad et rad·s⁻¹', instrument: 's = R·θ ; v = R·ω' },
     ],
@@ -249,7 +249,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
         'Comment calculer la vitesse acquise v = √(2|q|U/m) et le rayon R de la trajectoire circulaire dans le champ B⃗ ?',
     },
     unitsTable: [
-      { symbol: 'ΣF⃗ = m a⃗_G', quantity: '2ème loi de Newton (TCI)', unit: 'N = kg·m·s⁻²', instrument: 'Référentiel galiléen' },
+      { symbol: 'ΣF⃗ = m a⃗_G', quantity: '2e loi de Newton (TCI)', unit: 'N = kg·m·s⁻²', instrument: 'Référentiel galiléen' },
       { symbol: 'F⃗_e = q E⃗', quantity: 'Force électrostatique', unit: 'N (E en V/m)', instrument: 'Condensateur plan E = U/d' },
       { symbol: 'F⃗_m = q v⃗ ∧ B⃗', quantity: 'Force magnétique de Lorentz', unit: 'N (B en Tesla T)', instrument: 'Règle des 3 doigts / produit vectoriel' },
       { symbol: 'R = mv / (|q|B)', quantity: 'Rayon de giration cyclotron', unit: 'mètre (m)', instrument: 'Chambre de déviation magnétique' },
@@ -260,7 +260,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
       observation:
         'Entre les plaques du condensateur (E⃗ uniforme), le faisceau suit une parabole déviée vers l’armature positive. En présence du champ B⃗ uniforme, il s’incurve en arc de cercle.',
       conclusion:
-        'La 2ème loi de Newton relie directement le bilan des forces à l’accélération a⃗ : accélération constante dans E⃗ (parabole), accélération centripète constante dans B⃗ (cercle).',
+        'La 2e loi de Newton relie directement le bilan des forces à l’accélération a⃗ : accélération constante dans E⃗ (parabole), accélération centripète constante dans B⃗ (cercle).',
     },
     revisionChecklist: [
       'Je sais établir l’équation de la trajectoire parabolique d’un projectile : y(x) = -½ g x² / (v₀² cos²α) + x tan α + y₀.',
@@ -268,7 +268,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
       'Je sais démontrer que dans B⃗ uniforme (v⃗₀ ⊥ B⃗), le mouvement est plan, uniforme et circulaire de rayon R = mv/(|q|B) et période T = 2πm/(|q|B).',
     ],
     keyFormulas: [
-      '2ème loi de Newton (TCI) : ΣF⃗_ext = m·a⃗_G',
+      '2e loi de Newton (TCI) : ΣF⃗_ext = m·a⃗_G',
       'Balistique (sans frottements) : y(x) = -[g / (2 v₀² cos²α)] x² + (tan α) x + y₀ ; Portée : x_P = v₀² sin(2α) / g',
       'Accélération électrique : ½ m v² = |q| U  ➔  v = √(2 |q| U / m)',
       'Cyclotron dans B⃗ : F_m = |q| v B = m v² / R  ➔  R = m v / (|q| B)  et  T = 2π m / (|q| B)',
@@ -476,10 +476,10 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
       { symbol: 'G', quantity: 'Constante de gravitation universelle', unit: '6,67×10⁻¹¹ N·m²·kg⁻²', instrument: 'Loi de Newton' },
       { symbol: 'r = R_T + h', quantity: 'Rayon de l’orbite circulaire', unit: 'mètre (m)', instrument: 'Altitude h + R_T' },
       { symbol: 'v = √(GM/r)', quantity: 'Vitesse orbitale du satellite', unit: 'm·s⁻¹', instrument: 'F_G = m v²/r' },
-      { symbol: 'T²/r³ = 4π²/(GM)', quantity: '3ème loi de Kepler', unit: 's²·m⁻³', instrument: 'Indépendante de m_sat' },
+      { symbol: 'T²/r³ = 4π²/(GM)', quantity: '3e loi de Kepler', unit: 's²·m⁻³', instrument: 'Indépendante de m_sat' },
     ],
     experimentOrActivity: {
-      title: 'Vérification de la 3ème loi de Kepler à partir des satellites galiléens de Jupiter',
+      title: 'Vérification de la 3e loi de Kepler à partir des satellites galiléens de Jupiter',
       materials: ['Données astronomiques (Io, Europe, Ganymède, Callisto)', 'Calculatrice scientifique', 'Papier millimétré'],
       observation:
         'En calculant T²/r³ pour chacun des 4 satellites de Jupiter, on trouve exactement la même constante k ≈ 3,11×10⁻¹⁶ s²·m⁻³.',
@@ -495,7 +495,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
       'Force : F = G · M · m / r²  ;  Champ à l’altitude h : g(h) = G M_T / (R_T + h)² = g₀ · [R_T / (R_T + h)]²',
       'Vitesse orbitale : v = √(G M_T / r) = R_T √(g₀ / (R_T + h))',
       'Période : T = 2π r / v = 2π √(r³ / (G M_T))',
-      '3ème loi de Kepler : T² / r³ = 4π² / (G M_T)',
+      '3e loi de Kepler : T² / r³ = 4π² / (G M_T)',
     ],
     memoSheet: {
       title: 'Fiche Mémo Bac C : Gravitation & Lois de Kepler',
@@ -520,7 +520,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
           explanation: 'Permet de résoudre l’exercice même si G et M_T ne sont pas fournis.',
         },
         {
-          name: 'Démonstration de la 3ème loi de Kepler',
+          name: 'Démonstration de la 3e loi de Kepler',
           badge: '🪐',
           steps: [
             'G M m / r² = m v² / r  ➔  v² = G M / r',
@@ -553,7 +553,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
       {
         title: '2. Satellites circulaires et les trois lois de Kepler',
         explanation: [
-          '1ère loi : les orbites des planètes sont des ellipses dont le Soleil occupe l’un des foyers. 2ème loi : loi des aires. 3ème loi : le rapport T²/a³ est constant pour tous les corps gravitant autour d’un même astre.',
+          '1re loi : les orbites des planètes sont des ellipses dont le Soleil occupe l’un des foyers. 2e loi : loi des aires. 3e loi : le rapport T²/a³ est constant pour tous les corps gravitant autour d’un même astre.',
         ],
         rules: [
           {
@@ -593,7 +593,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
       mkNum(
         'physTc-3-2',
         'physTc-gravitation',
-        'Ex 2 : Période par la 3ème loi de Kepler',
+        'Ex 2 : Période par la 3e loi de Kepler',
         2,
         'Un satellite A décrit une orbite de rayon r₁ avec une période T₁ = 2 heures. Un satellite B autour du même astre a un rayon r₂ = 4 r₁.\nCalcule sa période T₂ en heures.',
         '16',
@@ -601,7 +601,7 @@ export const PHYSICS_TC_MECANIQUE: Chapter[] = [
         'La période du satellite B est T₂ = 16 heures.',
         [
           {
-            title: '3ème loi de Kepler',
+            title: '3e loi de Kepler',
             explanation: 'T²/r³ est constant pour un même astre attracteur.',
             math: '(T₂ / T₁)² = (r₂ / r₁)³ = 4³ = 64',
             subResult: '64',

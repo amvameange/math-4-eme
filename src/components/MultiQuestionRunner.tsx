@@ -23,6 +23,7 @@ import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
 import { StepByStepCorrection } from './StepByStepCorrection';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { playUiClickSound, scrollToSectionById } from '../utils/uiFeedback';
+import { FormattedMathText } from './FormattedMathText';
 
 interface MultiQuestionRunnerProps {
   exercise: Exercise | GeneratedExercise;
@@ -90,12 +91,14 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
 }) => {
   const subQuestions = exercise.subQuestions || [];
   const [activeQIndex, setActiveQIndex] = useState<number>(0);
+  const [showAllQuestions, setShowAllQuestions] = useState<boolean>(false);
   const [inputs, setInputs] = useState<Record<number, string>>({});
   const [shownHints, setShownHints] = useState<Record<number, boolean>>({});
   const [showFullCorrection, setShowFullCorrection] = useState<boolean>(initialShowFullCorrection);
 
   useEffect(() => {
     setActiveQIndex(0);
+    setShowAllQuestions(false);
     setInputs({});
     setShownHints({});
     setShowFullCorrection(initialShowFullCorrection);
@@ -197,7 +200,25 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 tabular-nums">
+        <div className="flex flex-wrap items-center gap-2 shrink-0 tabular-nums">
+          <button
+            type="button"
+            data-sound="custom"
+            onClick={() => {
+              playUiClickSound('step');
+              setShowAllQuestions((prev) => !prev);
+            }}
+            className={`px-3 py-1 rounded-xl text-xs font-extrabold border cursor-pointer transition ${
+              showAllQuestions
+                ? 'bg-sky-400 text-slate-950 border-sky-300 shadow'
+                : 'bg-slate-900 text-sky-300 border-sky-500/40 hover:bg-slate-800'
+            }`}
+          >
+            {showAllQuestions
+              ? 'Vue question par question'
+              : `Voir toutes les ${subQuestions.length} questions au complet`}
+          </button>
+
           <span
             className={`px-3 py-1 rounded-xl text-xs font-black border ${
               solvedCount === subQuestions.length || parentAlreadySolved
@@ -210,43 +231,158 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
         </div>
       </div>
 
-      {/* Q1..Q10 Selector Pills */}
-      <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
-        {subQuestions.map((q, idx) => {
-          const rec = checkedState[getSubKey(q.questionNumber)];
-          const isCurrent = idx === safeQIndex;
-          const isSolved = Boolean(rec?.correct);
-          const isWrong = Boolean(rec?.answered && !rec?.correct);
+      {showAllQuestions ? (
+        <div className="space-y-3">
+          {subQuestions.map((qItem) => {
+            const qRec = checkedState[getSubKey(qItem.questionNumber)];
+            const qInput = inputs[qItem.questionNumber] ?? '';
+            return (
+              <div
+                key={qItem.questionNumber}
+                className="rounded-2xl bg-slate-950 border border-slate-800 p-4 space-y-3 shadow-inner"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+                  <span className="px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-400/40 text-amber-300 text-xs font-black tabular-nums">
+                    Question {qItem.questionNumber} / {subQuestions.length}
+                  </span>
+                  {qItem.unit && (
+                    <span className="text-[11px] font-mono font-bold text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded-lg border border-sky-500/30">
+                      Unité : {qItem.unit}
+                    </span>
+                  )}
+                </div>
 
-          return (
-            <button
-              key={q.questionNumber}
-              type="button"
-              data-sound="custom"
-              onClick={() => selectQuestion(idx)}
-              className={`py-2 px-1 rounded-xl text-xs font-black border transition cursor-pointer flex items-center justify-center gap-1 tabular-nums ${
-                isCurrent
-                  ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-1 ring-amber-300'
-                  : isSolved
-                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
-                  : isWrong
-                  ? 'bg-rose-950/70 text-rose-300 border-rose-500/40'
-                  : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
-              }`}
-              title={`Aller à la question ${q.questionNumber}`}
-            >
-              <span>Q{q.questionNumber}</span>
-              {isSolved && <Check className="w-3 h-3 stroke-[3]" />}
-            </button>
-          );
-        })}
-      </div>
+                <p className="text-sm font-bold text-white leading-relaxed whitespace-pre-line">
+                  <FormattedMathText text={qItem.questionPrompt} />
+                </p>
 
-      {/* Active Question Panel */}
-      <div
-        id="mq-question-panel"
-        className="rounded-2xl bg-slate-950 border border-slate-800 p-4 sm:p-5 space-y-4 shadow-inner"
-      >
+                {qItem.options && qItem.options.length > 0 ? (
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {qItem.options.map((opt, optIdx) => {
+                      const isSelected = qInput === opt;
+                      const isThisCorrectOpt =
+                        Boolean(qRec?.answered) &&
+                        normalizeAnswerStr(opt) === normalizeAnswerStr(qItem.correctAnswer);
+                      const isWrongSelected =
+                        Boolean(qRec?.answered && !qRec?.correct) && isSelected;
+                      return (
+                        <button
+                          key={optIdx}
+                          type="button"
+                          data-sound="custom"
+                          onClick={() => handleSelectQcmOption(qItem, opt)}
+                          className={`p-2.5 rounded-xl text-xs font-semibold text-left transition cursor-pointer border ${
+                            isThisCorrectOpt
+                              ? 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-bold'
+                              : isWrongSelected
+                              ? 'bg-rose-500/20 border-rose-400 text-rose-200'
+                              : isSelected
+                              ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow'
+                              : 'bg-slate-900 text-slate-200 border-slate-800 hover:bg-slate-800'
+                          }`}
+                        >
+                          <FormattedMathText text={opt} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder={
+                        qItem.unit
+                          ? `Réponse Q${qItem.questionNumber} (en ${qItem.unit})...`
+                          : `Réponse Q${qItem.questionNumber}...`
+                      }
+                      value={qInput}
+                      onChange={(e) =>
+                        setInputs((prev) => ({ ...prev, [qItem.questionNumber]: e.target.value }))
+                      }
+                      onKeyDown={(e) => e.key === 'Enter' && validateSubQuestion(qItem, qInput)}
+                      className="flex-1 min-w-0 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white font-mono focus:border-amber-400 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      data-sound="custom"
+                      onClick={() => validateSubQuestion(qItem, qInput)}
+                      disabled={!qInput.trim()}
+                      className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 text-slate-950 font-extrabold text-xs cursor-pointer shrink-0"
+                    >
+                      Valider Q{qItem.questionNumber}
+                    </button>
+                  </div>
+                )}
+
+                {qRec?.answered && (
+                  <div
+                    className={`rounded-xl p-3 border space-y-2 ${
+                      qRec.correct
+                        ? 'bg-emerald-950/35 border-emerald-500/45'
+                        : 'bg-rose-950/30 border-rose-500/40'
+                    }`}
+                  >
+                    <div className="text-xs font-black">
+                      {qRec.correct ? (
+                        <span className="text-emerald-300">✅ Exact !</span>
+                      ) : (
+                        <span className="text-rose-200">
+                          Réponse attendue : <FormattedMathText text={qItem.correctAnswer} />
+                          {qItem.unit ? ` ${qItem.unit}` : ''}
+                        </span>
+                      )}
+                    </div>
+                    <StandingMathRenderer
+                      expression={qItem.mathExpression}
+                      subResult={`${qItem.correctAnswer}${qItem.unit ? ` ${qItem.unit}` : ''}`}
+                      title={`Correction Q${qItem.questionNumber}`}
+                    />
+                    <p className="text-xs text-slate-200"><FormattedMathText text={qItem.explanation} /></p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <>
+          {/* Q1..Q10 Selector Pills */}
+          <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+            {subQuestions.map((q, idx) => {
+              const rec = checkedState[getSubKey(q.questionNumber)];
+              const isCurrent = idx === safeQIndex;
+              const isSolved = Boolean(rec?.correct);
+              const isWrong = Boolean(rec?.answered && !rec?.correct);
+
+              return (
+                <button
+                  key={q.questionNumber}
+                  type="button"
+                  data-sound="custom"
+                  onClick={() => selectQuestion(idx)}
+                  className={`py-2 px-1 rounded-xl text-xs font-black border transition cursor-pointer flex items-center justify-center gap-1 tabular-nums ${
+                    isCurrent
+                      ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-1 ring-amber-300'
+                      : isSolved
+                      ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
+                      : isWrong
+                      ? 'bg-rose-950/70 text-rose-300 border-rose-500/40'
+                      : 'bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800'
+                  }`}
+                  title={`Aller à la question ${q.questionNumber}`}
+                >
+                  <span>Q{q.questionNumber}</span>
+                  {isSolved && <Check className="w-3 h-3 stroke-[3]" />}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Question Panel */}
+          <div
+            id="mq-question-panel"
+            className="rounded-2xl bg-slate-950 border border-slate-800 p-4 sm:p-5 space-y-4 shadow-inner"
+          >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 rounded-lg bg-amber-400/15 border border-amber-400/40 text-amber-300 text-xs font-black tabular-nums">
@@ -265,7 +401,7 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
         </div>
 
         <p className="text-sm sm:text-base font-bold text-white leading-relaxed whitespace-pre-line">
-          {currentQ.questionPrompt}
+          <FormattedMathText text={currentQ.questionPrompt} />
         </p>
 
         {/* Hint Toggle */}
@@ -286,7 +422,8 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
             <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2 animate-fade-in">
               <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <strong className="font-bold text-amber-300">Indice :</strong> {currentQ.hint}
+                <strong className="font-bold text-amber-300">Indice :</strong>{' '}
+                <FormattedMathText text={currentQ.hint} />
               </div>
             </div>
           )}
@@ -320,7 +457,7 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
                         : 'bg-slate-900 text-slate-200 border-slate-800 hover:bg-slate-800'
                     }`}
                   >
-                    {opt}
+                    <FormattedMathText text={opt} />
                   </button>
                 );
               })}
@@ -377,7 +514,7 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
                   <>
                     <Sparkles className="w-4 h-4 text-rose-300 shrink-0" />
                     <span className="text-rose-200">
-                      Réponse attendue : {currentQ.correctAnswer}
+                      Réponse attendue : <FormattedMathText text={currentQ.correctAnswer} />
                       {currentQ.unit ? ` ${currentQ.unit}` : ''}
                     </span>
                   </>
@@ -392,7 +529,8 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
               <div className="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/35 text-xs text-amber-200 flex items-start gap-2">
                 <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <span>
-                  <strong className="text-amber-300">Théorème / Méthode :</strong> {currentQ.ruleApplied}
+                  <strong className="text-amber-300">Théorème / Méthode :</strong>{' '}
+                  <FormattedMathText text={currentQ.ruleApplied} />
                 </span>
               </div>
             )}
@@ -404,7 +542,7 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
             />
 
             <p className="text-xs text-slate-200 leading-relaxed font-medium">
-              {currentQ.explanation}
+              <FormattedMathText text={currentQ.explanation} />
             </p>
           </div>
         )}
@@ -440,11 +578,13 @@ export const MultiQuestionRunner: React.FC<MultiQuestionRunnerProps> = ({
               className="px-4 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition cursor-pointer shadow"
             >
               <Trophy className="w-3.5 h-3.5" />
-              <span>{parentAlreadySolved ? 'Problème validé ✓' : 'Valider la fiche complète (10/10)'}</span>
+              <span>{parentAlreadySolved ? 'Problème validé ✓' : `Valider la fiche complète (${subQuestions.length}/${subQuestions.length})`}</span>
             </button>
           )}
         </div>
       </div>
+        </>
+      )}
 
       {/* Global 10-Step Correction Trigger */}
       <div className="flex flex-wrap items-center gap-2">

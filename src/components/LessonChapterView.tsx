@@ -44,6 +44,7 @@ import {
   KokoEncouragingFeedback,
 } from './illustrations/FunFeedbackIllustrations';
 import { StandingMathRenderer } from './StandingMathRenderer';
+import { FormattedMathText } from './FormattedMathText';
 import {
   DemonstrationMethodFigure,
   ExerciseVisualFigure,
@@ -81,7 +82,7 @@ function getDemonstrationTemplate(chapter: Chapter): {
   if (chapter.subject === 'physique') {
     return {
       hypothesis: `1) Référentiel, Système & Conversions SI : Je précise le système étudié et le référentiel (galiléen ou repère de Frenet) pour « ${chapter.title.split(':')[0].trim()} », puis je convertis toutes les grandeurs dans le Système International (kg, m, s, C, T, V, A, Ω, H, F, Bq, mol/L).`,
-      property: '2) Loi physique / Équation différentielle : J’énonce la loi du cours (2ème loi de Newton, Lorentz, Kepler, mailles RC/RL/RLC, Soddy, Guldberg-Waage/pK_a) et je projette ou établis la relation littérale avant tout calcul numérique.',
+      property: '2) Loi physique / Équation différentielle : J’énonce la loi du cours (2e loi de Newton, Lorentz, Kepler, mailles RC/RL/RLC, Soddy, Guldberg-Waage/pK_a) et je projette ou établis la relation littérale avant tout calcul numérique.',
       conclusion: '3) Application numérique & Unité : Je pose l’expression littérale isolée, j’effectue le calcul et je conclus par une phrase rigoureuse avec l’unité et les chiffres significatifs.',
     };
   }
@@ -311,10 +312,10 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
         </div>
 
         <h2 className="text-xl sm:text-2xl font-black text-white relative z-10">
-          {chapter.title}
+          <FormattedMathText text={chapter.title} />
         </h2>
         <p className="text-xs text-slate-300 mt-1.5 leading-relaxed relative z-10">
-          {chapter.shortDesc}
+          <FormattedMathText text={chapter.shortDesc} />
         </p>
 
         {/* Parcours en 3 étapes */}
@@ -368,7 +369,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                   <Compass className="w-4 h-4 text-amber-400" />
-                  <span>Situation-Problème au Gabon : {chapter.realWorldHook.title}</span>
+                  <span>Situation-Problème au Gabon : <FormattedMathText text={chapter.realWorldHook.title} /></span>
                 </div>
                 <button
                   onClick={() => switchTab('exercices')}
@@ -379,10 +380,10 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 </button>
               </div>
               <p className="text-xs text-slate-200 leading-relaxed">
-                {chapter.realWorldHook.scenario}
+                <FormattedMathText text={chapter.realWorldHook.scenario} />
               </p>
               <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-sky-300 font-bold">
-                ❓ Problématique : {chapter.realWorldHook.question}
+                ❓ Problématique : <FormattedMathText text={chapter.realWorldHook.question} />
               </div>
             </div>
           )}
@@ -421,10 +422,10 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                   <tbody className="divide-y divide-slate-800/70">
                     {chapter.unitsTable.map((row, rIdx) => (
                       <tr key={rIdx} className="text-slate-200">
-                        <td className="py-2.5 pr-3 font-mono font-black text-amber-300">{row.symbol}</td>
-                        <td className="py-2.5 pr-3 font-semibold">{row.quantity}</td>
-                        <td className="py-2.5 pr-3 font-mono text-emerald-300">{row.unit}</td>
-                        <td className="py-2.5 text-slate-400">{row.instrument || '—'}</td>
+                        <td className="py-2.5 pr-3 font-mono font-black text-amber-300"><FormattedMathText text={row.symbol} /></td>
+                        <td className="py-2.5 pr-3 font-semibold"><FormattedMathText text={row.quantity} /></td>
+                        <td className="py-2.5 pr-3 font-mono text-emerald-300"><FormattedMathText text={row.unit} /></td>
+                        <td className="py-2.5 text-slate-400"><FormattedMathText text={row.instrument || '—'} /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -445,7 +446,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 transition cursor-pointer"
               >
                 <span>📌 Ouvrir la fiche de cours</span>
-                <span>➔</span>
+                <span>→</span>
               </button>
             </div>
 
@@ -466,7 +467,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 {chapter.keyFormulas.map((form, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-                    <span className="font-mono font-semibold">{form}</span>
+                    <span className="font-mono font-semibold"><FormattedMathText text={form} /></span>
                   </li>
                 ))}
               </ul>
@@ -485,7 +486,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 <FlaskConical className="w-4 h-4 text-emerald-400" />
                 <span>
                   {isPhysics ? 'Expérience de Laboratoire :' : 'Activité Pratique & Manipulation :'}{' '}
-                  {chapter.experimentOrActivity.title}
+                  <FormattedMathText text={chapter.experimentOrActivity.title} />
                 </span>
               </div>
               <div className="grid sm:grid-cols-3 gap-3 text-xs">
@@ -493,18 +494,18 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                   <div className="font-black text-amber-300">Matériel utilisé :</div>
                   <ul className="space-y-1 text-slate-300 list-disc list-inside">
                     {chapter.experimentOrActivity.materials.map((m, idx) => (
-                      <li key={idx}>{m}</li>
+                      <li key={idx}><FormattedMathText text={m} /></li>
                     ))}
                   </ul>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
                   <div className="font-black text-sky-300">Protocole & Observation :</div>
-                  <p className="text-slate-200 leading-relaxed">{chapter.experimentOrActivity.observation}</p>
+                  <p className="text-slate-200 leading-relaxed"><FormattedMathText text={chapter.experimentOrActivity.observation} /></p>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-emerald-950/35 border border-emerald-500/30 space-y-1.5">
                   <div className="font-black text-emerald-300">Conclusion à retenir :</div>
                   <p className="text-emerald-100 leading-relaxed font-medium">
-                    {chapter.experimentOrActivity.conclusion}
+                    <FormattedMathText text={chapter.experimentOrActivity.conclusion} />
                   </p>
                 </div>
               </div>
@@ -518,7 +519,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
               className="rounded-3xl bg-slate-900 border border-slate-800 p-5 shadow-lg space-y-3.5"
             >
               <h3 className="text-base sm:text-lg font-extrabold text-amber-300 border-b border-slate-800 pb-2">
-                {formatSectionHeading(sec.title, secIdx)}
+                <FormattedMathText text={formatSectionHeading(sec.title, secIdx)} />
               </h3>
 
               {/* Dessin & note illustrative de la section */}
@@ -528,7 +529,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                     <Compass className="w-3.5 h-3.5 text-amber-400" />
                     <span>Dessin &amp; Schéma Illustratif de la Section</span>
                   </div>
-                  <p className="text-xs text-slate-200 leading-relaxed">{sec.illustrationNote}</p>
+                  <p className="text-xs text-slate-200 leading-relaxed"><FormattedMathText text={sec.illustrationNote} /></p>
                 </div>
               )}
 
@@ -538,7 +539,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                   Définition &amp; Notions Clés :
                 </div>
                 {sec.explanation.map((line, lIdx) => (
-                  <p key={lIdx}>{line}</p>
+                  <p key={lIdx}><FormattedMathText text={line} /></p>
                 ))}
               </div>
 
@@ -557,10 +558,10 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                         <div className="text-xs font-extrabold text-sky-300 flex items-center gap-1.5">
                           <ShieldCheck className="w-4 h-4 text-sky-400" />
                           <span>
-                            {isTheorem ? 'Loi / Théorème :' : 'Propriété :'} {rule.name}
+                            {isTheorem ? 'Loi / Théorème :' : 'Propriété :'} <FormattedMathText text={rule.name} />
                           </span>
                         </div>
-                        <p className="text-xs text-slate-200 leading-relaxed">{rule.description}</p>
+                        <p className="text-xs text-slate-200 leading-relaxed"><FormattedMathText text={rule.description} /></p>
 
                         <div className="pt-1 space-y-2.5">
                           <div className="text-[11px] font-extrabold text-amber-300">
@@ -580,7 +581,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                           <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-[11px] text-amber-200 flex items-start gap-2">
                             <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                             <span>
-                              <strong className="text-amber-300">Remarque :</strong> {rule.tip}
+                              <strong className="text-amber-300">Remarque :</strong> <FormattedMathText text={rule.tip} />
                             </span>
                           </div>
                         )}
@@ -599,7 +600,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                   </div>
                   <ul className="text-xs text-rose-200/95 space-y-1 list-disc list-inside">
                     {sec.commonMistakes.map((mis, mIdx) => (
-                      <li key={mIdx}>{mis}</li>
+                      <li key={mIdx}><FormattedMathText text={mis} /></li>
                     ))}
                   </ul>
                 </div>
@@ -622,19 +623,19 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                 <div className="font-black text-sky-400">
                   {isPhysics ? 'Étape 1 : Données' : '1. On sait que :'}
                 </div>
-                <p className="text-slate-200 leading-relaxed">{demoTemplate.hypothesis}</p>
+                <p className="text-slate-200 leading-relaxed"><FormattedMathText text={demoTemplate.hypothesis} /></p>
               </div>
               <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
                 <div className="font-black text-amber-400">
                   {isPhysics ? 'Étape 2 & 3 : Formule & Calcul' : '2. Or :'}
                 </div>
-                <p className="text-slate-200 leading-relaxed">{demoTemplate.property}</p>
+                <p className="text-slate-200 leading-relaxed"><FormattedMathText text={demoTemplate.property} /></p>
               </div>
               <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
                 <div className="font-black text-emerald-400">
                   {isPhysics ? 'Étape 4 : Réponse + Unité' : '3. Donc :'}
                 </div>
-                <p className="text-slate-200 leading-relaxed">{demoTemplate.conclusion}</p>
+                <p className="text-slate-200 leading-relaxed"><FormattedMathText text={demoTemplate.conclusion} /></p>
               </div>
             </div>
             <DemonstrationMethodFigure
@@ -678,7 +679,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                       >
                         {isDone && <Check className="w-3 h-3 stroke-[3]" />}
                       </span>
-                      <span className="leading-snug font-medium">{item}</span>
+                      <span className="leading-snug font-medium"><FormattedMathText text={item} /></span>
                     </button>
                   );
                 })}
@@ -769,7 +770,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
             </div>
           </div>
 
-          {/* Sélecteur : 10 Application VS 80 Cours VS 10 Type BEPC VS Mes Exercices ajoutés */}
+          {/* Sélecteur : 10 Application VS 80 Cours VS 10 Type BAC C VS Mes Exercices ajoutés */}
           <div className="rounded-2xl bg-slate-900 border border-slate-800 p-3 space-y-2.5">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
               <button
@@ -977,10 +978,10 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                   </span>
                 </div>
 
-                <h3 className="text-base font-bold text-white">{currentExercise.title}</h3>
+                <h3 className="text-base font-bold text-white"><FormattedMathText text={currentExercise.title} /></h3>
 
             <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-sm font-medium text-slate-100 whitespace-pre-line leading-relaxed shadow-inner">
-              {currentExercise.prompt}
+              <FormattedMathText text={currentExercise.prompt} />
             </div>
 
             <ExerciseVisualFigure
@@ -1030,7 +1031,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                       <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                       <div>
                         <strong className="font-semibold text-amber-300">Indice :</strong>{' '}
-                        {currentExercise.hint}
+                        <FormattedMathText text={currentExercise.hint} />
                       </div>
                     </div>
                   )}
@@ -1054,7 +1055,7 @@ export const LessonChapterView: React.FC<LessonChapterViewProps> = ({
                                 : 'bg-slate-950 text-slate-200 border-slate-800 hover:bg-slate-800'
                             }`}
                           >
-                            {opt}
+                            <FormattedMathText text={opt} />
                           </button>
                         );
                       })}

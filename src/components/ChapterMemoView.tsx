@@ -12,6 +12,7 @@ import { GabonBadgeStamp } from './illustrations/FunFeedbackIllustrations';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { DemonstrationMethodFigure } from './illustrations/PedagogicalFigures';
 import { ChapterThreeExperiencesPanel } from './ChapterThreeExperiencesPanel';
+import { FormattedMathText } from './FormattedMathText';
 
 interface ChapterMemoViewProps {
   chapter: Chapter;
@@ -40,11 +41,15 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
                 {isPhysics ? 'Programme Physique-Chimie Terminale C BAC' : 'Programme Mathématiques Terminale C BAC'}
               </div>
               <h3 className="text-lg sm:text-xl font-black text-white mt-0.5">
-                Fiche Mémo BAC C : {chapter.title}
+                Fiche Mémo BAC C : <FormattedMathText text={chapter.title} />
               </h3>
               <p className="text-xs text-slate-300">
-                {memo?.slogan ||
-                  'Toutes les formules du cours écrites en colonne verticale et 10 expériences illustratives !'}
+                <FormattedMathText
+                  text={
+                    memo?.slogan ||
+                    'Toutes les formules du cours écrites en colonne verticale et 10 expériences illustratives !'
+                  }
+                />
               </p>
             </div>
           </div>
@@ -100,7 +105,9 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
                 className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-start gap-2.5 text-xs text-slate-200"
               >
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span className="leading-relaxed font-medium">{point}</span>
+                <span className="leading-relaxed font-medium">
+                  <FormattedMathText text={point} />
+                </span>
               </div>
             ))}
           </div>
@@ -128,15 +135,19 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     {vf.badge && <span className="text-lg select-none">{vf.badge}</span>}
-                    <span className="font-bold text-white text-sm">{vf.name}</span>
+                    <span className="font-bold text-white text-sm">
+                      <FormattedMathText text={vf.name} />
+                    </span>
                   </div>
                   {vf.ruleTitle && (
-                    <span className="text-[11px] font-bold text-amber-300">{vf.ruleTitle}</span>
+                    <span className="text-[11px] font-bold text-amber-300">
+                      <FormattedMathText text={vf.ruleTitle} />
+                    </span>
                   )}
                 </div>
 
                 <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                  {vf.explanation}
+                  <FormattedMathText text={vf.explanation} />
                 </p>
 
                 <StandingMathRenderer
@@ -152,7 +163,7 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
                   <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     <strong className="font-bold text-indigo-300">Astuce de Koko :</strong>{' '}
-                    {vf.tip}
+                    <FormattedMathText text={vf.tip} />
                   </div>
                 </div>
               )}
@@ -169,8 +180,12 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
             <span>Le Super Conseil de Koko pour le Baccalauréat C</span>
           </div>
           <p className="text-xs text-slate-200 leading-relaxed font-medium">
-            {memo?.kokoTip ||
-              'Prends ton temps, écris toujours une étape par ligne et encadre ta réponse finale à la règle !'}
+            <FormattedMathText
+              text={
+                memo?.kokoTip ||
+                'Prends ton temps, écris toujours une étape par ligne et encadre ta réponse finale à la règle !'
+              }
+            />
           </p>
         </div>
 
@@ -180,8 +195,12 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
             <span>Le Gros Piège à Éviter Absolument</span>
           </div>
           <p className="text-xs text-rose-100 leading-relaxed font-medium">
-            {memo?.pitfallToAvoid ||
-              'Ne calcule jamais tout d’un coup sur une seule ligne. Aligne toujours les égalités vers le bas.'}
+            <FormattedMathText
+              text={
+                memo?.pitfallToAvoid ||
+                'Ne calcule jamais tout d’un coup sur une seule ligne. Aligne toujours les égalités vers le bas.'
+              }
+            />
           </p>
         </div>
       </div>
@@ -202,7 +221,7 @@ export const ChapterMemoView: React.FC<ChapterMemoViewProps> = ({
             onClick={onGoToExercises}
             className="px-4 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition cursor-pointer shadow shrink-0 active:scale-95 whitespace-nowrap"
           >
-            S’entraîner sur les exercices ➔
+            S’entraîner sur les exercices →
           </button>
         </div>
       )}

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { StepByStepCorrection } from './StepByStepCorrection';
+import { FormattedMathText } from './FormattedMathText';
 import { MultiQuestionRunner } from './MultiQuestionRunner';
 import { ExerciseCheckRecord } from '../hooks/useLearningProgress';
 import { DomainId, ExerciseDifficulty, SubjectId } from '../types/math';
@@ -483,7 +484,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
                     : 'bg-slate-800/75 text-slate-300 hover:bg-slate-700'
                 }`}
               >
-                {chap.badge || `Ch.${idx + 1}`} · {chap.title}
+                {chap.badge || `Ch.${idx + 1}`} · <FormattedMathText text={chap.title} />
               </button>
             );
           })}
@@ -530,7 +531,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
               <div className="text-[11px] font-semibold text-slate-400">
                 {exercise.chapterTitle} · {isRandomMode ? 'Variante aléatoire ∞' : `Série #${currentSlot + 1}/20`}
               </div>
-              <div className="font-extrabold text-sky-300 text-sm">{exercise.title}</div>
+              <div className="font-extrabold text-sky-300 text-sm"><FormattedMathText text={exercise.title} /></div>
             </div>
 
             <span
@@ -543,7 +544,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800/90 text-sm font-medium text-slate-100 whitespace-pre-line leading-relaxed shadow-inner">
-            {exercise.prompt}
+            <FormattedMathText text={exercise.prompt} />
           </div>
 
           <ExerciseVisualFigure
@@ -621,7 +622,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
                   <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-200 flex items-start gap-2 animate-fade-in">
                     <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                      <strong className="font-semibold text-amber-300">Indice :</strong> {exercise.hint}
+                      <strong className="font-semibold text-amber-300">Indice :</strong> <FormattedMathText text={exercise.hint} />
                     </div>
                   </div>
                 )}
@@ -662,7 +663,7 @@ export const InfiniteExerciseGenerator: React.FC<InfiniteExerciseGeneratorProps>
                               : 'bg-slate-950 border-slate-800 text-slate-200 hover:bg-slate-800 disabled:cursor-default'
                           }`}
                         >
-                          {opt}
+                          <FormattedMathText text={opt} />
                         </button>
                       );
                     })}

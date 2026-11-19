@@ -1,17 +1,88 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+  font-family: 'AppMathSans';
+  src: url('./assets/fonts/DejaVuSans.ttf') format('truetype');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'AppMathSans';
+  src: url('./assets/fonts/DejaVuSans-Bold.ttf') format('truetype');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'AppMathMono';
+  src: url('./assets/fonts/DejaVuSansMono.ttf') format('truetype');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'AppMathMono';
+  src: url('./assets/fonts/DejaVuSansMono-Bold.ttf') format('truetype');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'AppMathSans', 'Noto Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', 'AppMathMono', 'AppMathSans', 'Noto Sans Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'DejaVu Sans Mono', monospace;
+}
+
 @layer base {
   :root {
-    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-sans: 'Plus Jakarta Sans', 'AppMathSans', 'Noto Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', 'AppMathMono', 'AppMathSans', 'Noto Sans Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'DejaVu Sans Mono', monospace;
+  }
+
+  html {
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     font-family: var(--font-sans);
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     user-select: none;
-    touch-action: manipulation;
+    touch-action: auto;
+  }
+
+  svg text,
+  svg tspan {
+    font-family: var(--font-sans);
+  }
+
+  svg text.font-mono,
+  svg tspan.font-mono {
+    font-family: var(--font-mono);
+  }
+
+  sub,
+  sup {
+    font-family: 'AppMathSans', var(--font-sans);
+    font-size: 0.72em;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+
+  sup {
+    top: -0.44em;
+  }
+
+  sub {
+    bottom: -0.22em;
   }
 
   input,
@@ -42,6 +113,105 @@
 .font-mono-numbers {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* Crisp WebView-proof mathematical accents (vectors, overbars, hats, dots, badges) */
+.math-vec {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: baseline;
+  line-height: 1.05;
+  margin: 0 0.04em;
+}
+
+.math-vec-arrow {
+  width: 100%;
+  min-width: 0.68em;
+  height: 0.34em;
+  margin-bottom: 0.03em;
+  display: block;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.math-bar {
+  display: inline-block;
+  border-top: 1.5px solid currentColor;
+  line-height: 1.05;
+  padding-top: 0.05em;
+  margin: 0 0.03em;
+}
+
+.math-hat {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: baseline;
+  line-height: 1.02;
+  margin: 0 0.02em;
+}
+
+.math-hat-mark {
+  width: 0.72em;
+  height: 0.28em;
+  margin-bottom: 0.02em;
+  display: block;
+  flex-shrink: 0;
+}
+
+.math-dot-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: baseline;
+  line-height: 1.02;
+  margin: 0 0.02em;
+}
+
+.math-dot-marks {
+  height: 0.24em;
+  margin-bottom: 0.03em;
+  display: block;
+  flex-shrink: 0;
+}
+
+.math-circle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 9999px;
+  border: 1.5px solid currentColor;
+  font-size: 0.78em;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0 0.1em;
+  vertical-align: baseline;
+}
+
+@media (max-width: 639px) {
+  html {
+    font-size: 18px;
+  }
+
+  :not(svg):not(svg *).text-\[9px\],
+  :not(svg):not(svg *).text-\[10px\],
+  :not(svg):not(svg *).text-\[11px\] {
+    font-size: 0.76rem;
+    line-height: 1.4;
+  }
+
+  :not(svg):not(svg *).text-xs {
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  :not(svg):not(svg *).text-sm {
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
 }
 
 /* Material You subtle ripple & tap feedback */

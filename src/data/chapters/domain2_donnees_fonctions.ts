@@ -713,7 +713,7 @@ export const DOMAIN2_CHAPTERS: Chapter[] = [
     order: 15,
     title: 'Statistiques : quartiles, diagramme en boîte, histogramme',
     badge: 'Chapitre 15 · 4ème',
-    shortDesc: '1er et 3ème quartiles (Q1, Q3), écart interquartile, diagramme en boîte à moustaches et histogramme.',
+    shortDesc: '1er et 3e quartiles (Q1, Q3), écart interquartile, diagramme en boîte à moustaches et histogramme.',
     themeColor: '#0d9488',
     themeGradient: 'from-teal-500 via-cyan-500 to-sky-500',
     readingTimeMinutes: 12,
@@ -724,9 +724,9 @@ export const DOMAIN2_CHAPTERS: Chapter[] = [
       'Si la médiane coupe la classe en deux (50%), les QUARTILES Q1 et Q3 la coupent en QUATRE quarts (25% et 75%) ! Et sur un histogramme, c’est la surface des barres qui compte !',
     keyFormulas: [
       'Q1 (1er quartile) : au moins 25% (1/4) des valeurs sont ≤ Q1',
-      'Q3 (3ème quartile) : au moins 75% (3/4) des valeurs sont ≤ Q3',
+      'Q3 (3e quartile) : au moins 75% (3/4) des valeurs sont ≤ Q3',
       'Écart interquartile = Q3 − Q1 (contient les 50% centraux)',
-      'Diagramme en boîte : Min |--- [ Q1 | Médiane | Q3 ] ---| Max',
+      'Diagramme en boîte : Min — [ Q1 | Médiane | Q3 ] — Max',
     ],
     memoSheet: {
       title: 'Fiche Mémo : Quartiles & Diagrammes',
@@ -741,8 +741,8 @@ export const DOMAIN2_CHAPTERS: Chapter[] = [
         {
           name: 'Trouver Q1 et Q3 sur 12 notes triées',
           badge: '📊',
-          steps: ['Effectif N = 12', 'Rang Q1 = 12 ÷ 4 = 3ème valeur', 'Rang Q3 = (3×12) ÷ 4 = 9ème valeur', 'Écart interquartile = Q3 - Q1'],
-          resultHighlight: '3ème et 9ème valeurs',
+          steps: ['Effectif N = 12', 'Rang Q1 = 12 ÷ 4 = 3e valeur', 'Rang Q3 = (3×12) ÷ 4 = 9e valeur', 'Écart interquartile = Q3 - Q1'],
+          resultHighlight: '3e et 9e valeurs',
           explanation: 'On partage 12 notes ordonnées en 4 groupes de 3 notes.',
         },
       ],

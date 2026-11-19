@@ -5,6 +5,7 @@ import { PHYSICS_TC_CHAPTERS } from '../data/physicsTcCurriculum';
 import { SubjectId } from '../types/math';
 import { StandingMathRenderer } from './StandingMathRenderer';
 import { ChapterThreeExperiencesPanel } from './ChapterThreeExperiencesPanel';
+import { FormattedMathText } from './FormattedMathText';
 
 interface MemoSheetModalProps {
   isOpen: boolean;
@@ -133,7 +134,7 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
                   : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
               }`}
             >
-              Ch. {ch.order} · {ch.title.split(':')[0].slice(0, 18)}
+              Ch. {ch.order} · <FormattedMathText text={ch.title.split(':')[0].slice(0, 18)} />
             </button>
           ))}
         </div>
@@ -158,7 +159,7 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
                         ? 'Physique-Chimie Terminale C'
                         : 'Mathématiques Terminale C'}
                     </div>
-                    <h4 className="text-base font-black text-white mt-0.5">{ch.title}</h4>
+                    <h4 className="text-base font-black text-white mt-0.5"><FormattedMathText text={ch.title} /></h4>
                   </div>
 
                   {selectedChapId === 'all' && (
@@ -206,7 +207,7 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
                           <div>
                             <div className="flex items-center gap-1.5 text-xs font-bold text-white mb-1.5 truncate">
                               <span>{vf.badge || '📐'}</span>
-                              <span className="truncate">{vf.name}</span>
+                              <span className="truncate"><FormattedMathText text={vf.name} /></span>
                             </div>
 
                             <StandingMathRenderer
@@ -219,7 +220,7 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
 
                           {vf.tip && (
                             <div className="text-[11px] text-amber-300/90 italic pt-1 border-t border-slate-800">
-                              💡 {vf.tip}
+                              💡 <FormattedMathText text={vf.tip} />
                             </div>
                           )}
                         </div>
@@ -231,10 +232,10 @@ export const MemoSheetModal: React.FC<MemoSheetModalProps> = ({
                 {memo && (
                   <div className="grid sm:grid-cols-2 gap-3 pt-1">
                     <div className="p-3 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-[11px] text-amber-200">
-                      <strong>🐆 L’astuce de Koko :</strong> {memo.kokoTip}
+                      <strong>🐆 L’astuce de Koko :</strong> <FormattedMathText text={memo.kokoTip} />
                     </div>
                     <div className="p-3 rounded-2xl bg-rose-950/30 border border-rose-500/30 text-[11px] text-rose-200">
-                      <strong>⚠️ Piège à éviter :</strong> {memo.pitfallToAvoid}
+                      <strong>⚠️ Piège à éviter :</strong> <FormattedMathText text={memo.pitfallToAvoid} />
                     </div>
                   </div>
                 )}

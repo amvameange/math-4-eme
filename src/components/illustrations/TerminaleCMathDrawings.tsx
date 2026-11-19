@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChapterIllustrationKey } from '../../types/math';
+import { FormattedMathText, SvgMathTspans } from '../FormattedMathText';
 
 const TC_MATH_TITLES: Record<string, string> = {
   'tc-arithmetique': '🔢 Arithmétique ℤ : Horloge Modulaire, Euclide, Bézout & Gauss',
@@ -26,7 +27,7 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
   return (
     <div className="rounded-3xl bg-slate-900 border-2 border-indigo-500/40 p-4 sm:p-5 shadow-xl space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-black text-indigo-300">
-        <span>{title}</span>
+        <span><FormattedMathText text={title} /></span>
         <span className="text-[11px] text-amber-300 font-bold">Programme Terminale C · Gabon</span>
       </div>
 
@@ -50,9 +51,9 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               })}
               <rect x="215" y="24" width="248" height="156" rx="14" fill="#0f172a" stroke="#3b82f6" strokeWidth="1.5" />
               <text x="339" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">BÉZOUT · GAUSS · FERMAT</text>
-              <text x="339" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">a ∧ b = 1 ⟺ ∃(u,v) : au + bv = 1</text>
-              <text x="339" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Gauss : a | bc et a ∧ b = 1 ⟹ a | c</text>
-              <text x="339" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Fermat : p premier, p∤a ⟹ a^(p-1)≡1 [p]</text>
+              <text x="339" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="a ∧ b = 1 ⇔ ∃(u,v) : au + bv = 1" baseFontSize={10} /></text>
+              <text x="339" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="Gauss : a | bc et a ∧ b = 1 ⇒ a | c" baseFontSize={10} /></text>
+              <text x="339" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="Fermat : p premier, p∤a ⇒ a^(p-1)≡1 [p]" baseFontSize={10} /></text>
               <text x="339" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">PGCD(a,b) × PPCM(a,b) = |ab|</text>
             </>
           )}
@@ -71,9 +72,9 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#8b55f6" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">MOIVRE &amp; EULER</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">z = r(cosθ + i sinθ) = r e^(iθ)</text>
-              <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">(e^(iθ))ⁿ = e^(inθ)</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">cosθ = (e^(iθ)+e^(-iθ))/2</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="z = r(cosθ + i sinθ) = r e^(iθ)" baseFontSize={10} /></text>
+              <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="(e^(iθ))ⁿ = e^(inθ)" baseFontSize={10} /></text>
+              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="cosθ = (e^(iθ)+e^(-iθ))/2" baseFontSize={10} /></text>
               <text x="353" y="154" textAnchor="middle" className="text-[10px] font-mono fill-rose-300">1 + j + j² = 0  (j³ = 1)</text>
             </>
           )}
@@ -88,11 +89,11 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               <line x1="64" y1="104" x2="180" y2="104" stroke="#64748b" strokeWidth="1.5" />
               <line x1="64" y1="104" x2="135" y2="48" stroke="#10b981" strokeWidth="2.5" />
               <line x1="180" y1="104" x2="135" y2="48" stroke="#10b981" strokeWidth="2.5" />
-              <text x="122" y="180" textAnchor="middle" className="text-[9px] font-bold fill-sky-300">(z-z_A)/(z-z_B) ∈ iℝ ➔ Cercle [AB]</text>
+              <text x="122" y="180" textAnchor="middle" className="text-[9px] font-bold fill-sky-300"><SvgMathTspans text="(z-z_A)/(z-z_B) ∈ iℝ → Cercle [AB]" baseFontSize={9} /></text>
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">ANGLES &amp; SIMILITUDES</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white">(AB⃗,AC⃗) = arg((z_C-z_A)/(z_B-z_A))</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white"><SvgMathTspans text="(AB⃗,AC⃗) = arg((z_C-z_A)/(z_B-z_A))" baseFontSize={9} /></text>
               <text x="353" y="104" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Similitude : z’ = a z + b</text>
               <text x="353" y="130" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">k = |a|, θ = arg(a)</text>
               <text x="353" y="156" textAnchor="middle" className="text-[10px] font-mono fill-rose-300">Centre ω = b / (1 - a)</text>
@@ -105,20 +106,20 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               {/* Trièdre u, v, u^v */}
               <circle cx="115" cy="130" r="3" fill="#fff" />
               <line x1="115" y1="130" x2="205" y2="145" stroke="#10b981" strokeWidth="3" />
-              <text x="210" y="148" className="text-[10px] font-black fill-emerald-300">u⃗</text>
+              <text x="210" y="148" className="text-[10px] font-black fill-emerald-300"><SvgMathTspans text="u⃗" baseFontSize={10} /></text>
               <line x1="115" y1="130" x2="55" y2="160" stroke="#38bdf8" strokeWidth="3" />
-              <text x="42" y="164" className="text-[10px] font-black fill-sky-300">v⃗</text>
+              <text x="42" y="164" className="text-[10px] font-black fill-sky-300"><SvgMathTspans text="v⃗" baseFontSize={10} /></text>
               <line x1="115" y1="130" x2="115" y2="40" stroke="#f43f5e" strokeWidth="3" />
               <polygon points="115,34 110,44 120,44" fill="#f43f5e" />
-              <text x="125" y="46" className="text-[10px] font-black fill-rose-400">w⃗ = u⃗ ∧ v⃗</text>
+              <text x="125" y="46" className="text-[10px] font-black fill-rose-400"><SvgMathTspans text="w⃗ = u⃗ ∧ v⃗" baseFontSize={10} /></text>
               <polygon points="115,130 205,145 145,175 55,160" fill="#10b981" fillOpacity="0.15" stroke="#334155" strokeWidth="1" />
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#06b6d4" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">BARYCENTRE &amp; LEIBNIZ</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white">Σ α_i MA_i⃗ = (Σ α_i) MG⃗</text>
-              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300">Σ α_i MA_i² = (Σ α_i)MG² + f(G)</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Aire(ABC) = ½ ||AB⃗ ∧ AC⃗||</text>
-              <text x="353" y="156" textAnchor="middle" className="text-[10px] font-mono fill-rose-300">V = (1/6) |(AB⃗∧AC⃗)·AD⃗|</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="Σ α_i MA_i⃗ = (Σ α_i) MG⃗" baseFontSize={10} /></text>
+              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300"><SvgMathTspans text="Σ α_i MA_i² = (Σ α_i)MG² + f(G)" baseFontSize={9} /></text>
+              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="Aire(ABC) = ½ ‖AB⃗ ∧ AC⃗‖" baseFontSize={10} /></text>
+              <text x="353" y="156" textAnchor="middle" className="text-[10px] font-mono fill-rose-300"><SvgMathTspans text="V = (1/6) |(AB⃗∧AC⃗)·AD⃗|" baseFontSize={10} /></text>
             </>
           )}
 
@@ -131,15 +132,15 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               <text x="208" y="34" className="text-[9px] fill-slate-400">y = x</text>
               <path d="M 55 152 Q 115 135 190 42" fill="none" stroke="#10b981" strokeWidth="3" />
               <path d="M 60 155 Q 145 105 170 28" fill="none" stroke="#38bdf8" strokeWidth="2.5" />
-              <text x="188" y="65" className="text-[10px] font-black fill-emerald-300">C_f</text>
-              <text x="148" y="38" className="text-[10px] font-black fill-sky-300">C_f⁻¹</text>
+              <text x="188" y="65" className="text-[10px] font-black fill-emerald-300"><SvgMathTspans text="C_f" baseFontSize={10} /></text>
+              <text x="148" y="38" className="text-[10px] font-black fill-sky-300"><SvgMathTspans text="C_f⁻¹" baseFontSize={10} /></text>
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#10b981" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">TVI &amp; BRANCHES INFINIES</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-bold fill-white">Continue + Strict. Monotone ➔ ∃! α</text>
-              <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">(f⁻¹)’(y₀) = 1 / f’(f⁻¹(y₀))</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-bold fill-white">Continue + Strict. Monotone → ∃! α</text>
+              <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="(f⁻¹)’(y₀) = 1 / f’(f⁻¹(y₀))" baseFontSize={10} /></text>
               <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Asymptote y = ax+b : lim[f-(ax+b)]=0</text>
-              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300">sin(x)/x → 1  ;  (1-cos x)/x² → ½</text>
+              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300"><SvgMathTspans text="sin(x)/x → 1  ;  (1-cos x)/x² → ½" baseFontSize={9} /></text>
             </>
           )}
 
@@ -159,9 +160,9 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#14b981" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">IAF, INFLEXION &amp; PRIMITIVES</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white">|f’| ≤ M ⟹ |f(b)-f(a)| ≤ M|b-a|</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white"><SvgMathTspans text="|f’| ≤ M ⇒ |f(b)-f(a)| ≤ M|b-a|" baseFontSize={9} /></text>
               <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Inflexion : f’’ s’annule &amp; change signe</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">∫ u’ uⁿ = u^(n+1)/(n+1) + C</text>
+              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="∫ u’ uⁿ = u^(n+1)/(n+1) + C" baseFontSize={10} /></text>
               <text x="353" y="156" textAnchor="middle" className="text-[10px] font-mono fill-rose-300">∫ u’ / √u = 2√u + C</text>
             </>
           )}
@@ -174,14 +175,14 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               <line x1="40" y1="173" x2="195" y2="22" stroke="#475569" strokeWidth="1.2" strokeDasharray="4 4" />
               <path d="M 42 120 Q 88 112 128 32" fill="none" stroke="#38bdf8" strokeWidth="3" />
               <path d="M 94 176 Q 102 125 202 82" fill="none" stroke="#10b981" strokeWidth="3" />
-              <text x="134" y="40" className="text-[10px] font-black fill-sky-300">y = e^x</text>
+              <text x="134" y="40" className="text-[10px] font-black fill-sky-300"><SvgMathTspans text="y = e^x" baseFontSize={10} /></text>
               <text x="188" y="76" className="text-[10px] font-black fill-emerald-300">y = ln x</text>
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#0ea5e9" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">CROISSANCES &amp; ÉQUADIFFS</text>
-              <text x="353" y="74" textAnchor="middle" className="text-[10px] font-mono fill-white">e^x / xⁿ → +∞  ;  (ln x)/xⁿ → 0</text>
-              <text x="353" y="100" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">y’ + ay = b ➔ Ce^(-ax) + b/a</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">y’’ + ω²y = 0 ➔ A cos ωx + B sin ωx</text>
+              <text x="353" y="74" textAnchor="middle" className="text-[10px] font-mono fill-white"><SvgMathTspans text="e^x / xⁿ → +∞  ;  (ln x)/xⁿ → 0" baseFontSize={10} /></text>
+              <text x="353" y="100" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="y’ + ay = b → Ce^(-ax) + b/a" baseFontSize={10} /></text>
+              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="y’’ + ω²y = 0 → A cos ωx + B sin ωx" baseFontSize={10} /></text>
               <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300">∫ u’/u = ln|u| + C</text>
             </>
           )}
@@ -199,10 +200,10 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">CONVERGENCE DES SUITES</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-bold fill-white">Croissante majorée ➔ converge vers l</text>
-              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300">Adjacentes : u_n ↗, v_n ↘, v_n-u_n→0</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">|u_n - l| ≤ kⁿ|u₀ - l| (0&lt;k&lt;1)</text>
-              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">u_{'{n+1}'}=f(u_n) ➔ f continue ⟹ f(l)=l</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-bold fill-white">Croissante majorée → converge vers l</text>
+              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300"><SvgMathTspans text="Adjacentes : u_n ↗, v_n ↘, v_n-u_n→0" baseFontSize={9} /></text>
+              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="|u_n - l| ≤ kⁿ|u₀ - l| (0<k<1)" baseFontSize={10} /></text>
+              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300"><SvgMathTspans text="u_{n+1}=f(u_n) → f continue ⇒ f(l)=l" baseFontSize={9} /></text>
             </>
           )}
 
@@ -215,13 +216,13 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               <path d="M 45 128 Q 125 32 210 92" fill="none" stroke="#fbbf24" strokeWidth="3" />
               <text x="65" y="172" textAnchor="middle" className="text-[10px] font-bold fill-white">a</text>
               <text x="190" y="172" textAnchor="middle" className="text-[10px] font-bold fill-white">b</text>
-              <text x="128" y="122" textAnchor="middle" className="text-[11px] font-black fill-amber-200">∫_a^b f(x)dx</text>
+              <text x="128" y="122" textAnchor="middle" className="text-[11px] font-black fill-amber-200"><SvgMathTspans text="∫_a^b f(x)dx" baseFontSize={11} /></text>
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#f97316" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">IPP, AIRES &amp; VOLUMES</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white">IPP : ∫ u’v = [uv]_a^b - ∫ uv’</text>
-              <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">Aire = ∫ |f - g| dx × (||i⃗||·||j⃗||)</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Volume / (Ox) : V = π ∫_a^b f²(x)dx</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white"><SvgMathTspans text="IPP : ∫ u’v = [uv]_a^b - ∫ uv’" baseFontSize={9} /></text>
+              <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300"><SvgMathTspans text="Aire = ∫ |f - g| dx × (‖i⃗‖·‖j⃗‖)" baseFontSize={10} /></text>
+              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="Volume / (Ox) : V = π ∫_a^b f²(x)dx" baseFontSize={10} /></text>
               <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300">Valeur moy : μ = 1/(b-a) ∫ f</text>
             </>
           )}
@@ -237,18 +238,18 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               <text x="116" y="150" className="text-[11px] font-black fill-rose-300">B̄</text>
               <line x1="128" y1="62" x2="195" y2="42" stroke="#38bdf8" strokeWidth="2" />
               <line x1="128" y1="62" x2="195" y2="82" stroke="#64748b" strokeWidth="1.5" />
-              <text x="200" y="45" className="text-[10px] font-bold fill-sky-300">A (P_B(A))</text>
+              <text x="200" y="45" className="text-[10px] font-bold fill-sky-300"><SvgMathTspans text="A (P_B(A))" baseFontSize={10} /></text>
               <text x="200" y="85" className="text-[10px] fill-slate-400">Ā</text>
               <line x1="128" y1="146" x2="195" y2="126" stroke="#38bdf8" strokeWidth="2" />
               <line x1="128" y1="146" x2="195" y2="166" stroke="#64748b" strokeWidth="1.5" />
-              <text x="200" y="129" className="text-[10px] font-bold fill-sky-300">A (P_{'{B̄}'}(A))</text>
+              <text x="200" y="129" className="text-[10px] font-bold fill-sky-300"><SvgMathTspans text="A (P_{B̄}(A))" baseFontSize={10} /></text>
               <text x="200" y="169" className="text-[10px] fill-slate-400">Ā</text>
 
               <rect x="262" y="24" width="204" height="156" rx="14" fill="#0f172a" stroke="#ec4899" strokeWidth="1.5" />
               <text x="364" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">COMBINATOIRE &amp; BAYES</text>
-              <text x="364" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white">Simultané : C_n^p = n!/[p!(n-p)!]</text>
-              <text x="364" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300">P(A) = P(B)P_B(A) + P(B̄)P_{'{B̄}'}(A)</text>
-              <text x="364" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">P_A(B) = P(A∩B) / P(A)</text>
+              <text x="364" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white"><SvgMathTspans text="Simultané : C_n^p = n!/[p!(n-p)!]" baseFontSize={9} /></text>
+              <text x="364" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300"><SvgMathTspans text="P(A) = P(B)P_B(A) + P(B̄)P_{B̄}(A)" baseFontSize={9} /></text>
+              <text x="364" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="P_A(B) = P(A∩B) / P(A)" baseFontSize={10} /></text>
               <text x="364" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">Indépendance : P(A∩B) = P(A)·P(B)</text>
             </>
           )}
@@ -270,10 +271,10 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#a855f7" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">BINOMIALE &amp; RÉGRESSION</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white">P(X=k) = C_n^k p^k (1-p)^(n-k)</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white"><SvgMathTspans text="P(X=k) = C_n^k p^k (1-p)^(n-k)" baseFontSize={9} /></text>
               <text x="353" y="102" textAnchor="middle" className="text-[10px] font-mono fill-emerald-300">E(X) = np ; V(X) = np(1-p)</text>
               <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">y = ax + b : a = Cov(X,Y) / V(X)</text>
-              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300">r = Cov(X,Y) / (σ_X σ_Y)</text>
+              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300"><SvgMathTspans text="r = Cov(X,Y) / (σ_X σ_Y)" baseFontSize={9} /></text>
             </>
           )}
 
@@ -292,10 +293,10 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#06b6d4" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">PLANS, DROITES &amp; SPHÈRES</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white">Plan P : ax + by + cz + d = 0 (n⃗)</text>
-              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300">d(Ω,P) = |ax₀+by₀+cz₀+d|/||n⃗||</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300">Section (d&lt;R) : r = √(R² - d²)</text>
-              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300">Sphère diam.[AB] : MA⃗·MB⃗ = 0</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white"><SvgMathTspans text="Plan P : ax + by + cz + d = 0 (n⃗)" baseFontSize={9} /></text>
+              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300"><SvgMathTspans text="d(Ω,P) = |ax₀+by₀+cz₀+d|/‖n⃗‖" baseFontSize={9} /></text>
+              <text x="353" y="128" textAnchor="middle" className="text-[10px] font-mono fill-sky-300"><SvgMathTspans text="Section (d<R) : r = √(R² - d²)" baseFontSize={10} /></text>
+              <text x="353" y="156" textAnchor="middle" className="text-[9px] font-mono fill-rose-300"><SvgMathTspans text="Sphère diam.[AB] : MA⃗·MB⃗ = 0" baseFontSize={9} /></text>
             </>
           )}
 
@@ -309,13 +310,13 @@ export const TerminaleCMathDrawing: React.FC<{ illustrationKey: ChapterIllustrat
               <text x="172" y="45" className="text-[10px] font-bold fill-sky-300">Δ</text>
               <text x="208" y="68" className="text-[10px] font-bold fill-emerald-300">Δ’</text>
               <path d="M 122 112 A 30 30 0 0 0 112 96" fill="none" stroke="#f43f5e" strokeWidth="2.5" />
-              <text x="132" y="102" className="text-[10px] font-black fill-rose-300">α ➔ 2α</text>
+              <text x="132" y="102" className="text-[10px] font-black fill-rose-300">α → 2α</text>
 
               <rect x="242" y="24" width="222" height="156" rx="14" fill="#0f172a" stroke="#6366f1" strokeWidth="1.5" />
               <text x="353" y="48" textAnchor="middle" className="text-[11px] font-black fill-amber-300">ISOMÉTRIES DU PLAN</text>
-              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white">s_Δ’ ◦ s_Δ (Δ ∩ Δ’ = Ω) = r(Ω ; 2α)</text>
-              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300">s_Δ’ ◦ s_Δ (Δ // Δ’) = t_{'{2 HH’⃗}'}</text>
-              <text x="353" y="128" textAnchor="middle" className="text-[9px] font-bold fill-sky-300">Symétrie glissée : 0 point fixe, f²=t_{'{2u⃗}'}</text>
+              <text x="353" y="76" textAnchor="middle" className="text-[9px] font-mono fill-white"><SvgMathTspans text="s_Δ’ ◦ s_Δ (Δ ∩ Δ’ = Ω) = r(Ω ; 2α)" baseFontSize={9} /></text>
+              <text x="353" y="102" textAnchor="middle" className="text-[9px] font-mono fill-emerald-300"><SvgMathTspans text="s_Δ’ ◦ s_Δ (Δ // Δ’) = t_{2 HH’⃗}" baseFontSize={9} /></text>
+              <text x="353" y="128" textAnchor="middle" className="text-[9px] font-bold fill-sky-300"><SvgMathTspans text="Symétrie glissée : 0 point fixe, f²=t_{2u⃗}" baseFontSize={9} /></text>
               <text x="353" y="156" textAnchor="middle" className="text-[9px] font-bold fill-rose-300">Similitude (k) : Aires × k²</text>
             </>
           )}
